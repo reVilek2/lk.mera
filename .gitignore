@@ -151,7 +151,7 @@ Homestead.yaml
 
 # Package managers
 ######################
-composer.lock
+/composer.lock
 package-lock.json
 
 # Ide Helper
