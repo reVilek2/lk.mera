@@ -1,0 +1,32 @@
+.form-additional-message {
+  @include font(14px, $Roboto, $text, 18px, $font-weight-normal);
+  &__link {
+    color: $blue;
+    text-decoration: none;
+    &:hover {
+      color: $blue;
+      text-decoration: none;
+    }
+  }
+}
+
+.form-btn {
+  padding-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.form-control {
+  padding: 12px 15px;
+}
+
+.form-btn .btn {
+  padding: 12px 15px;
+}

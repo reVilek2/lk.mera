@@ -1,0 +1,26 @@
+.success-block,
+.error-block {
+  margin-bottom: 40px;
+
+  &__item {
+    width: 100%;
+    padding: 20px;
+    border-radius: 3px;
+    box-sizing: border-box;
+    @include font(15px, $Roboto, $white, 24px, $font-weight-normal);
+  }
+  &__footer {
+    @include font(16px, $Roboto, $text, 25px, $font-weight-normal);
+    padding: 20px 0 0;
+  }
+}
+.success-block {
+  &__item {
+    background: $green;
+  }
+}
+.error-block {
+  &__item {
+    background: $red;
+  }
+}

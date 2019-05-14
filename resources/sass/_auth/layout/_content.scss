@@ -1,0 +1,39 @@
+.layout {
+  height: 100%;
+  width: 100%;
+  min-width: 320px;
+  overflow-x: hidden;
+
+  &__page {
+    max-width: 780px;
+    margin: 0 auto;
+
+    &-thin {
+      margin-top: 80px;
+      max-width: 460px;
+      margin-bottom: 80px;
+    }
+  }
+
+  &__footer {
+    width: 100%;
+    margin: 23px 0;
+    &-inner {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+  }
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  &__link {
+    @include font(14px, $Roboto, #8D97A0, 16px, $font-weight-normal);
+    white-space: nowrap;
+    margin: 0 24px 16px 0;
+
+    &:hover {
+      color: #8D97A0;
+    }
+  }
+}

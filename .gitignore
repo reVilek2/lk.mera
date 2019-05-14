@@ -141,8 +141,8 @@ Homestead.yaml
 
 /public/hot
 /public/svg
-/public/css/*
-/public/js/*
+/public/css
+/public/js
 /public/fonts
 /public/images
 /public/mix-manifest.json

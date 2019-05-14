@@ -1,0 +1,70 @@
+@mixin font($size: $font-size-base, $family: $Roboto, $color: $text, $lineHeight: $line-height-base, $weight: $font-weight-base, $style: $font-style-base) {
+  font: $style $weight $size $family;
+  line-height: $lineHeight;
+  color: $color;
+}
+
+@mixin clearfix() {
+  &:before,
+  &:after {
+    content: " ";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+@mixin make_button($color: $white, $background: $red, $border: $red, $box_shadow: 0, $color-hover: $color, $background-hover: $background, $border-hover: $border, $box_shadow-hover: $box_shadow)
+{
+  color: $color;
+  background-color: $background;
+  border-color: $border;
+  @if $box_shadow != 0 {
+    box-shadow: $box_shadow;
+  } @else {
+    box-shadow: none
+  }
+
+  &:hover {
+    color: $color-hover;
+    background-color: $background-hover;
+    border-color: $border-hover;
+    @if $box_shadow-hover != 0 {
+      box-shadow: $box_shadow-hover;
+    } @else {
+      box-shadow: none
+    }
+  }
+
+  &:focus,
+  &.focus {
+    @if $box_shadow-hover != 0 {
+      box-shadow: $box_shadow-hover;
+    } @else {
+      box-shadow: none
+    }
+  }
+
+  &:not(:disabled):not(.disabled):active:focus,
+  &:not(:disabled):not(.disabled).active:focus, .show > &.dropdown-toggle:focus {
+    @if $box_shadow-hover != 0 {
+      box-shadow: $box_shadow-hover;
+    } @else {
+      box-shadow: none
+    }
+  }
+
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active,
+  .show > &.dropdown-toggle {
+    color: $color-hover;
+    background-color: $background-hover;
+    border-color: $border-hover;
+    @if $box_shadow-hover != 0 {
+      box-shadow: $box_shadow-hover;
+    } @else {
+      box-shadow: none
+    }
+  }
+}

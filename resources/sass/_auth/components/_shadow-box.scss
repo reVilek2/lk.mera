@@ -1,0 +1,26 @@
+.shadow-box {
+  width: 100%;
+  background: $white;
+  box-shadow: $boxShadow;
+  border-radius: 4px;
+  margin: 0 auto;
+  padding: 40px;
+  box-sizing: border-box;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    @include font(22px, $Ubuntu, $text, 26px, $font-weight-medium);
+  }
+
+  &__content {
+    padding-top: 40px;
+    box-sizing: border-box;
+  }
+}
+
+.shadow-box_additionals {
+  margin-top: 16px;
+  padding: 15px 0;
+  text-align: center;
+}

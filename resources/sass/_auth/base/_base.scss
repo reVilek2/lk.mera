@@ -1,0 +1,73 @@
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  @include font;
+  background-color: $light-smoky-white;
+  cursor: default;
+  -webkit-font-smoothing: subpixel-antialiased !important;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: $Ubuntu;
+  color: $text;
+  font-weight: $font-weight-bold;
+}
+h4,
+h5,
+h6 {
+  font-family: $Roboto;
+  color: $text;
+  font-weight: $font-weight-medium;
+}
+
+h1 {
+  font-size: 30px;
+  line-height: 38px;
+  font-weight: $font-weight-medium;
+}
+
+h2 {
+  font-size: 26px;
+  line-height: 33px;
+}
+
+h3 {
+  font-size: 24px;
+  line-height: 31px;
+  padding-bottom: 28px;
+  font-weight: $font-weight-light;
+}
+
+h4 {
+  font-size: 20px;
+  line-height: 27px;
+  padding-bottom: 28px;
+}
+
+h5 {
+  font-size: 18px;
+  line-height: 22px;
+  padding-bottom: 30px;
+}
+
+p {
+  padding-bottom: 22px;
+}
+
+picture {
+  line-height: 0;
+  font-size: 0;
+}
+
+b, strong {
+  font-weight: bold;
+}
