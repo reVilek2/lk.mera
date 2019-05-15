@@ -11,23 +11,14 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Services\Page;
 use Hash;
-use Illuminate\Validation\ValidationException;
 use Mail;
 use Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Auth\Events\Registered;
 use Validation;
 
 class RegisterController extends Controller
 {
     use RegistersUsers;
-
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
@@ -52,15 +43,35 @@ class RegisterController extends Controller
         return view('auth.register');
     }
 
+    public function successRegistrationByEmail(Request $request, $email = null)
+    {
+        Page::setTitle('Sign up | MeraCapital');
+        Page::setDescription('Website registration form');
+        try {
+            $user = EmailController::getUserByEmail($email);
+            if (!$user) {
+                throw new \Exception('Email is corrupted or does not exist');
+            }
+            if ($user->hasVerifiedEmail()) {
+                throw new \Exception('Email is corrupted or does not exist');
+            }
+        } catch (\Exception $ex) {
+
+            return redirect()->route('login');
+        }
+
+        return view('auth.successRegistrationByEmail')->with(['email' => $email]);
+    }
+
     /**
-     * Handle a registration request for the application.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     * @throws ValidationException
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function register(Request $request)
     {
+        Page::setTitle('Sign up | MeraCapital');
+        Page::setDescription('Website registration form');
+
         /**
          * Правила валидации и пост данные
          */
@@ -108,15 +119,14 @@ class RegisterController extends Controller
             // Если регистрация через email
             // отсылаем на почту письмо
             $this->sendActivationEmail($user);
-            $message = 'Вы успешно зарегистрировались. На '.$user->email.' выслано письмо для подтверждения. Пожалуйста, проверьте почтовый ящик.';
+
+            return redirect()->route('successRegistrationByEmail', $user->email);
         } else {
             // Если регистрация через телефон
             // отсылаем sms на телефон
             // ... code
-            $message = 'Вы успешно зарегистрировались. На '.$user->phone.' выслано sms для подтверждения. Пожалуйста, проверьте sms сообщения';
+            return redirect()->route('phone.confirm', $user->phone);
         }
-
-        return back()->with('status', 'success')->with('statusMessage', $message);
     }
 
     /**

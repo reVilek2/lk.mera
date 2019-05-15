@@ -61,14 +61,9 @@ class EmailController extends Controller
         Page::setTitle('Information About Email | MeraCapital');
         Page::setDescription('Information About Email');
         try {
-            $validation = Validator::make(['email' => $email], ['email' => 'required|between:6,255|email'], ValidationMessages::get());
-            if ($validation->fails()) {
-                return view('auth.email.errors')->withErrors($validation);
-            }
-
-            $user = User::findByEmail($email);
+            $user = self::getUserByEmail($email);
             if (!$user) {
-                return view('auth.email.errors')->withErrors(['Email не существует в системе!']);
+                return view('auth.email.errors')->withErrors(['Email поврежден или не существует в системе!']);
             }
             if ($user->hasVerifiedEmail()) {
                 return view('auth.email.confirmed')->with(['email' => $email]);
@@ -132,5 +127,20 @@ class EmailController extends Controller
         $result['activationCode'] = $token;
 
         return $result;
+    }
+
+    public static function getUserByEmail($email = null)
+    {
+        $validation = Validator::make(
+            ['email' => $email],
+            ['email' => 'required|between:6,255|email'],
+            ValidationMessages::get()
+        );
+
+        if ($validation->fails()) {
+            return null;
+        }
+
+        return User::findByEmail($email);
     }
 }

@@ -82,7 +82,7 @@ class LoginController extends Controller
                 'phone'    => $data['login'],
                 'password' => $data['password']
             ];
-            $rules['phone'] = ['required', new PhoneNumber('Поле phone or email имеет ошибочный формат.')];
+            $rules['login'] = ['required', new PhoneNumber('Поле phone or email имеет ошибочный формат.')];
         }else{
             // Авторизация через email
             $auth_type = User::REGISTER_TYPE_EMAIL;
@@ -90,10 +90,10 @@ class LoginController extends Controller
                 'email'    => $data['login'],
                 'password' => $data['password']
             ];
-            $rules['email'] = 'required|between:6,255|email';
+            $rules['login'] = 'required|between:6,255|email';
         }
 
-        $validation = Validator::make($credentials, $rules, ValidationMessages::get());
+        $validation = Validator::make($data, $rules, ValidationMessages::get());
         if ($validation->fails()) {
 
             return back()->withErrors($validation)->withInput($request->only('login'));
@@ -111,9 +111,7 @@ class LoginController extends Controller
 
             if ($user && !$user->hasVerifiedPhone()) {
 
-                //@TODO редирект на url телефона
-
-                return redirect()->route('email.confirm.info', $user->email);
+                return redirect()->route('phone.confirm.info', $user->phone);
             }
         }
 
