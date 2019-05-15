@@ -1,0 +1,1 @@
+Activation url <a href="{{trim($link)}}" target="_blank">{{trim($link)}}</a>

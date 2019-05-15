@@ -34,6 +34,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('reset_password_code_created_at')->nullable();
             $table->timestamp('email_confirmation_code_created_at')->nullable();
             $table->timestamp('phone_confirmation_code_created_at')->nullable();
+            $table->string('api_token', 60)->unique()->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
