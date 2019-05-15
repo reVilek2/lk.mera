@@ -140,13 +140,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Determine if the user has verified their email address.
-     *
      * @return bool
      */
     public function hasVerifiedEmail()
     {
         return ! (is_null($this->email_verified_at) || empty($this->email_verified_at));
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasVerifiedPhone()
+    {
+        return ! (is_null($this->phone_verified_at) || empty($this->phone_verified_at));
     }
 
     /**

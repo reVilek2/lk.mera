@@ -4,10 +4,15 @@
 <div class="shadow-box jsAjaxForm">
     <div class="shadow-box__title">Авторизация</div>
     <div class="shadow-box__content">
-        <div id='ajaxErrorMessage' class="error-block hidden">&nbsp;</div>
-        <form class="form_login"
-              data-request="onSignin"
-              data-request-validate>
+        @if ($errors->has('authentication_failed'))
+            <div id='ajaxErrorMessage' class="error-block d-block">
+                <div class="error-block__item">
+                    {{ $errors->first('authentication_failed') }}
+                </div>
+            </div>
+        @endif
+        <form class="form_login" method="POST" action="{{ route('login') }}">
+            @csrf
             <div class="form-group">
                 <label class="form-label" for="userSigninLogin">Телефон или email</label>
                 <input
@@ -15,8 +20,17 @@
                         type="text"
                         class="form-control"
                         id="userSigninLogin"
-                        placeholder="Введите телефон или email" />
-                <div class="invalid-feedback" data-validate-for="login"></div>
+                        placeholder="Введите телефон или email"
+                        value="{{ old('login') ?? ''}}" />
+                @if ($errors->has('login'))
+                    <div class="invalid-feedback d-block login">{{ $errors->first('login') }}</div>
+                @endif
+                @if ($errors->has('email'))
+                    <div class="invalid-feedback d-block email">{{ $errors->first('email') }}</div>
+                @endif
+                @if ($errors->has('phone'))
+                    <div class="invalid-feedback d-block phone">{{ $errors->first('phone') }}</div>
+                @endif
             </div>
             <div class="form-group">
                 <label class="form-label" for="userSigninPassword">Пароль</label>
@@ -26,7 +40,9 @@
                         class="form-control"
                         id="userSigninPassword"
                         placeholder="Введите пароль" />
-                <div class="invalid-feedback" data-validate-for="password"></div>
+                @if ($errors->has('password'))
+                    <div class="invalid-feedback d-block">{{ $errors->first('password') }}</div>
+                @endif
             </div>
             <div class="form-btn">
                 <button type="submit" class="btn btn-info btn-block">Войти</button>
@@ -36,7 +52,7 @@
 </div>
 <div class="shadow-box shadow-box_additionals">
     <span class="form-additional-message">
-        <a href="/login" class="form-additional-message__link">Войти</a> или <a href="/register" class="form-additional-message__link">зарегистрироваться</a>
+        <a href="{{route('login')}}" class="form-additional-message__link">Войти</a> или <a href="{{route('register')}}" class="form-additional-message__link">зарегистрироваться</a>
     </span>
 </div>
 @endsection

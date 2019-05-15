@@ -20,7 +20,6 @@ class EmailController extends Controller
 
     public function __construct(AuthManager $authManager)
     {
-        $this->middleware('guest');
         $this->authManager = $authManager;
     }
 

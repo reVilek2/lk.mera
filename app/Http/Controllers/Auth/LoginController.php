@@ -3,8 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Rules\PhoneNumber;
 use App\Services\Page;
+use App\Services\PhoneNormalizer;
+use App\Services\ValidationMessages;
+use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Validator;
 
 class LoginController extends Controller
 {
@@ -49,5 +56,86 @@ class LoginController extends Controller
         Page::setDescription('Website authorization form');
 
         return view('auth.login');
+    }
+
+    /**
+     * auth
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function login(Request $request)
+    {
+        $data = $request->all();
+        $rules['password'] = 'required|between:6,50';
+
+        if(preg_match('/^\+?[\d]+$/', $request->login)) {
+            // Авторизация через телефон
+            $auth_type = User::REGISTER_TYPE_PHONE;
+            $phoneNormalizer = new PhoneNormalizer();
+            $phoneNormalized = $phoneNormalizer->normalize($request->login);
+            if ($phoneNormalized) {
+                $data['login'] = '+'.$phoneNormalized;
+            }
+            $credentials = [
+                'phone'    => $data['login'],
+                'password' => $data['password']
+            ];
+            $rules['phone'] = ['required', new PhoneNumber('Поле phone or email имеет ошибочный формат.')];
+        }else{
+            // Авторизация через email
+            $auth_type = User::REGISTER_TYPE_EMAIL;
+            $credentials = [
+                'email'    => $data['login'],
+                'password' => $data['password']
+            ];
+            $rules['email'] = 'required|between:6,255|email';
+        }
+
+        $validation = Validator::make($credentials, $rules, ValidationMessages::get());
+        if ($validation->fails()) {
+
+            return back()->withErrors($validation)->withInput($request->only('login'));
+        }
+
+        if ($auth_type === User::REGISTER_TYPE_EMAIL) {
+            $user = User::findByEmail($credentials['email']);
+
+            if ($user && !$user->hasVerifiedEmail()) {
+
+                return redirect()->route('email.confirm.info', $user->email);
+            }
+        } else {
+            $user = User::findByPhone($credentials['phone']);
+
+            if ($user && !$user->hasVerifiedPhone()) {
+
+                //@TODO редирект на url телефона
+
+                return redirect()->route('email.confirm.info', $user->email);
+            }
+        }
+
+        if (Auth::guard('web')->attempt($credentials, true)
+        ) {
+
+            return redirect()->intended($this->redirectTo);
+        }
+
+        return back()->withErrors(['authentication_failed' => 'Неправильно ввели логин или пароль!'])->withInput($request->only('login'));
+    }
+
+    /**
+     * Logout
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        Auth::guard('web')->logout();
+
+        return redirect(route('login'));
     }
 }
