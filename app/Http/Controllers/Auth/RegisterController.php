@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Models\Token;
 use App\Rules\PhoneNumber;
 use App\Services\PhoneNormalizer;
-use App\Services\ValidationMessages;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\Controller;
@@ -137,7 +136,7 @@ class RegisterController extends Controller
      */
     private function validateRegisterData(array $data, array $rules, $register_type)
     {
-        $validation = Validator::make($data, $rules, ValidationMessages::get());
+        $validation = Validator::make($data, $rules);
         if ($validation->fails()) {
             return $validation;
         }

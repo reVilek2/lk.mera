@@ -30,3 +30,17 @@
 .form-btn .btn {
   padding: 12px 15px;
 }
+
+.form-remind-password-link {
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 15px;
+  line-height: 16px;
+  font-size: 14px;
+  color: $blue;
+
+  &:hover {
+    text-decoration: none;
+    color: $blue;
+  }
+}

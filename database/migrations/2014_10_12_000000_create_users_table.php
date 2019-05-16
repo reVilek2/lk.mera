@@ -28,10 +28,10 @@ class CreateUsersTable extends Migration
             $table->boolean('is_activated')->default(0);
             $table->timestamp('activated_at')->nullable();
             $table->timestamp('last_login')->nullable();
-            $table->string('reset_password_code')->nullable()->index();
+
             $table->string('email_confirmation_code')->nullable()->index();
             $table->string('phone_confirmation_code')->nullable()->index();
-            $table->timestamp('reset_password_code_created_at')->nullable();
+
             $table->timestamp('email_confirmation_code_created_at')->nullable();
             $table->timestamp('phone_confirmation_code_created_at')->nullable();
             $table->string('api_token', 60)->unique()->nullable();

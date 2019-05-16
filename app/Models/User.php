@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordNotification;
 use Exception;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Mail;
 use Spatie\Permission\Traits\HasRoles;
 use Str;
 
@@ -181,23 +184,34 @@ class User extends Authenticatable
         }
 
         if ($code == $this->email_confirmation_code) {
-            $this->email_confirmation_code = null;
-            $this->email_confirmation_code_created_at = null;
-            $this->email_verified_at = $this->freshTimestamp();
-
-            if (is_null($this->activated_at) || empty($this->activated_at)) {
-                $this->activated_at = $this->freshTimestamp();
-            }
-            if (!$this->is_activated) {
-                $this->is_activated = true;
-            }
-
+            $this->setEmailConfirmation();
             $this->save();
-
             return true;
         }
 
         return false;
+    }
+
+    public function setEmailConfirmation()
+    {
+        $this->email_confirmation_code = null;
+        $this->email_confirmation_code_created_at = null;
+        $this->email_verified_at = $this->freshTimestamp();
+
+        if (is_null($this->activated_at) || empty($this->activated_at)) {
+            $this->activated_at = $this->freshTimestamp();
+        }
+        if (!$this->is_activated) {
+            $this->is_activated = true;
+        }
+    }
+
+    /**
+     * @param string $token
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     //

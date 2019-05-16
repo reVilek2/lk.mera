@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Rules\PhoneNumber;
 use App\Services\Page;
 use App\Services\PhoneNormalizer;
-use App\Services\ValidationMessages;
 use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -93,7 +92,7 @@ class LoginController extends Controller
             $rules['login'] = 'required|between:6,255|email';
         }
 
-        $validation = Validator::make($data, $rules, ValidationMessages::get());
+        $validation = Validator::make($data, $rules);
         if ($validation->fails()) {
 
             return back()->withErrors($validation)->withInput($request->only('login'));

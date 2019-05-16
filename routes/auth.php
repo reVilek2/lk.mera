@@ -13,3 +13,8 @@ Route::get('/email/confirm-info/{email}', 'Auth\EmailController@emailInformation
 // Phone Routes...
 Route::get('/phone/confirm-info/{phone}', 'Auth\PhoneController@phoneInformation')->name('phone.confirm.info');
 Route::get('/phone/confirm/{phone}', 'Auth\PhoneController@phoneConfirmForm')->name('phone.confirm');
+// Password forgot
+Route::get('/password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.forgot');
+Route::post('/password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('/password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');

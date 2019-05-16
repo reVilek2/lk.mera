@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\AuthManager;
 use App\Services\Page;
-use App\Services\ValidationMessages;
+
 use Illuminate\Http\Request;
 use Validator;
 
@@ -56,6 +56,11 @@ class EmailController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @param null $email
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function emailInformation(Request $request, $email = null)
     {
         Page::setTitle('Information About Email | MeraCapital');
@@ -133,8 +138,7 @@ class EmailController extends Controller
     {
         $validation = Validator::make(
             ['email' => $email],
-            ['email' => 'required|between:6,255|email'],
-            ValidationMessages::get()
+            ['email' => 'required|between:6,255|email']
         );
 
         if ($validation->fails()) {

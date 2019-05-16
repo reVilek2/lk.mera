@@ -7,9 +7,7 @@ use App\Models\User;
 use App\Rules\PhoneNumber;
 use App\Services\AuthManager;
 use App\Services\Page;
-use App\Services\ValidationMessages;
 use Illuminate\Http\Request;
-use Illuminate\Support\MessageBag;
 use Validator;
 
 
@@ -79,8 +77,7 @@ class PhoneController extends Controller
     {
         $validation = Validator::make(
             ['phone' => $phone],
-            ['phone' => ['required', new PhoneNumber('Телефон имеет ошибочный формат.')]],
-            ValidationMessages::get()
+            ['phone' => ['required', new PhoneNumber('Телефон имеет ошибочный формат.')]]
         );
 
         if ($validation->fails()) {

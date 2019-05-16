@@ -46,6 +46,9 @@
             </div>
             <div class="form-btn">
                 <button type="submit" class="btn btn-info btn-block">Войти</button>
+                <a href="{{route('password.forgot')}}" class="form-remind-password-link">
+                    Забыли пароль?
+                </a>
             </div>
         </form>
     </div>
