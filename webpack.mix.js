@@ -20,6 +20,17 @@ if (mix.inProduction()) {
 }
 
 mix.webpackConfig({
+    module: {
+        rules: [
+            {
+                test: /\.font\.js/,
+                use: [
+                    'css-loader',
+                    'webfonts-loader'
+                ]
+            }
+        ]
+    },
     resolve: {
         modules: [
             'node_modules'
@@ -50,7 +61,6 @@ mix.webpackConfig({
 // .extract(['bootstrap', 'mdb', 'popper', 'jquery'])
 mix.js('resources/js/auth.js', 'public/js')
     .js('resources/js/app.js', 'public/js')
-    .extract(['jquery', 'bootstrap'])
     .sass('resources/sass/auth.scss', 'public/css')
     .sass('resources/sass/app.scss', 'public/css')
     .minify([
@@ -59,6 +69,9 @@ mix.js('resources/js/auth.js', 'public/js')
         'public/js/auth.js',
         'public/js/app.js'
     ]);
+
+mix.copy('resources/images/', 'public/images/', false);
+mix.copy('resources/fonts/', 'public/fonts/', false);
 
 mix.disableNotifications();
 
