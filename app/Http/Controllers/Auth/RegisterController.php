@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\Token;
+use App\Notifications\EmailConfirmNotification;
 use App\Rules\PhoneNumber;
 use App\Services\PhoneNormalizer;
 use Illuminate\Http\Request;
@@ -160,17 +161,10 @@ class RegisterController extends Controller
         try {
             $code = implode('!', [$user->id, $user->getEmailActivationCode()]);
 
-            $link = $this->makeActivationEmailUrl($code);
+            $url = $this->makeActivationEmailUrl($code);
 
-            $data = [
-                'link' => $link,
-                'code' => $code
-            ];
+            Mail::to($user->email)->send(new EmailConfirmNotification($url));
 
-            Mail::send('mail.email_activation', $data, function($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Email activation');
-            });
         } catch (\Exception $ex) {
 
             //@TODO сделать логирование не успешных отправлений
