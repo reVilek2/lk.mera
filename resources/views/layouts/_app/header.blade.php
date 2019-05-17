@@ -92,7 +92,7 @@
                             <img src="{{asset('images/user2-160x160.jpg')}}" class="img-circle" alt="User Image">
 
                             <p>
-                                {{ Auth::user()->getUserName() }} - Пользователь
+                                {{ Auth::user()->getUserName() }} - {{ Auth::user()->getUserRole() }}
                                 <small>Зарегистрирован {{diffForHumans(Auth::user()->created_at)}}</small>
                             </p>
                         </li>

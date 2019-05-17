@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\Page;
+use Auth;
 
 class ProfileController extends Controller
 {
@@ -16,6 +17,8 @@ class ProfileController extends Controller
         Page::setTitle('Профиль | MeraCapital');
         Page::setDescription('Страница профиля');
 
-        return view('profile.index');
+        return view('profile.index',[
+            'user' => Auth::user()
+        ]);
     }
 }

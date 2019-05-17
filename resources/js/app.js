@@ -24,6 +24,19 @@ if (token) {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
-$(function () {
+window.Noty = require('noty');
 
+$(function () {
+    $('.js-noty').each(function () {
+        let noty = $(this);
+
+        new Noty({
+            type: noty.data('type') || 'info',
+            text: noty.data('text'),
+            layout: 'topRight',
+            timeout: 5000,
+            progressBar: true,
+            theme: 'metroui',
+        }).show();
+    });
 });

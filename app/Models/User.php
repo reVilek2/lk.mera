@@ -4,11 +4,8 @@ namespace App\Models;
 
 use App\Notifications\ResetPasswordNotification;
 use Exception;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Mail;
 use Spatie\Permission\Traits\HasRoles;
 use Str;
 
@@ -73,6 +70,20 @@ class User extends Authenticatable
     const REGISTER_TYPE_EMAIL = 'email';
     const REGISTER_TYPE_PHONE = 'phone';
     const TOKEN_QUERY_NAME = 'token';
+
+    const ROLE_ADMIN = 'admin';
+    const ROLE_MANAGER = 'manager';
+    const ROLES_USER = 'user';
+    const ROLES_USER_CLIENT = 'client';
+
+    const TRANSLATE_ROLES = [
+        // base roles
+        self::ROLE_ADMIN => 'Администратор',
+        self::ROLE_MANAGER => 'Менеджер',
+        self::ROLES_USER => 'Пользователь',
+        // second only user roles
+        self::ROLES_USER_CLIENT => 'Клиент',
+    ];
 
     protected $table = 'users';
     protected $guard = 'web';
@@ -290,5 +301,24 @@ class User extends Authenticatable
         }
 
         return $name ?? 'Пользователь';
+    }
+
+    /**
+     * Name User Role
+     * @return mixed
+     */
+    public function getUserRole()
+    {
+        if ( $this->hasRole(self::ROLE_ADMIN) ) {
+
+            return self::TRANSLATE_ROLES[self::ROLE_ADMIN];
+        }
+        if ( $this->hasRole(self::ROLE_MANAGER) ) {
+
+            return self::TRANSLATE_ROLES[self::ROLE_MANAGER];
+        }
+
+        //@TODO разбить роль пользователя на Пользователь/Клиент
+        return self::TRANSLATE_ROLES[self::ROLES_USER];
     }
 }

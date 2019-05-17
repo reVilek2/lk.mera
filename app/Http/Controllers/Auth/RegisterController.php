@@ -6,6 +6,7 @@ use App\Models\Token;
 use App\Notifications\EmailConfirmNotification;
 use App\Rules\PhoneNumber;
 use App\Services\PhoneNormalizer;
+use App\Services\UserManager;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\Controller;
@@ -19,15 +20,20 @@ use Validation;
 class RegisterController extends Controller
 {
     use RegistersUsers;
+    /**
+     * @var UserManager
+     */
+    private $userManager;
 
     /**
      * Create a new controller instance.
      *
-     * @return void
+     * @param UserManager $userManager
      */
-    public function __construct()
+    public function __construct(UserManager $userManager)
     {
         $this->middleware('guest');
+        $this->userManager = $userManager;
     }
 
     /**
@@ -118,7 +124,7 @@ class RegisterController extends Controller
         if ($register_type === User::REGISTER_TYPE_EMAIL) {
             // Если регистрация через email
             // отсылаем на почту письмо
-            $this->sendActivationEmail($user);
+            $this->userManager->sendActivationEmail($user);
 
             return redirect()->route('successRegistrationByEmail', $user->email);
         } else {
@@ -149,35 +155,5 @@ class RegisterController extends Controller
         }
 
         return $validation;
-    }
-
-    /**
-     * Sends the activation email to a user
-     * @param  User $user
-     * @return void
-     */
-    private function sendActivationEmail(User $user)
-    {
-        try {
-            $code = implode('!', [$user->id, $user->getEmailActivationCode()]);
-
-            $url = $this->makeActivationEmailUrl($code);
-
-            Mail::to($user->email)->send(new EmailConfirmNotification($url));
-
-        } catch (\Exception $ex) {
-
-            //@TODO сделать логирование не успешных отправлений
-        }
-    }
-
-    /**
-     * Returns a link used to activate the user account.
-     * @param $code
-     * @return string
-     */
-    private function makeActivationEmailUrl($code)
-    {
-        return route('email.confirm', $code);
     }
 }
