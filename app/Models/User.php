@@ -20,6 +20,50 @@ use Str;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User query()
  * @mixin \Eloquent
+ * @property int $id
+ * @property string|null $first_name
+ * @property string|null $second_name
+ * @property string|null $last_name
+ * @property string|null $email
+ * @property string|null $phone
+ * @property string $password
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property \Illuminate\Support\Carbon|null $phone_verified_at
+ * @property int $is_activated
+ * @property \Illuminate\Support\Carbon|null $activated_at
+ * @property \Illuminate\Support\Carbon|null $last_login
+ * @property string|null $email_confirmation_code
+ * @property string|null $phone_confirmation_code
+ * @property \Illuminate\Support\Carbon|null $email_confirmation_code_created_at
+ * @property \Illuminate\Support\Carbon|null $phone_confirmation_code_created_at
+ * @property string|null $api_token
+ * @property string|null $remember_token
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Permission[] $permissions
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\Permission\Models\Role[] $roles
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User permission($permissions)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User role($roles, $guard = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereActivatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereApiToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereEmailConfirmationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereEmailConfirmationCodeCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereFirstName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereIsActivated($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereLastLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereLastName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User wherePhoneConfirmationCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User wherePhoneConfirmationCodeCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User wherePhoneVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereSecondName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereUpdatedAt($value)
  */
 class User extends Authenticatable
 {
@@ -226,5 +270,25 @@ class User extends Authenticatable
     public function getRandomString($length = 42)
     {
         return Str::random($length);
+    }
+
+    /**
+     * User Name
+     * @return mixed|null|string
+     */
+    public function getUserName()
+    {
+        $name = null;
+        if ($this->first_name || $this->last_name) {
+            $name = trim($this->first_name.' '.$this->last_name);
+        }
+        if (!$name ) {
+            $name = $this->email_verified_at ? $this->email : null;
+        }
+        if (!$name ) {
+            $name = $this->phone_verified_at ? $this->phone : null;
+        }
+
+        return $name ?? 'Пользователь';
     }
 }
