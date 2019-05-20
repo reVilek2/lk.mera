@@ -26,8 +26,26 @@
             <div class="box box-primary">
                 <div class="box-body box-profile">
                     {{-- 128x128 --}}
-                    <img class="profile-user-img img-responsive img-circle" src="{{asset('images/user2-160x160.jpg')}}" alt="User avatar">
+                    <div class="avatar">
+                        <form method="post" action="{{ route('user-avatar.update', $user) }}" enctype="multipart/form-data">
+                            @csrf
+                            @method('put')
 
+                            <label class="avatar-icon-touch">
+                                <input type="file" accept="image/*" name="avatar" class="js-input-avatar">
+                            </label>
+                        </form>
+                        <img class="profile-user-img img-responsive img-circle" src="{{ $user->getAvatar('medium') }}" alt="User avatar">
+                    </div>
+                    @if ($errors->has('avatar'))
+                    <div class="avatar-upload-errors">
+                        <div class="form-group has-error">
+                            <div class="help-block with-errors">
+                                {{ $errors->first('avatar') }}
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                     <h3 class="profile-username text-center">{{ Auth::user()->getUserName() }}</h3>
 
                     <p class="text-muted text-center">{{ Auth::user()->getUserRole() }}</p>

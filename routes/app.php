@@ -11,6 +11,11 @@ Route::resource('user', 'UserController')
     ->names([
         'update' => 'user.update',
     ]);
+Route::resource('user-avatar', 'UserAvatarController')
+    ->only(['update'])
+    ->names([
+        'update' => 'user-avatar.update',
+    ]);
 Route::resource('user-password', 'UserChangePasswordController')
     ->only(['update'])
     ->names([

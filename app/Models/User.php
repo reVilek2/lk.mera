@@ -6,6 +6,10 @@ use App\Notifications\ResetPasswordNotification;
 use Exception;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\Image\Manipulations;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
+use Spatie\MediaLibrary\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
 use Str;
 
@@ -62,10 +66,13 @@ use Str;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereSecondName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereUpdatedAt($value)
  */
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     use HasRoles;
     use Notifiable;
+    use HasMediaTrait;
+
+    const AVATAR_COLLECTION_NAME = 'avatar';
 
     const REGISTER_TYPE_EMAIL = 'email';
     const REGISTER_TYPE_PHONE = 'phone';
@@ -94,7 +101,7 @@ class User extends Authenticatable
     public $rules = [
         'email'    => 'nullable|between:6,255|email',
         'phone'    => 'nullable|phone_number',
-        'avatar'   => 'nullable|image|max:4000',
+        'avatar'   => 'nullable|image|mimes:jpeg,png,jpg|max:4000',
         'first_name' => 'nullable|string',
         'second_name' => 'nullable|string',
         'last_name' => 'nullable|string',
@@ -269,6 +276,22 @@ class User extends Authenticatable
         $this->notify(new ResetPasswordNotification($token));
     }
 
+    /**
+     * @param Media|null $media
+     * @throws \Spatie\Image\Exceptions\InvalidManipulation
+     */
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(Manipulations::FIT_CROP, 45, 45);
+        $this->addMediaConversion('small')
+            ->fit(Manipulations::FIT_CROP, 128, 128);
+        $this->addMediaConversion('medium')
+            ->fit(Manipulations::FIT_CROP, 160, 160);
+        $this->addMediaConversion('big')
+            ->fit(Manipulations::FIT_CROP, 200, 200);
+    }
+
     //
     // Helpers
     //
@@ -320,5 +343,57 @@ class User extends Authenticatable
 
         //@TODO разбить роль пользователя на Пользователь/Клиент
         return self::TRANSLATE_ROLES[self::ROLES_USER];
+    }
+
+    /**
+     * User Avatar
+     * @param string $avatar_type
+     * @return string
+     */
+    public function getAvatar($avatar_type = '')
+    {
+        switch ($avatar_type)
+        {
+            case 'thumb':
+                try {
+                    $url = $this->getFirstMedia(self::AVATAR_COLLECTION_NAME) ? $this->getFirstMedia(self::AVATAR_COLLECTION_NAME)->getUrl('thumb') : '';
+                }catch (\Exception $t) {
+                    $url = '';
+                }
+
+                return !empty(trim($url)) ? trim($url) : '/images/profile/avatar_thumb.jpg';
+            case 'small':
+                try {
+                    $url = $this->getFirstMedia(self::AVATAR_COLLECTION_NAME) ? $this->getFirstMedia(self::AVATAR_COLLECTION_NAME)->getUrl('small') : '';
+                }catch (\Exception $t) {
+                    $url = '';
+                }
+
+                return !empty(trim($url)) ? trim($url) :'/images/profile/avatar_small.jpg';
+            case 'medium':
+                try {
+                    $url = $this->getFirstMedia(self::AVATAR_COLLECTION_NAME) ? $this->getFirstMedia(self::AVATAR_COLLECTION_NAME)->getUrl('medium') : '';
+                }catch (\Exception $t) {
+                    $url = '';
+                }
+
+                return !empty(trim($url)) ? trim($url) :'/images/profile/avatar_medium.jpg';
+            case 'big':
+                try {
+                    $url = $this->getFirstMedia(self::AVATAR_COLLECTION_NAME) ? $this->getFirstMedia(self::AVATAR_COLLECTION_NAME)->getUrl('big') : '';
+                }catch (\Exception $t) {
+                    $url = '';
+                }
+
+                return !empty(trim($url)) ? trim($url) :'/images/profile/avatar_big.jpg';
+            default:
+                try {
+                    $url = $this->getFirstMedia(self::AVATAR_COLLECTION_NAME) ? $this->getFirstMedia(self::AVATAR_COLLECTION_NAME)->getUrl() : '';
+                }catch (\Exception $t) {
+                    $url = '';
+                }
+
+                return !empty(trim($url)) ? trim($url) : '/images/profile/avatar.jpg';
+        }
     }
 }

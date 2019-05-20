@@ -53,7 +53,7 @@ desired effect
 
     @include('layouts/_app/footer')
 
-    @include('layouts/_app/controlSidebar')
+    {{--@include('layouts/_app/controlSidebar')--}}
 </div>
 <!-- ./wrapper -->
 

@@ -39,4 +39,11 @@ $(function () {
             theme: 'metroui',
         }).show();
     });
+
+    let $input_avatar = $('.js-input-avatar');
+    if ($input_avatar.length) {
+        $input_avatar.change(function () {
+            $(this).parents("form")[0].submit();
+        });
+    }
 });
