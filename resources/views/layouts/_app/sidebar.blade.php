@@ -6,7 +6,7 @@
         <!-- Sidebar user panel (optional) -->
         <div class="user-panel">
             <div class="pull-left image">
-                <img src="{{ $user->getAvatar('thumb') }}" class="img-circle" alt="User Image">
+                <img src="{{ Auth::user()->getAvatar('thumb') }}" class="img-circle" alt="User Image">
             </div>
             <div class="pull-left info">
                 <p>{{ Auth::user()->getUserName() }}</p>
@@ -32,7 +32,7 @@
             <li class="header">Навигация</li>
             <!-- Optionally, you can add icons to the links -->
             <li class="{{ set_active(['profile', 'profile/*']) }}"><a href="{{route('profile')}}"><i class="fa fa-user"></i> <span>Профиль</span></a></li>
-            {{--<li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>--}}
+            <li class="{{ set_active(['chat', 'chat/*']) }}"><a href="{{route('chat')}}"><i class="fa fa-comments"></i> <span>Чат</span></a></li>
             {{--<li class="treeview">--}}
                 {{--<a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>--}}
                     {{--<span class="pull-right-container">--}}

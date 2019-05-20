@@ -20,6 +20,15 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
     <link href="{{ mix('/css/app.css') }}" rel="stylesheet">
+    <!-- Scripts -->
+    <script>
+        window.Laravel = {!! json_encode([
+            'csrfToken' => csrf_token(),
+            'pusherKey' => config('broadcasting.connections.pusher.key'),
+            'pusherCluster' => config('broadcasting.connections.pusher.options.cluster'),
+            'encrypted' => config('broadcasting.connections.pusher.options.encrypted')
+        ]) !!};
+    </script>
 </head>
 {{--
 <!--

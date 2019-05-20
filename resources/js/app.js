@@ -26,6 +26,15 @@ if (token) {
 
 window.Noty = require('noty');
 
+import Echo from "laravel-echo";
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: Laravel.pusherKey,
+    cluster: Laravel.pusherCluster,
+    encrypted: true
+});
+
 $(function () {
     $('.js-noty').each(function () {
         let noty = $(this);
