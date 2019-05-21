@@ -27,8 +27,8 @@
                     <ul class="chat-list">
                     @foreach($users as $user)
                         <li class="chat-list__item">
-                            <a href="{{route('chat.read', $user)}}" class="chat-list__link js-load-user-chat">
-                                <img src="{{ $user->getAvatar('thumb') }}" class="user-image" alt="User Image">
+                            <a href="{{route('chat.read', $user)}}" class="chat-list__link js-load-user-chat" data-chat="{{$user->id}}">
+                                <span class="chat-list__user-icon"><img src="{{ $user->getAvatar('thumb') }}" class="user-image" alt="User Image"></span>
                                 <span>{{ $user->getUserName() }}</span>
                             </a>
                         </li>
@@ -38,7 +38,7 @@
             </div>
         </div>
         <div class="col-md-9">
-            <div class="js-chat-messages"></div>
+            <div class="js-chat-messages chat-messages"></div>
         </div>
         {{--<div>--}}
             {{--<div class="panel panel-default">--}}

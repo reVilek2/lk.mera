@@ -25,56 +25,14 @@ if (token) {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
-import Vue from 'vue';
 import Echo from "laravel-echo";
 window.Pusher = require('pusher-js');
-
-
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: Laravel.pusherKey,
     cluster: Laravel.pusherCluster,
     encrypted: true
 });
-
-import ChatMessages from './components/ChatMessages.vue';
-import ChatForm from './components/ChatForm.vue';
-Vue.component('chat-messages', ChatMessages);
-Vue.component('chat-form', ChatForm);
-
-// const app = new Vue({
-//     el: '#app',
-//
-//     data: {
-//         messages: []
-//     },
-//
-//     created() {
-//         this.fetchMessages();
-//
-//         window.Echo.private('chat')
-//             .listen('MessageSent', (e) => {
-//                 this.messages.push({
-//                     message: e.message.message,
-//                     user: e.user
-//                 });
-//             });
-//     },
-//
-//     methods: {
-//         fetchMessages() {
-//             console.log('tyt');
-//             axios.get('/messages').then(response => {
-//                 this.messages = response.data;
-//             });
-//         },
-//         addMessage(message) {
-//             this.messages.push(message);
-//
-//             axios.post('/messages', message).then(response => {});
-//         }
-//     }
-// });
 
 window.Noty = require('noty');
 
@@ -176,12 +134,18 @@ $(function () {
 
                 $load_user_chat.on('click', function (e) {
                     e.preventDefault();
+                    //снимаем выделение
+                    $load_user_chat.parent().removeClass('active');
+                    //выделяем активный чат
+                    $(this).parent().addClass('active');
+
                     $.ajaxSetup({
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         }
                     });
                     let _href = $(this).attr('href');
+                    let chat_id = $(this).attr('data-chat');
 
                     $.ajax({
                         type: 'get',
@@ -195,6 +159,8 @@ $(function () {
                                     scrollTop: $chat_list[0].scrollHeight
                                 }, 0);
                                 initChatMethods();
+                                // set active chat
+                                window.location.hash = "chat:"+chat_id;
                             }
                         },
                         error: function (jqXHR) {
@@ -205,30 +171,15 @@ $(function () {
                     });
                 });
 
+                let chat_id = location.hash.replace(/^#chat:/, '');
+                if (chat_id) {
+                    //если есть параметр активного чата то запускаем его
+                    let active_user_chat = $('.js-load-user-chat[data-chat="'+chat_id+'"]');
+                    active_user_chat.parent().addClass('active');
+                    active_user_chat.click();
+                }
             }
         }
     })();
     Chat.init();
-
-    // $('#talkSendMessage').on('submit', function(e) {
-    //     e.preventDefault();
-    //     var url, request, tag, data;
-    //     tag = $(this);
-    //     url = __baseUrl + '/ajax/message/send';
-    //     data = tag.serialize();
-    //
-    //     request = $.ajax({
-    //         method: "post",
-    //         url: url,
-    //         data: data
-    //     });
-    //
-    //     request.done(function (response) {
-    //         if (response.status == 'success') {
-    //             $('#talkMessages').append(response.html);
-    //             tag[0].reset();
-    //         }
-    //     });
-    //
-    // });
 });

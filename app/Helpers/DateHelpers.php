@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Carbon;
+use Jenssegers\Date\Date;
 
 /**
  * Format: custom
@@ -10,7 +11,7 @@ use Illuminate\Support\Carbon;
  */
 function humanize_date(Carbon $date, string $format = 'd F Y, H:i'): string
 {
-    return $date->format($format);
+    return Date::parse($date)->format($format);
 }
 
 /**

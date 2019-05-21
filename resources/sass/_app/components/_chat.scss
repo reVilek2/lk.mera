@@ -1,12 +1,61 @@
+.box-body .chat-list {
+  margin: -10px;
+}
 .chat-list {
   list-style: none;
   margin: 0;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 0;
 
+  &__link {
+    color: #444444;
+    text-decoration: none;
+    cursor: pointer;
+    display: block;
+    padding: 10px;
+
+    &:hover {
+      color: #444444;
+      text-decoration: none;
+    }
+  }
   &__item {
-    padding-bottom: 10px;
-    padding-top: 10px;
-    border-bottom: 1px solid #f4f4f4;
+    padding: 0;
+  }
+  &__item:hover,
+  &__item.active {
+    background-color: #f4f4f5;
+  }
+  &__user-icon {
+    display: inline-block;
+    border-radius: 50%;
+    width: 45px;
+    margin-right: 10px;
+
+    .user-image {
+      border-radius: 50%;
+      margin: 0 auto;
+      width: 45px;
+      padding: 2px;
+      border: 1px solid #d2d6de;
+    }
+  }
+}
+
+.chat-messages {
+  .direct-chat-messages {
+    height: 500px;
+  }
+  .direct-chat-msg {
+    margin-bottom: 25px;
+  }
+  .direct-chat-text {
+    display: inline-block;
+    margin: 5px 0 0 15px;
+    float: left;
+  }
+  .right .direct-chat-text {
+    margin-right: 15px;
+    margin-left: 0;
+    float: right;
   }
 }

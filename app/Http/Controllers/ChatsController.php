@@ -99,11 +99,12 @@ class ChatsController extends Controller
 
                 $receiver = User::whereId($receiverId)->get()->first();
                 $sender = User::whereId($senderId)->get()->first();
-                $html = view('chat.ajax.newMessageHtml', compact('message'))->render();
+                $receiverHtml = view('chat.ajax.receiverMessageHtml', compact('message'))->render();
+                $senderHtml = view('chat.ajax.senderMessageHtml', compact('message'))->render();
 
-                broadcast(new MessageSent($receiver, $sender, $message, $html))->toOthers();
+                broadcast(new MessageSent($receiver, $sender, $message, $receiverHtml))->toOthers();
 
-                return response()->json(['status'=>'success', 'html' => $html], 200);
+                return response()->json(['status'=>'success', 'html' => $senderHtml], 200);
             }
         }
     }
