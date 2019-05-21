@@ -10,3 +10,6 @@ Route::get('/clear-cache', function () {
 
     return 'all cache cleared';
 });
+Route::post('/refresh-csrf', function (){
+    return csrf_token();
+});

@@ -24,18 +24,20 @@
         "resolve-url-loader": "^2.3.2",
         "sass": "^1.17.0",
         "sass-loader": "^7.1.0",
+        "vue": "^2.6.6",
         "vue-template-compiler": "^2.6.6"
     },
     "dependencies": {
         "admin-lte": "^2.4.10",
         "copy-webpack-plugin": "^5.0.2",
         "icheck": "^1.0.2",
+        "laravel-echo": "^1.5.3",
         "lodash": "^4.17.11",
         "noty": "^3.2.0-beta",
         "popper.js": "^1.14.7",
+        "pusher-js": "^4.4.0",
         "reset-css": "^4.0.1",
-        "webfonts-loader": "^4.4.0",
-        "laravel-echo": "^1.2.3",
-        "pusher-js": "^4.0.0"
+        "vue-loader": "^15.7.0",
+        "webfonts-loader": "^4.4.0"
     }
 }

@@ -1,0 +1,12 @@
+.chat-list {
+  list-style: none;
+  margin: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+
+  &__item {
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-bottom: 1px solid #f4f4f4;
+  }
+}
