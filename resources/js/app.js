@@ -79,16 +79,22 @@ $(function () {
         });
     }
 
-    window.Echo.private('chat.'+Laravel.chatId).listen('MessageSent', (e) => {
-        let js_chat = $('#js-chat-'+e.sender.id);
+    window.Echo.private('chat.'+Laravel.chatId).notification((notification) => {
+        if (notification.type === 'App\\Notifications\\MessageSentNotification') {
+            updateChatList(notification);
+        }
+    });
+
+    function updateChatList(notification) {
+        let js_chat = $('#js-chat-'+notification.sender.id);
         let $chat_list = $('#js-chat-list', js_chat);
         if ($chat_list.length) {
-            $chat_list.append(e.message_html);
+            $chat_list.append(notification.message_html);
             $chat_list.stop().animate({
                 scrollTop: $chat_list[0].scrollHeight
             }, 800);
         }
-    });
+    }
 
     let Chat = (function () {
         function initChatMethods() {

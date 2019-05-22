@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Message;
 use App\Models\User;
+use App\Notifications\MessageSentNotification;
 use App\Services\ChatManager;
 use App\Services\Page;
 use Auth;
@@ -96,13 +97,14 @@ class ChatsController extends Controller
             $receiverId = $request->input('_id');
             $senderId = Auth::user()->id;
             if ($message = $this->chatManager->sendMessageByUserId($receiverId, $senderId, $body)) {
-
+                /** @var User $receiver */
                 $receiver = User::whereId($receiverId)->get()->first();
                 $sender = User::whereId($senderId)->get()->first();
                 $receiverHtml = view('chat.ajax.receiverMessageHtml', compact('message'))->render();
                 $senderHtml = view('chat.ajax.senderMessageHtml', compact('message'))->render();
 
-                broadcast(new MessageSent($receiver, $sender, $message, $receiverHtml))->toOthers();
+                $receiver->notify(new MessageSentNotification($receiver, $sender, $message, $receiverHtml));
+//                broadcast(new MessageSent($receiver, $sender, $message, $receiverHtml))->toOthers();
 
                 return response()->json(['status'=>'success', 'html' => $senderHtml], 200);
             }
