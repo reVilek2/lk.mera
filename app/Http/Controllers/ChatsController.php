@@ -62,7 +62,11 @@ class ChatsController extends Controller
             $messages = $messages->sortBy('id');
         }
         $html = view('chat.ajax.chatHistory', compact('messages', 'user'))->render();
-        return response()->json(['status'=>'success', 'html' => $html], 200);
+        return response()->json([
+            'status'=>'success',
+            'messages' => $messages,
+            'html' => $html
+        ], 200);
     }
 
     /**
@@ -79,35 +83,47 @@ class ChatsController extends Controller
      * Persist message to database
      *
      * @param  Request $request
+     * @param User $user
      * @return array|Response
      * @throws \Throwable
      */
-    public function sendMessage(Request $request)
+    public function sendMessage(Request $request, User $user)
     {
         if (!Auth::user()) {
             return response()->json(['error' => 'User not authorized.'], 200);
         }
         $rules = [
-            'message-data'=>'required',
-            '_id'=>'required'
+            'message-data'=>'required'
         ];
-        $validation = Validator::make(['message-data' => $request->{'message-data'}, '_id' => $request->{'_id'}], $rules);
+
+        $validation = Validator::make(['message-data' => $request->{'message-data'}], $rules);
         if (!$validation->fails()) {
             $body = $request->input('message-data');
-            $receiverId = $request->input('_id');
             $senderId = Auth::user()->id;
-            if ($message = $this->chatManager->sendMessageByUserId($receiverId, $senderId, $body)) {
+            if ($message = $this->chatManager->sendMessageByUserId($user->id, $senderId, $body)) {
                 /** @var User $receiver */
-                $receiver = User::whereId($receiverId)->get()->first();
+                $receiver = $user;
                 $sender = User::whereId($senderId)->get()->first();
-                $receiverHtml = view('chat.ajax.receiverMessageHtml', compact('message'))->render();
+                //$receiverHtml = view('chat.ajax.receiverMessageHtml', compact('message'))->render();
                 $senderHtml = view('chat.ajax.senderMessageHtml', compact('message'))->render();
 
-                $receiver->notify(new MessageSentNotification($receiver, $sender, $message, $receiverHtml));
-//                broadcast(new MessageSent($receiver, $sender, $message, $receiverHtml))->toOthers();
+                // событие для уведомлений
+                $receiver->notify(new MessageSentNotification($receiver, $sender, $message));
+                // событие для чата
+                broadcast(new MessageSent($receiver, $sender, $message))->toOthers();
 
-                return response()->json(['status'=>'success', 'html' => $senderHtml], 200);
+                return response()->json([
+                    'status'=>'success',
+                    'message' => $message,
+                    'html' => $senderHtml
+                ], 200);
             }
+        } else {
+            return response()->json([
+                'status'=>'error',
+                'message' => [],
+                'html' => []
+            ], 200);
         }
     }
 }

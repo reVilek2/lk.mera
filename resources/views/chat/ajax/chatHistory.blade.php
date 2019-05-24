@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="box-footer">
-        <form action="#" method="post" id="js-chat-send-message" data-action="{{ route('message.send') }}">
+        <form action="#" method="post" id="js-chat-send-message" data-action="{{ route('message.send', $user) }}">
             <input type="hidden" name="_id" value="{{ $user->id }}">
             <div class="input-group">
                 <input type="text" name="message-data" placeholder="Type Message ..." class="form-control">

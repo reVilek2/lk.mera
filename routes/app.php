@@ -24,6 +24,6 @@ Route::resource('user-password', 'UserChangePasswordController')
 
 Route::get('chat', 'ChatsController@index')->name('chat');
 Route::get('chat/{user}', 'ChatsController@chatHistory')->name('chat.read');
-Route::post('message/send', 'ChatsController@sendMessage')->name('message.send');
+Route::post('chat/{user}', 'ChatsController@sendMessage')->name('message.send');
 //Route::get('messages', 'ChatsController@fetchMessages');
 //Route::post('messages', 'ChatsController@sendMessage');

@@ -9,7 +9,7 @@
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
-        "axios": "^0.18",
+        "axios": "^0.18.0",
         "bootstrap": "^4.1.0",
         "cross-env": "^5.2.0",
         "css-loader": "^1.0.1",
@@ -37,6 +37,7 @@
         "popper.js": "^1.14.7",
         "pusher-js": "^4.4.0",
         "reset-css": "^4.0.1",
+        "vue-axios": "^2.1.4",
         "vue-loader": "^15.7.0",
         "webfonts-loader": "^4.4.0"
     }

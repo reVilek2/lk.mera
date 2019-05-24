@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\MessageSentNotification;
 use App\Notifications\ResetPasswordNotification;
 use Exception;
 use Illuminate\Notifications\Notifiable;
@@ -128,7 +129,7 @@ class User extends Authenticatable implements HasMedia
      *
      * @var array
      */
-    protected $hidden = ['password', 'reset_password_code', 'email_confirmation_code', 'phone_confirmation_code'];
+    protected $hidden = ['password', 'reset_password_code', 'email_confirmation_code', 'phone_confirmation_code', 'phone_verified_at', 'email_verified_at', 'email_confirmation_code_created_at', 'activated_at', 'remember_token', 'api_token', 'phone_confirmation_code_created_at'];
 
     /**
      * @var array The attributes that aren't mass assignable.
@@ -146,6 +147,25 @@ class User extends Authenticatable implements HasMedia
         'email_confirmation_code_created_at',
         'phone_confirmation_code_created_at',
     ];
+
+    protected $appends = [
+        'avatar',
+        'role',
+        'name',
+    ];
+
+    function getAvatarAttribute()
+    {
+        return $this->getAvatar('thumb');
+    }
+    function getNameAttribute()
+    {
+        return $this->getUserName();
+    }
+    function getRoleAttribute()
+    {
+        return $this->getUserRole();
+    }
 
     /**
      * All chats messages
@@ -405,5 +425,50 @@ class User extends Authenticatable implements HasMedia
 
                 return !empty(trim($url)) ? trim($url) : '/images/profile/avatar.jpg';
         }
+    }
+
+    /**
+     * Get the entity's notifications.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function notifications()
+    {
+        return $this->morphMany(DatabaseNotification::class, 'notifiable')->orderBy('created_at', 'asc');
+    }
+
+    /**
+     * @return array
+     */
+    public function unreadNotificationMessages()
+    {
+        $notificationsDb = $this->notifications()
+        ->whereNull('read_at')->where('type', MessageSentNotification::class)->get();
+        $notifications = [];
+        foreach ($notificationsDb as $key => $notification) {
+            $notifications[$key]['id'] = $notification->id;
+            $notifications[$key]['type'] = $notification->type;
+            $notifications[$key]['read_at'] = $notification->read_at;
+            $notifications[$key]['created_at'] = $notification->created_at;
+
+            $notifications[$key]['data']['message'] = array_key_exists('message', $notification->data) ? $notification->data['message'] : null;
+            $notifications[$key]['data']['receiver'] = array_key_exists('receiver', $notification->data) ? $notification->data['receiver'] : null;
+
+            if (array_key_exists('sender', $notification->data)) {
+                if ($notification->sender) {
+                    $notifications[$key]['data']['sender'] = [
+                        'id' => $notification->sender->id,
+                        'name' => $notification->sender->getUserName(),
+                        'role' => $notification->sender->getUserRole(),
+                        'avatar' => $notification->sender->getAvatar('thumb'),
+                    ];
+                } else {
+                    $notifications[$key]['data']['sender'] = null;
+                }
+            }
+        }
+
+        return $this->notifications()->with('sender')
+            ->whereNull('read_at')->where('type', MessageSentNotification::class);
     }
 }

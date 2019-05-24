@@ -3,36 +3,19 @@ window.$ = window.jQuery = require('jquery');
 require('admin-lte/bower_components/bootstrap/dist/js/bootstrap');
 require('admin-lte/dist/js/adminlte');
 
+
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
  * to our Laravel back-end. This library automatically handles sending the
  * CSRF token as a header based on the value of the "XSRF" token cookie.
  */
 window.axios = require('axios');
+
+window.axios.defaults.headers.common['X-CSRF-TOKEN'] = window.Laravel.csrfToken;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-/**
- * Next we will register the CSRF Token as a common header with Axios so that
- * all outgoing HTTP requests automatically have it attached. This is just
- * a simple convenience so we don't have to attach every token manually.
- */
 
-let token = document.head.querySelector('meta[name="csrf-token"]');
-
-if (token) {
-    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
-} else {
-    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
-}
-
-import Echo from "laravel-echo";
-window.Pusher = require('pusher-js');
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: Laravel.pusherKey,
-    cluster: Laravel.pusherCluster,
-    encrypted: true
-});
+import './app_vue';
 
 window.Noty = require('noty');
 
@@ -79,11 +62,7 @@ $(function () {
         });
     }
 
-    window.Echo.private('chat.'+Laravel.chatId).notification((notification) => {
-        if (notification.type === 'App\\Notifications\\MessageSentNotification') {
-            updateChatList(notification);
-        }
-    });
+
 
     function updateChatList(notification) {
         let js_chat = $('#js-chat-'+notification.sender.id);
@@ -135,55 +114,55 @@ $(function () {
         }
         return {
             init: function () {
-                let $load_user_chat = $('.js-load-user-chat');
-                let $container_messages = $('.js-chat-messages');
+                // let $load_user_chat = $('.js-load-user-chat');
+                // let $container_messages = $('.js-chat-messages');
+                //
+                // $load_user_chat.on('click', function (e) {
+                //     e.preventDefault();
+                //     //снимаем выделение
+                //     $load_user_chat.parent().removeClass('active');
+                //     //выделяем активный чат
+                //     $(this).parent().addClass('active');
+                //
+                //     $.ajaxSetup({
+                //         headers: {
+                //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                //         }
+                //     });
+                //     let _href = $(this).attr('href');
+                //     let chat_id = $(this).attr('data-chat');
 
-                $load_user_chat.on('click', function (e) {
-                    e.preventDefault();
-                    //снимаем выделение
-                    $load_user_chat.parent().removeClass('active');
-                    //выделяем активный чат
-                    $(this).parent().addClass('active');
+                    // $.ajax({
+                    //     type: 'get',
+                    //     url: _href,
+                    //     dataType: 'json',
+                    //     success: function (response) {
+                    //         if (response.html) {
+                    //             $container_messages.html(response.html);
+                    //             let $chat_list = $('#js-chat-list');
+                    //             $chat_list.stop().animate({
+                    //                 scrollTop: $chat_list[0].scrollHeight
+                    //             }, 0);
+                    //             initChatMethods();
+                    //             // set active chat
+                    //             window.location.hash = "chat:"+chat_id;
+                    //         }
+                    //     },
+                    //     error: function (jqXHR) {
+                    //         console.log(jqXHR.responseText);
+                    //         // let response = $.parseJSON(jqXHR.responseText);
+                    //
+                    //     }
+                    // });
+                // });
 
-                    $.ajaxSetup({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        }
-                    });
-                    let _href = $(this).attr('href');
-                    let chat_id = $(this).attr('data-chat');
-
-                    $.ajax({
-                        type: 'get',
-                        url: _href,
-                        dataType: 'json',
-                        success: function (response) {
-                            if (response.html) {
-                                $container_messages.html(response.html);
-                                let $chat_list = $('#js-chat-list');
-                                $chat_list.stop().animate({
-                                    scrollTop: $chat_list[0].scrollHeight
-                                }, 0);
-                                initChatMethods();
-                                // set active chat
-                                window.location.hash = "chat:"+chat_id;
-                            }
-                        },
-                        error: function (jqXHR) {
-                            console.log(jqXHR.responseText);
-                            // let response = $.parseJSON(jqXHR.responseText);
-
-                        }
-                    });
-                });
-
-                let chat_id = location.hash.replace(/^#chat:/, '');
-                if (chat_id) {
+                // let chat_id = location.hash.replace(/^#chat:/, '');
+                // if (chat_id) {
                     //если есть параметр активного чата то запускаем его
-                    let active_user_chat = $('.js-load-user-chat[data-chat="'+chat_id+'"]');
-                    active_user_chat.parent().addClass('active');
-                    active_user_chat.click();
-                }
+                    // let active_user_chat = $('.js-load-user-chat[data-chat="'+chat_id+'"]');
+                    // active_user_chat.parent().addClass('active');
+                    // active_user_chat.click();
+                // }
             }
         }
     })();

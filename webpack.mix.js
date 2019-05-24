@@ -35,7 +35,7 @@ mix.webpackConfig({
         modules: [
             'node_modules'
         ]
-    }
+    },
 }).options({
     processCssUrls: false,
     postCss: [

@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
+use App\Notifications\NotificationDbChannel;
 
 class MessageSentNotification extends Notification
 {
@@ -28,10 +29,6 @@ class MessageSentNotification extends Notification
      * @var User
      */
     public $sender;
-    /**
-     * @var string
-     */
-    public $message_html;
 
     /**
      * Create a new notification instance.
@@ -39,15 +36,13 @@ class MessageSentNotification extends Notification
      * @param User $receiver
      * @param User $sender
      * @param Message $message
-     * @param string $message_html
      */
-    public function __construct(User $receiver, User $sender, Message $message, string $message_html)
+    public function __construct(User $receiver, User $sender, Message $message)
     {
         $this->receiver = $receiver;
         $this->sender = $sender;
         $this->message = $message;
-        $this->message_html = $message_html;
-    }
+     }
 
     /**
      * Get the notification's delivery channels.
@@ -57,7 +52,7 @@ class MessageSentNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['database','broadcast'];
+        return [NotificationDbChannel::class,'broadcast'];
     }
 
 
@@ -89,7 +84,6 @@ class MessageSentNotification extends Notification
                 'created_at' => $this->message->created_at,
                 'created_at_humanize' => humanize_date($this->message->created_at, 'd F, H:i'),
             ],
-            'message_html' => $this->message_html
         ];
     }
 
@@ -115,7 +109,6 @@ class MessageSentNotification extends Notification
                 'created_at' => $this->message->created_at,
                 'created_at_humanize' => humanize_date($this->message->created_at, 'd F, H:i'),
             ],
-            'message_html' => $this->message_html
         ]);
     }
 
@@ -139,6 +132,6 @@ class MessageSentNotification extends Notification
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('chat.'.$this->receiver->id);
+        return new PrivateChannel('notification.'.$this->receiver->id);
     }
 }
