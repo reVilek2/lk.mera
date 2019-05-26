@@ -1,6 +1,6 @@
 <template>
     <li>
-        <a href="#">
+        <a v-bind:href="notificationMessage.data.chat.url">
             <div class="pull-left">
                 <!-- User Image -->
                 <img v-bind:src="notificationMessage.sender.avatar" class="img-circle" alt="User Image">

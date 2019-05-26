@@ -26,6 +26,7 @@
     background-color: #f4f4f5;
   }
   &__user-icon {
+    position: relative;
     display: inline-block;
     border-radius: 50%;
     width: 45px;
@@ -38,6 +39,19 @@
       padding: 2px;
       border: 1px solid #d2d6de;
     }
+  }
+  &__unread {
+    position: absolute;
+    right: -4px;
+    bottom: 0;
+    background-color: $blue;
+    border-radius: 50%;
+    text-align: center;
+    color: $white;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    line-height: 18px;
   }
 }
 

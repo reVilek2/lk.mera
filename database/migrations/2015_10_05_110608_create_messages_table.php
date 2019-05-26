@@ -21,6 +21,7 @@ class CreateMessagesTable extends Migration
             $table->boolean('deleted_from_receiver')->default(0);
             $table->integer('user_id');
             $table->integer('conversation_id');
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
         });
     }

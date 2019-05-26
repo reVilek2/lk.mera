@@ -8,7 +8,10 @@
                     <ul class="chat-list">
                         <li class="chat-list__item" v-for="chat in chats" :class="{'active': chat.active}">
                             <a :href="chat.url" class="chat-list__link js-load-user-chat" :data-chat="chat.id" @click="loadChat(chat, $event)">
-                                <span class="chat-list__user-icon"><img :src="chat.avatar" class="user-image" alt="User Image"></span>
+                                <span class="chat-list__user-icon">
+                                    <img :src="chat.avatar" class="user-image" alt="User Image">
+                                    <span class="chat-list__unread">2</span>
+                                </span>
                                 <span>{{ chat.name }}</span>
                             </a>
                         </li>

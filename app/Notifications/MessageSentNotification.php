@@ -66,6 +66,10 @@ class MessageSentNotification extends Notification
     public function toDatabase($notifiable)
     {
         return[
+            'chat' => [
+                'id' => 'chat-'.$this->sender->id,
+                'url' => route('chat', ['#chat-'.$this->sender->id], false)
+            ],
             'receiver' =>[
                 'id' => $this->receiver->id,
                 'name' => $this->receiver->getUserName(),
@@ -91,6 +95,10 @@ class MessageSentNotification extends Notification
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
+            'chat' => [
+                'id' => 'chat-'.$this->sender->id,
+                'url' => route('chat', ['#chat-'.$this->sender->id], false)
+            ],
             'receiver' =>[
                 'id' => $this->receiver->id,
                 'name' => $this->receiver->getUserName(),
