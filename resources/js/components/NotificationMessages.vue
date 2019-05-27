@@ -38,17 +38,17 @@
 
         },
         mounted() {
-            // window.Echo.private('notification.'+Laravel.userId).notification((notification) => {
-            //     if (notification.type === 'App\\Notifications\\MessageSentNotification') {
-            //         console.log(notification);
-            //         let newNotification = {
-            //             data: {message: notification.message, receiver: notification.receiver, sender: notification.sender, chat: notification.chat},
-            //             sender: notification.sender
-            //
-            //         };
-            //         this.notificationMessages.push(newNotification);
-            //     }
-            // });
+            window.Echo.private('notification.'+Laravel.userId).notification((notification) => {
+                if (notification.type === 'App\\Notifications\\MessageSentNotification') {
+                    console.log(notification);
+                    let newNotification = {
+                        data: {message: notification.message, receiver: notification.receiver, sender: notification.sender, chat: notification.chat},
+                        sender: notification.sender
+
+                    };
+                    this.notificationMessages.push(newNotification);
+                }
+            });
         }
     }
 </script>

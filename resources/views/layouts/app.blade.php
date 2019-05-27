@@ -27,7 +27,7 @@
             'pusherKey' => config('broadcasting.connections.pusher.key'),
             'pusherCluster' => config('broadcasting.connections.pusher.options.cluster'),
             'encrypted' => config('broadcasting.connections.pusher.options.encrypted'),
-            'chatId' => Auth()->user()->id
+            'userId' => Auth()->user()->id
         ]) !!};
     </script>
     <style>

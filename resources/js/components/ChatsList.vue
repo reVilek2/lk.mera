@@ -96,8 +96,7 @@
                     });
                 }
             });
-
-            window.Echo.private('chat.'+Laravel.userId).listen('MessageSent', (e) => {
+            window.Echo.private('chat.user.'+Laravel.userId).listen('MessageSent', (e) => {
                 this.chats.forEach(el => {
                     if (el.id === e.chat_id) {
                         let newMessage = [e.message];

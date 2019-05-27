@@ -11,10 +11,9 @@
 |
 */
 
-//Broadcast::channel('notification.{userId}', function ($user, $userId) {
-//    return Auth::check() && (int) $user->id === (int) $userId;
-//});
-Broadcast::channel('chat.{userId}', function ($user, $userId) {
-    Log::debug($user->id.'|'.$userId);
+Broadcast::channel('notification.{userId}', function ($user, $userId) {
+    return Auth::check() && (int) $user->id === (int) $userId;
+});
+Broadcast::channel('chat.user.{userId}', function ($user, $userId) {
     return Auth::check() && (int) $user->id === (int) $userId;
 });
