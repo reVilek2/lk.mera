@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\Chat;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
@@ -22,26 +23,31 @@ class MessageSentNotification extends Notification
      */
     public $message;
     /**
-     * @var User
+     * @var mixed
      */
-    private $receiver;
+    public $chat_id;
+    /**
+     * @var Chat
+     */
+    private $chat;
     /**
      * @var User
      */
-    public $sender;
+    private $sender;
 
     /**
      * Create a new notification instance.
      *
-     * @param User $receiver
-     * @param User $sender
+     * @param Chat $chat
      * @param Message $message
+     * @param User $sender
      */
-    public function __construct(User $receiver, User $sender, Message $message)
+    public function __construct(Chat $chat, Message $message, User $sender)
     {
-        $this->receiver = $receiver;
-        $this->sender = $sender;
+        $this->chat = $chat;
+        $this->chat_id = $chat->id;
         $this->message = $message;
+        $this->sender = $sender;
      }
 
     /**
@@ -67,14 +73,8 @@ class MessageSentNotification extends Notification
     {
         return[
             'chat' => [
-                'id' => 'chat-'.$this->sender->id,
-                'url' => route('chat', ['#chat-'.$this->sender->id], false)
-            ],
-            'receiver' =>[
-                'id' => $this->receiver->id,
-                'name' => $this->receiver->getUserName(),
-                'role' => $this->receiver->getUserRole(),
-                'avatar' => $this->receiver->getAvatar('thumb'),
+                'id' => $this->chat->id,
+                'url' => route('chat', ['#'.$this->chat->id], false)
             ],
             'sender' => [
                 'id' => $this->sender->id,
@@ -96,14 +96,8 @@ class MessageSentNotification extends Notification
     {
         return new BroadcastMessage([
             'chat' => [
-                'id' => 'chat-'.$this->sender->id,
-                'url' => route('chat', ['#chat-'.$this->sender->id], false)
-            ],
-            'receiver' =>[
-                'id' => $this->receiver->id,
-                'name' => $this->receiver->getUserName(),
-                'role' => $this->receiver->getUserRole(),
-                'avatar' => $this->receiver->getAvatar('thumb'),
+                'id' => $this->chat->id,
+                'url' => route('chat', ['#'.$this->chat->id], false)
             ],
             'sender' => [
                 'id' => $this->sender->id,
@@ -140,6 +134,14 @@ class MessageSentNotification extends Notification
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('notification.'.$this->receiver->id);
+        $channels = [];
+        $users = $this->chat->users()->get();
+        foreach ($users as $user) {
+            if ((int) $user->id !== (int) $this->sender->id) {
+                array_push($channels, new PrivateChannel('notification.user.'.$user->id));
+            }
+        }
+
+        return $channels;
     }
 }

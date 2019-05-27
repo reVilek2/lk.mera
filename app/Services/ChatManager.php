@@ -9,6 +9,66 @@ use App\Models\User;
 
 class ChatManager
 {
+    /**
+     * @var Chat
+     */
+    private $chat;
+    /**
+     * @var Message
+     */
+    private $message;
+
+    public function __construct(Chat $chat, Message $message)
+    {
+        $this->chat = $chat;
+        $this->message = $message;
+    }
+
+    /**
+     * Creates a new conversation.
+     *
+     * @param array $participants
+     * @param array $data
+     *
+     * @return Chat
+     */
+    public function createChat(array $participants, array $data = [])
+    {
+        return $this->chat->start($participants, $data);
+    }
+
+    public function getChatById($id)
+    {
+        return $this->chat->getById($id);
+    }
+
+
+    /**
+     * Create new message
+     *
+     * @param $message
+     * @param Chat $chat
+     * @param User $user
+     * @param string $type
+     * @return Message|\Illuminate\Database\Eloquent\Model
+     */
+    public function newMessage($message, Chat $chat, User $user, $type = 'text')
+    {
+        return $this->message->send($message, $chat, $user, $type);
+    }
+
+    /**
+     * Get messages in a conversation.
+     *
+     * @param User $user
+     * @param null $isPrivate
+     * @return mixed
+     */
+    public function getChatList(User $user, $isPrivate = null)
+    {
+        return $this->chat->getChatList($user, $isPrivate);
+    }
+
 
     public function getChatsByUser(User $user = null)
     {

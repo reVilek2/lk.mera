@@ -10,7 +10,7 @@ class MessageStatus extends Model
 
 
     public $fillable = [
-
+        'user_id', 'message_id', 'chat_id'
     ];
 
     public function message()
@@ -21,6 +21,37 @@ class MessageStatus extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Creates a new Message Status.
+     *
+     * @param Message $message
+     * @param Chat $chat
+     */
+    public static function make(Message $message, Chat $chat)
+    {
+        self::createCustomNotifications($message, $chat);
+    }
+
+    public static function createCustomNotifications($message, $chat)
+    {
+        $notification = [];
+
+        foreach ($chat->users as $user) {
+            $is_sender = ($message->user_id == $user->getKey()) ? 1 : 0;
+
+            $notification[] = [
+                'user_id' => $user->getKey(),
+                'message_id' => $message->id,
+                'chat_id' => $chat->id,
+                'read_at' => $is_sender ? $message->created_at : null,
+                'is_sender' => $is_sender,
+                'created_at' => $message->created_at,
+            ];
+        }
+
+        self::insert($notification);
     }
 
     /**

@@ -38,11 +38,10 @@ class Message extends Model
     protected $table = 'messages';
 
     public $timestamps = true;
-
-    protected $appends = ['humans_time'];
+    protected $appends = ['created_at_humanize'];
 
     public $fillable = [
-        'message',
+        'message','user_id', 'type'
     ];
 
     /*
@@ -50,17 +49,14 @@ class Message extends Model
      *
      * @return string
      * */
-    public function getHumansTimeAttribute()
+    public function getCreatedAtHumanizeAttribute()
     {
-        $date = $this->created_at;
-        $now = $date->now();
-
-        return $date->diffForHumans($now, true);
+        return humanize_date($this->created_at, 'd F, H:i');
     }
 
     public function chat()
     {
-        return $this->belongsTo(Chat::class);
+        return $this->belongsTo(Chat::class, 'chat_id');
     }
 
     /**
@@ -134,5 +130,30 @@ class Message extends Model
     public function unread()
     {
         return $this->read_at === null;
+    }
+
+    /**
+     * Adds a message to a conversation.
+     *
+     * @param $message
+     * @param Chat $chat
+     * @param User $user
+     * @param string $type
+     *
+     * @return Message|Model
+     */
+    public function send($message, Chat $chat, User $user, $type = 'text')
+    {
+        /** @var Message $message */
+        $message = $chat->messages()->create([
+            'message' => $message,
+            'user_id' => $user->id,
+            'type' => $type,
+        ]);
+
+        $message->load('sender');
+        MessageStatus::make($message, $chat);
+
+        return $message;
     }
 }

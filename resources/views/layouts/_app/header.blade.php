@@ -19,7 +19,7 @@
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
                 <!-- Messages: style can be found in dropdown.less-->
-                <notification-messages :notification-messages="{{auth()->user()->unreadNotificationMessages}}"></notification-messages>
+                <notification-messages :userid="{{auth()->id()}}" :notification-messages="{{auth()->user()->unreadNotificationMessages}}"></notification-messages>
                 <!-- /.messages-menu -->
 
                 <!-- Notifications Menu -->

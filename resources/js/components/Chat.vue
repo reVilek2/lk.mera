@@ -9,11 +9,11 @@
                 </div>
             </div>
             <div class="box-body">
-                <div :id="chat.id" class="direct-chat-messages">
+                <div :id="id_chat_container" class="direct-chat-messages">
                     <div v-for="message in chat.messages">
                         <div v-if="message.sender.id === userid" class="direct-chat-msg right" :id="'message-'+message.id">
                             <div class="direct-chat-info clearfix">
-                                <span class="direct-chat-timestamp pull-right">{{message.created_at}}</span>
+                                <span class="direct-chat-timestamp pull-right">{{message.created_at_humanize}}</span>
                             </div>
                             <img class="direct-chat-img" :src="message.sender.avatar" alt="Message User Image"><!-- /.direct-chat-img -->
                             <div class="direct-chat-text">
@@ -22,7 +22,7 @@
                         </div>
                         <div v-else class="direct-chat-msg" :id="'message-'+message.id">
                             <div class="direct-chat-info clearfix">
-                                <span class="direct-chat-timestamp pull-left">{{message.created_at}}</span>
+                                <span class="direct-chat-timestamp pull-left">{{message.created_at_humanize}}</span>
                             </div>
                             <img class="direct-chat-img" :src="message.sender.avatar" alt="Message User Image">
                             <div class="direct-chat-text">
@@ -54,7 +54,8 @@
         data() {
             return {
                 newMessage: '',
-                scroll_content: true,
+                scroll_bottom: true,
+                id_chat_container: "chat-container"+this.chat.id,
             }
         },
         methods: {
@@ -73,43 +74,44 @@
                 this.scrollToEnd(800);
             },
             scrollToEnd(speed = 0) {
-                let $container = $("#"+this.chat.id);
+                let $container = $('#'+this.id_chat_container);
+                console.log($container);
                 $container.stop().animate({
                     scrollTop: $container[0].scrollHeight
                 }, speed);
             },
             listenScroll(){
-                let me = this;
-                setTimeout(function(){
-                    let scrollContainer = document.getElementById(me.chat.id);
-                    scrollContainer.onscroll = function(){
-                        me.chat.messages.forEach(el => {
-                            let message = document.getElementById('message-'+el.id);
-                            let messageTopPosition = message.offsetTop + message.offsetHeight;
-                            let containerScrollTop = scrollContainer.scrollTop+1;
-                            let containerScrollPosition = scrollContainer.offsetHeight + containerScrollTop;
-
-                            if (containerScrollTop <= messageTopPosition && containerScrollPosition >= messageTopPosition) {
-                                //элементы в зоне видимости
-                            }
-                        });
-                        if(scrollContainer.offsetHeight + scrollContainer.scrollTop+1 >= scrollContainer.scrollHeight){
-                            //дно контейнера
-                        }
-                    }
-                }, 1000)
+                // let me = this;
+                // setTimeout(function(){
+                //     let scrollContainer = document.getElementById(me.chat.id);
+                //     scrollContainer.onscroll = function(){
+                //         me.chat.messages.forEach(el => {
+                //             let message = document.getElementById('message-'+el.id);
+                //             let messageTopPosition = message.offsetTop + message.offsetHeight;
+                //             let containerScrollTop = scrollContainer.scrollTop+1;
+                //             let containerScrollPosition = scrollContainer.offsetHeight + containerScrollTop;
+                //
+                //             if (containerScrollTop <= messageTopPosition && containerScrollPosition >= messageTopPosition) {
+                //                 //элементы в зоне видимости
+                //             }
+                //         });
+                //         if(scrollContainer.offsetHeight + scrollContainer.scrollTop+1 >= scrollContainer.scrollHeight){
+                //             //дно контейнера
+                //         }
+                //     }
+                // }, 1000)
             }
         },
         updated() {
             this.$nextTick(function () {
-                if(this.scroll_content && this.chat.onload){
-                    this.scrollToEnd(0);
-                    this.scroll_content = false;
-                }
+                // if(this.scroll_bottom){
+                //     this.scrollToEnd(0);
+                //     this.scroll_bottom = false;
+                // }
             });
         },
         mounted() {
-            this.listenScroll();
+            // this.listenScroll();
         },
     }
 </script>

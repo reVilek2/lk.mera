@@ -15,28 +15,29 @@ class CreateChatsTable extends Migration
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('owner_id');
-            $table->boolean('group')->default(0);
-            $table->string('group_name')->nullable();
+            $table->boolean('private')->default(true);
+            $table->text('data')->nullable();
             $table->boolean('deleted')->default(0);
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
-
-            $table->index(['owner_id']);
         });
 
-        Schema::create('chats_members', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('chats_users', function (Blueprint $table) {
             $table->unsignedInteger('chat_id');
             $table->unsignedInteger('user_id');
             $table->boolean('leave')->default(0);
             $table->timestamp('leave_at')->nullable();
             $table->timestamps();
 
-            $table->index(['user_id']);
+            $table->primary(['chat_id', 'user_id']);
             $table->foreign('chat_id')
                 ->references('id')
                 ->on('chats')
+                ->onDelete('cascade');
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
                 ->onDelete('cascade');
         });
     }
@@ -49,6 +50,6 @@ class CreateChatsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('chats');
-        Schema::dropIfExists('chats_members');
+        Schema::dropIfExists('chats_users');
     }
 }

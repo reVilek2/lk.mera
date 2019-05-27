@@ -11,33 +11,11 @@ class Chat extends Model
 {
     protected $table = 'chats';
     public $timestamps = true;
-    public $fillable = [
-
+    protected $fillable = ['data'];
+    protected $casts = [
+        'data' => 'array',
     ];
 
-//    protected $appends = [
-//        'avatar',
-//        'name',
-//    ];
-//
-//    function getAvatarAttribute()
-//    {
-//        if ($this->group) {
-//            $user = $this->owner;
-//        } else {
-//            $user = $this->owner;
-//        }
-//        return $this->getAvatar('thumb');
-//    }
-//    function getNameAttribute()
-//    {
-//        return $this->getUserName();
-//    }
-
-//    public function owner(): MorphTo
-//    {
-//        return $this->morphTo();
-//    }
 
     public function chatsMembers()
     {
@@ -46,42 +24,109 @@ class Chat extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'chats_members', 'chat_id','user_id');
+        return $this->belongsToMany(User::class, 'chats_users', 'chat_id','user_id')->withTimestamps();
     }
 
     public function messages()
     {
-        return $this->hasMany(Message::class, 'chat_id');
+        return $this->hasMany(Message::class, 'chat_id')->with('sender');
     }
 
-//    /*
-//     * make a relation between message
-//     *
-//     * return collection
-//     * */
-//    public function messages()
-//    {
-//        return $this->hasMany(Message::class, 'conversation_id')
-//            ->with('sender');
-//    }
-//
-//    /*
-//     * make a relation between first user from conversation
-//     *
-//     * return collection
-//     * */
-//    public function userone()
-//    {
-//        return $this->belongsTo(User::class,  'user_one');
-//    }
-//
-//    /*
-//   * make a relation between second user from conversation
-//   *
-//   * return collection
-//   * */
-//    public function usertwo()
-//    {
-//        return $this->belongsTo(User::class,  'user_two');
-//    }
+    /**
+     * Return the recent message in a Chat.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function last_message()
+    {
+        return $this->hasOne(Message::class)->orderBy('messages.id', 'desc')->with('sender');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function unReadMessages()
+    {
+        return $this->hasMany(MessageStatus::class, 'chat_id')->where('read_at', '=', null);
+    }
+
+    /**
+     * Starts a new Chat.
+     *
+     * @param array $participants users
+     *
+     * @param array $data
+     * @return Chat
+     */
+    public function start($participants, $data = [])
+    {
+        $conversation = $this->create(['data' => $data]);
+
+        if ($participants) {
+            $conversation->addParticipants($participants);
+        }
+
+        return $conversation;
+    }
+
+    /**
+     * Add user to chat.
+     *
+     * @param $userIds
+     * @return Chat
+     */
+    public function addParticipants($userIds)
+    {
+        if (is_array($userIds)) {
+            foreach ($userIds as $id) {
+                $this->users()->attach($id);
+            }
+        } else {
+            $this->users()->attach($userIds);
+        }
+
+        if ($this->fresh()->users->count() > 2) {
+            $this->private = false;
+            $this->save();
+        }
+
+        return $this;
+    }
+
+    public function getById($id)
+    {
+        return $this->whereId($id)->get()->first();
+    }
+
+    /**
+     * @param $user
+     * @param null $isPrivate
+     * @return mixed
+     */
+    public function getChatList($user, $isPrivate = null)
+    {
+        $chats = $this->join('chats_users', 'chats_users.chat_id', '=', 'chats.id')
+            ->with([
+                'messages' => function ($query) use ($user) {
+                    $query->join('messages_status', 'messages_status.message_id', '=', 'messages.id')
+                        ->select('messages_status.*', 'messages.*')
+                        ->where('messages_status.user_id', $user->getKey())
+                        ->where('messages_status.deleted', 0);
+                },
+            ])
+            ->with(['unReadMessages' => function ($query) use ($user) {
+                $query->where('messages_status.user_id', $user->getKey())
+                    ->where('messages_status.deleted', 0);
+            }])
+            ->with('users')
+            ->where('chats_users.user_id', $user->getKey());
+
+        if (!is_null($isPrivate)) {
+            $chats = $chats->where('chats.private', $isPrivate);
+        }
+
+        return $chats->orderBy('chats.updated_at', 'DESC')
+            ->orderBy('chats.id', 'DESC')
+            ->distinct('chats.id')->get();
+    }
 }

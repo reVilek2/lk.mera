@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Chat;
 use App\Models\Message;
 use App\Models\User;
 use App\Notifications\MessageSentNotification;
 use App\Services\ChatManager;
 use App\Services\Page;
 use Auth;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Notification;
 use Validator;
 use App\Events\MessageSent;
 
@@ -35,7 +38,13 @@ class ChatsController extends Controller
         Page::setTitle('Чат | MeraCapital');
         Page::setDescription('Страница чата');
 
-        $chats = $this->chatManager->getChatsByUser(Auth::user());
+//        $participants = [1, 2];
+//        $chat = $this->chatManager->createChat($participants);
+//        $chat = $this->chatManager->getChatById(2);
+        $chats = $this->chatManager->getChatList(Auth::user());
+//        $message = $this->chatManager->newMessage('Hello', $chat, Auth::user()->id);
+//        dd($chats);
+//        $chats = $this->chatManager->getChatsByUser(Auth::user());
         return view('chat.index', compact('chats'));
     }
 
@@ -84,11 +93,11 @@ class ChatsController extends Controller
      * Persist message to database
      *
      * @param  Request $request
-     * @param User $user
+     * @param Chat $chat
      * @return array|Response
      * @throws \Throwable
      */
-    public function sendMessage(Request $request, User $user)
+    public function sendMessage(Request $request, Chat $chat)
     {
         if (!Auth::user()) {
             return response()->json(['error' => 'User not authorized.'], 200);
@@ -100,25 +109,40 @@ class ChatsController extends Controller
         $validation = Validator::make(['message-data' => $request->{'message-data'}], $rules);
         if (!$validation->fails()) {
             $body = $request->input('message-data');
-            $senderId = Auth::user()->id;
-            if ($message = $this->chatManager->sendMessageByUserId($user->id, $senderId, $body)) {
-                /** @var User $receiver */
-                $receiver = $user;
-                $sender = User::whereId($senderId)->get()->first();
-                //$receiverHtml = view('chat.ajax.receiverMessageHtml', compact('message'))->render();
-                $senderHtml = view('chat.ajax.senderMessageHtml', compact('message'))->render();
-
-                // событие для уведомлений
-                $receiver->notify(new MessageSentNotification($receiver, $sender, $message));
-                // событие для чата
-                broadcast(new MessageSent($receiver, $sender, $message))->toOthers();
-
-                return response()->json([
-                    'status'=>'success',
-                    'message' => $message,
-                    'html' => $senderHtml
-                ], 200);
+            $sender = Auth::user();
+            $message = $this->chatManager->newMessage($body, $chat, $sender);
+            // событие для чата
+            broadcast(new MessageSent($chat, $message, $sender))->toOthers();
+            $groupNotify = new Collection();
+            foreach ($chat->users()->get() as $user) {
+                if ((int) $user->id !== (int) $sender->id) {
+                    $groupNotify->add($user);
+                }
             }
+            if ($groupNotify->count()) {
+                // событие для уведомлений
+                Notification::send($groupNotify, new MessageSentNotification($chat, $message, $sender));
+            }
+
+            return response()->json([
+                'status'=>'success',
+                'message' => $message
+            ], 200);
+//            if ($message = $this->chatManager->sendMessageByUserId($user->id, $senderId, $body)) {
+//                /** @var User $receiver */
+//                $receiver = $user;
+//                $sender = User::whereId($senderId)->get()->first();
+//                //$receiverHtml = view('chat.ajax.receiverMessageHtml', compact('message'))->render();
+//                $senderHtml = view('chat.ajax.senderMessageHtml', compact('message'))->render();
+//
+//
+//
+//                return response()->json([
+//                    'status'=>'success',
+//                    'message' => $message,
+//                    'html' => $senderHtml
+//                ], 200);
+//            }
         } else {
             return response()->json([
                 'status'=>'error',

@@ -26,6 +26,10 @@
             notificationMessages: {
                 type: Array,
                 default: () => []
+            },
+            userid: {
+                type: Number,
+                default: () => 0
             }
         },
         data: function() {
@@ -38,11 +42,11 @@
 
         },
         mounted() {
-            window.Echo.private('notification.'+Laravel.userId).notification((notification) => {
+            window.Echo.private('notification.user.'+this.userid).notification((notification) => {
                 if (notification.type === 'App\\Notifications\\MessageSentNotification') {
                     console.log(notification);
                     let newNotification = {
-                        data: {message: notification.message, receiver: notification.receiver, sender: notification.sender, chat: notification.chat},
+                        data: {message: notification.message, sender: notification.sender, chat: notification.chat},
                         sender: notification.sender
 
                     };

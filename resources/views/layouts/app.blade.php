@@ -26,8 +26,7 @@
             'csrfToken' => csrf_token(),
             'pusherKey' => config('broadcasting.connections.pusher.key'),
             'pusherCluster' => config('broadcasting.connections.pusher.options.cluster'),
-            'encrypted' => config('broadcasting.connections.pusher.options.encrypted'),
-            'chatId' => Auth()->user()->id
+            'encrypted' => config('broadcasting.connections.pusher.options.encrypted')
         ]) !!};
     </script>
     <style>

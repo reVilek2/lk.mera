@@ -10,7 +10,7 @@
                             <a :href="chat.url" class="chat-list__link js-load-user-chat" :data-chat="chat.id" @click="loadChat(chat, $event)">
                                 <span class="chat-list__user-icon">
                                     <img :src="chat.avatar" class="user-image" alt="User Image">
-                                    <span class="chat-list__unread">2</span>
+                                    <span v-if="chat.un_read_messages.length > 0" class="chat-list__unread">{{chat.un_read_messages.length}}</span>
                                 </span>
                                 <span>{{ chat.name }}</span>
                             </a>
@@ -44,41 +44,45 @@
                 if (event) {
                     event.preventDefault();
                 }
+
                 if (chat) {
                     // set active chat
-                    this.chats.forEach(el => {
+                    this.chatsList.forEach(el => {
+
                         el.active = el === chat;
                     });
-                    // load chat data
-                    if (!chat.onload) {
-                        axios.get(chat.url).then(response => {
-                            if (response.data.status === 'success') {
-                                this.chats.forEach(el => {
-                                    if (el === chat) {
-                                        el.messages = [...el.messages, ...response.data.messages];
-                                        el.onload = true;
-                                    }
-                                });
-                            }
-                        });
-                    }
                     // set active chat
                     window.location.hash = chat.id;
+
+                    // load chat data
+                    // if (!chat.onload) {
+                    //     axios.get(chat.url).then(response => {
+                    //         if (response.data.status === 'success') {
+                    //             this.chats.forEach(el => {
+                    //                 if (el === chat) {
+                    //                     el.messages = [...el.messages, ...response.data.messages];
+                    //                     el.onload = true;
+                    //                 }
+                    //             });
+                    //         }
+                    //     });
+                    // }
+
+
                 }
             },
             buildChats(){
                 let chats = [];
-                console.log(this.chats);
                 for(let key in this.chats) {
                     if (this.chats.hasOwnProperty(key)) {
                         chats.push({
-                            id: 'chat-'+this.chats[key].id,
+                            id: this.chats[key].id,
                             url: '/chat/'+this.chats[key].id,
                             avatar: this.getAvatar(this.chats[key]),
                             name: this.getName(this.chats[key]),
-                            messages: [],
-                            active: false,
-                            onload: false,
+                            messages: this.chats[key].messages,
+                            un_read_messages: this.chats[key].un_read_messages,
+                            active: false
                         });
                     }
 
@@ -88,13 +92,12 @@
             getAvatar(chat)
             {
                 let avatar;
-                if (chat.group) {
+                if (!chat.private) {
                     // картинку для группы
-
                 } else {
-                    for(let key in chat.members) {
-                        if (chat.members.hasOwnProperty(key) && chat.members[key].member.id !== this.userid) {
-                            avatar = chat.members[key].member.avatar;
+                    for(let key in chat.users) {
+                        if (chat.users.hasOwnProperty(key) && chat.users[key].id !== this.userid) {
+                            avatar = chat.users[key].avatar;
                             return avatar;
                         }
                     }
@@ -105,13 +108,13 @@
             getName(chat)
             {
                 let name;
-                if (chat.group) {
+                if (!chat.private) {
                     // картинку для группы
                     name = chat.group_name;
                 } else {
-                    for(let key in chat.members) {
-                        if (chat.members.hasOwnProperty(key) && chat.members[key].member.id !== this.userid) {
-                            name = chat.members[key].member.name;
+                    for(let key in chat.users) {
+                        if (chat.users.hasOwnProperty(key) && chat.users[key].id !== this.userid) {
+                            name = chat.users[key].name;
                             return name;
                         }
                     }
@@ -122,22 +125,21 @@
         },
         mounted() {
             this.$nextTick(function () {
-                let chat_id = location.hash.replace(/^#/, '');
+                 let chat_id = location.hash.replace(/^#/, '');
                 if (chat_id) {
-                    this.chats.forEach(el => {
-                        if (el.id === chat_id) {
+                    this.chatsList.forEach(el => {
+                        if (parseInt(el.id) === parseInt(chat_id)) {
                             this.loadChat(el);
                         }
                     });
                 }
             });
-
-            window.Echo.private('chat.user.'+Laravel.userId).listen('MessageSent', (e) => {
-                this.chats.forEach(el => {
+            window.Echo.private('chat.user.'+this.userid).listen('MessageSent', (e) => {
+                this.chatsList.forEach(el => {
                     if (el.id === e.chat_id) {
                         let newMessage = [e.message];
                         el.messages = [...el.messages, ...newMessage];
-                        console.log(el);
+                        el.un_read_messages = [...el.un_read_messages, ...newMessage];
                     }
                 });
             });

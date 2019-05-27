@@ -193,7 +193,12 @@ class User extends Authenticatable implements HasMedia
      */
     public function chats()
     {
-        return $this->belongsToMany(Chat::class, 'chats_members', 'user_id','chat_id');
+        return $this->belongsToMany(Chat::class, 'chats_users', 'user_id','chat_id');
+    }
+
+    public function unreadMessages()
+    {
+        return $this->hasMany(MessageStatus::class, 'user_id')->where('read_at', '=', null);
     }
 
 

@@ -105,7 +105,7 @@ $(function () {
                         }
                     },
                     error: function (jqXHR) {
-                        console.log(jqXHR.responseText);
+                        // console.log(jqXHR.responseText);
                         // let response = $.parseJSON(jqXHR.responseText);
 
                     }
