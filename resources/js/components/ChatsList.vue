@@ -6,7 +6,7 @@
 
                 <div class="box-body">
                     <ul class="chat-list">
-                        <li class="chat-list__item" v-for="chat in chats" :class="{'active': chat.active}">
+                        <li class="chat-list__item" v-for="chat in chatsList" :class="{'active': chat.active}">
                             <a :href="chat.url" class="chat-list__link js-load-user-chat" :data-chat="chat.id" @click="loadChat(chat, $event)">
                                 <span class="chat-list__user-icon">
                                     <img :src="chat.avatar" class="user-image" alt="User Image">
@@ -21,7 +21,7 @@
         </div>
         <div class="col-md-9">
             <!--<div class="js-chat-messages chat-messages"></div>-->
-            <chat v-for="chat in chats" :chat="chat" :userid="userid" :key="chat.id" v-show="chat.active"></chat>
+            <chat v-for="chat in chatsList" :chat="chat" :userid="userid" :key="chat.id" v-show="chat.active"></chat>
         </div>
     </div>
 </template>
@@ -30,12 +30,12 @@
     import Chat from './Chat';
     export default {
         props: [
-            'users',
+            'chats',
             'userid'
         ],
         data: function() {
             return {
-                chats: this.buildChats()
+                chatsList: this.buildChats()
             }
         },
         components: {Chat},
@@ -68,13 +68,14 @@
             },
             buildChats(){
                 let chats = [];
-                for(let key in this.users) {
-                    if (this.users.hasOwnProperty(key)) {
-                         chats.push({
-                            id: 'chat-'+this.users[key].id,
-                            url: '/chat/'+this.users[key].id,
-                            avatar: this.users[key].avatar,
-                            name: this.users[key].name,
+                console.log(this.chats);
+                for(let key in this.chats) {
+                    if (this.chats.hasOwnProperty(key)) {
+                        chats.push({
+                            id: 'chat-'+this.chats[key].id,
+                            url: '/chat/'+this.chats[key].id,
+                            avatar: this.getAvatar(this.chats[key]),
+                            name: this.getName(this.chats[key]),
                             messages: [],
                             active: false,
                             onload: false,
@@ -83,6 +84,40 @@
 
                 }
                 return chats;
+            },
+            getAvatar(chat)
+            {
+                let avatar;
+                if (chat.group) {
+                    // картинку для группы
+
+                } else {
+                    for(let key in chat.members) {
+                        if (chat.members.hasOwnProperty(key) && chat.members[key].member.id !== this.userid) {
+                            avatar = chat.members[key].member.avatar;
+                            return avatar;
+                        }
+                    }
+
+                }
+                return avatar;
+            },
+            getName(chat)
+            {
+                let name;
+                if (chat.group) {
+                    // картинку для группы
+                    name = chat.group_name;
+                } else {
+                    for(let key in chat.members) {
+                        if (chat.members.hasOwnProperty(key) && chat.members[key].member.id !== this.userid) {
+                            name = chat.members[key].member.name;
+                            return name;
+                        }
+                    }
+
+                }
+                return name;
             }
         },
         mounted() {

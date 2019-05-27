@@ -16,13 +16,24 @@ class CreateMessagesTable extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->increments('id');
             $table->text('message');
-            $table->boolean('is_seen')->default(0);
-            $table->boolean('deleted_from_sender')->default(0);
-            $table->boolean('deleted_from_receiver')->default(0);
-            $table->integer('user_id');
-            $table->integer('conversation_id');
-            $table->timestamp('read_at')->nullable();
+            $table->integer('author_id');
+            $table->integer('chat_id');
             $table->timestamps();
+
+            $table->index(['chat_id']);
+        });
+        Schema::create('messages_status', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('message_id');
+            $table->unsignedInteger('user_id');
+            $table->boolean('deleted')->default(0);
+            $table->timestamp('read_at')->nullable();
+
+            $table->index(['user_id']);
+            $table->foreign('message_id')
+                ->references('id')
+                ->on('messages')
+                ->onDelete('cascade');
         });
     }
 
@@ -34,5 +45,6 @@ class CreateMessagesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('messages');
+        Schema::drop('messages_status');
     }
 }

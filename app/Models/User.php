@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Notifications\MessageSentNotification;
 use App\Notifications\ResetPasswordNotification;
 use Exception;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Image\Manipulations;
@@ -168,13 +169,33 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
-     * All chats messages
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Set the polymorphic relation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
-    public function messages()
+    public function ownerChats()
     {
-        return $this->hasMany(Message::class);
+        return $this->morphMany(Chat::class, 'owner');
     }
+
+    /**
+     * Set the polymorphic relation.
+     *
+     */
+    public function memberChats()
+    {
+        return $this->hasMany(ChatMember::class, 'user_id');
+    }
+
+    /**
+     * Set the polymorphic relation.
+     *
+     */
+    public function chats()
+    {
+        return $this->belongsToMany(Chat::class, 'chats_members', 'user_id','chat_id');
+    }
+
 
     /**
      * @param $email

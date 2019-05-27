@@ -2,11 +2,71 @@
 namespace App\Services;
 
 
+use App\Models\Chat;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\User;
 
 class ChatManager
 {
+
+    public function getChatsByUser(User $user = null)
+    {
+        if (!$user) {
+            return null;
+        }
+        $chats = $user->chats()
+            ->with(['messages'=> function ($query) {
+                $query->orderBy('created_at', 'ASC')->with('status');
+            }])
+            ->get();
+//        dd($chats);
+//        $query->whereHas('status', function ($qr) use($user) {
+//            $qr->where(
+//                function ($q) use ($user) {
+//                    $q->where(function ($q2) use ($user) {
+//                        $q2->where('user_id', '=', $user->id)
+//                            ->where('deleted', 0);
+//                    })->orWhere(
+//                        function ($q2) use ($user) {
+//                            $q2->where('user_id', '!=', $user->id)
+//                                ->where('deleted', 0);
+//                        }
+//                    );
+//                }
+//            );
+//        });
+
+//        $chats = Chat::with(
+//            [
+//                'chatsMembers' => function ($query) use ($user) {
+//                    $query->where(
+//                        function ($qr) use ($user) {
+//                            $qr->where('member_id', '=', $user->id)
+//                                ->where('deleted', 0);
+//                        }
+//                    );
+//                }
+//            ]
+//        )->where('deleted', 0)
+//            ->with(
+//                ['messages' => function ($query) {
+//                    $query->where(
+//                        function ($qr) use ($user) {
+//                            $qr->where('member_id', '=', $user->id)
+//                                ->where('deleted', 0);
+//                        }
+//                    );
+//                }]
+//            )
+//            ->with('owner')
+//            ->with(['chatsMembers'])
+//            ->get();
+
+        return $chats;
+    }
+
+
     public function getMessagesByUserId($userId, $authUserId)
     {
         return $this->getConversationsByUserId($userId, $authUserId);

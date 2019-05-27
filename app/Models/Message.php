@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * App\Models\Message
@@ -42,11 +43,6 @@ class Message extends Model
 
     public $fillable = [
         'message',
-        'is_seen',
-        'deleted_from_sender',
-        'deleted_from_receiver',
-        'user_id',
-        'conversation_id',
     ];
 
     /*
@@ -62,21 +58,25 @@ class Message extends Model
         return $date->diffForHumans($now, true);
     }
 
-    /*
-     * make a relation between conversation model
-     *
-     * @return collection
-     * */
-    public function conversation()
+    public function chat()
     {
-        return $this->belongsTo(Conversation::class, 'conversation_id');
+        return $this->belongsTo(Chat::class);
+    }
+
+    /**
+     * Set the polymorphic relation.
+     *
+     */
+    public function status()
+    {
+        return $this->hasMany(MessageStatus::class, 'message_id');
     }
 
     /*
-   * make a relation between user model
-   *
-   * @return collection
-   * */
+     * make a relation between user model
+     *
+     * @return collection
+     * */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

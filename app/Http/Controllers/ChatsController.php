@@ -35,9 +35,8 @@ class ChatsController extends Controller
         Page::setTitle('Чат | MeraCapital');
         Page::setDescription('Страница чата');
 
-        $users = User::all();
-
-        return view('chat.index', compact('users'));
+        $chats = $this->chatManager->getChatsByUser(Auth::user());
+        return view('chat.index', compact('chats'));
     }
 
     /**
@@ -52,21 +51,23 @@ class ChatsController extends Controller
             return response()->json(['error' => 'User not authorized.'], 200);
         }
 
-        $conversations = $this->chatManager->getMessagesByUserId($user->id, Auth::user()->id);
-        $messages = [];
-        if($conversations) {
-            $user = $conversations->withUser;
-            $messages = $conversations->messages;
-        }
-        if (count($messages) > 0) {
-            $messages = $messages->sortBy('id');
-        }
-        $html = view('chat.ajax.chatHistory', compact('messages', 'user'))->render();
-        return response()->json([
-            'status'=>'success',
-            'messages' => $messages,
-            'html' => $html
-        ], 200);
+        dd('tyt');
+
+//        $conversations = $this->chatManager->getMessagesByUserId($user->id, Auth::user()->id);
+//        $messages = [];
+//        if($conversations) {
+//            $user = $conversations->withUser;
+//            $messages = $conversations->messages;
+//        }
+//        if (count($messages) > 0) {
+//            $messages = $messages->sortBy('id');
+//        }
+//        $html = view('chat.ajax.chatHistory', compact('messages', 'user'))->render();
+//        return response()->json([
+//            'status'=>'success',
+//            'messages' => $messages,
+//            'html' => $html
+//        ], 200);
     }
 
     /**
