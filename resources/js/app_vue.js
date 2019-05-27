@@ -4,7 +4,7 @@ window.Echo = new Echo({
     broadcaster: 'pusher',
     key: Laravel.pusherKey,
     cluster: Laravel.pusherCluster,
-    encrypted: false
+    encrypted: true
 });
 
 import Vue from 'vue';
