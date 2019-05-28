@@ -38,13 +38,8 @@ class ChatsController extends Controller
         Page::setTitle('Чат | MeraCapital');
         Page::setDescription('Страница чата');
 
-//        $participants = [1, 2];
-//        $chat = $this->chatManager->createChat($participants);
-//        $chat = $this->chatManager->getChatById(2);
         $chats = $this->chatManager->getChatList(Auth::user());
-//        $message = $this->chatManager->newMessage('Hello', $chat, Auth::user()->id);
-//        dd($chats);
-//        $chats = $this->chatManager->getChatsByUser(Auth::user());
+
         return view('chat.index', compact('chats'));
     }
 
@@ -110,7 +105,7 @@ class ChatsController extends Controller
         if (!$validation->fails()) {
             $body = $request->input('message-data');
             $sender = Auth::user();
-            $message = $this->chatManager->newMessage($body, $chat, $sender);
+            $message = $this->chatManager->makeMessage($body, $chat, $sender);
             // событие для чата
             broadcast(new MessageSent($chat, $message, $sender))->toOthers();
             $groupNotify = new Collection();

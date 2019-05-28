@@ -53,20 +53,25 @@ class Chat extends Model
     /**
      * Starts a new Chat.
      *
-     * @param array $participants users
+     * @param array $users members
      *
      * @param array $data
+     * @param bool $private
      * @return Chat
      */
-    public function start($participants, $data = [])
+    public function start($users, $data = [], $private = true)
     {
-        $conversation = $this->create(['data' => $data]);
+        /** @var Chat $chat */
+        $chat = $this->create([
+            'data' => $data,
+            'private' => $private,
+        ]);
 
-        if ($participants) {
-            $conversation->addParticipants($participants);
+        if ($users) {
+            $chat->addUsers($users);
         }
 
-        return $conversation;
+        return $chat;
     }
 
     /**
@@ -75,7 +80,7 @@ class Chat extends Model
      * @param $userIds
      * @return Chat
      */
-    public function addParticipants($userIds)
+    public function addUsers($userIds)
     {
         if (is_array($userIds)) {
             foreach ($userIds as $id) {

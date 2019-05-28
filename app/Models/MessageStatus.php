@@ -13,11 +13,6 @@ class MessageStatus extends Model
         'user_id', 'message_id', 'chat_id'
     ];
 
-    public function message()
-    {
-        return $this->hasMany(ChatMember::class, 'user_id');
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -48,6 +43,7 @@ class MessageStatus extends Model
                 'read_at' => $is_sender ? $message->created_at : null,
                 'is_sender' => $is_sender,
                 'created_at' => $message->created_at,
+                'updated_at' => $message->updated_at,
             ];
         }
 

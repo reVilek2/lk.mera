@@ -38,12 +38,12 @@ class Message extends Model
     protected $table = 'messages';
 
     public $timestamps = true;
-    protected $appends = ['created_at_humanize'];
 
     public $fillable = [
         'message','user_id', 'type'
     ];
 
+    protected $appends = ['created_at_humanize'];
     /*
      * make dynamic attribute for human readable time
      *
@@ -54,106 +54,29 @@ class Message extends Model
         return humanize_date($this->created_at, 'd F, H:i');
     }
 
+    //Relationships
     public function chat()
     {
         return $this->belongsTo(Chat::class, 'chat_id');
     }
 
-    /**
-     * Set the polymorphic relation.
-     *
-     */
     public function status()
     {
         return $this->hasMany(MessageStatus::class, 'message_id');
     }
 
-    /*
-     * make a relation between user model
-     *
-     * @return collection
-     * */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /*
-   * its an alias of user relation
-   *
-   * @return collection
-   * */
+    /**
+     * Its an alias of user relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function sender()
     {
         return $this->user();
-    }
-
-    /**
-     * Mark the notification as read.
-     *
-     * @return void
-     */
-    public function markAsRead()
-    {
-        if (is_null($this->read_at)) {
-            $this->forceFill(['read_at' => $this->freshTimestamp()])->save();
-        }
-    }
-
-    /**
-     * Mark the notification as unread.
-     *
-     * @return void
-     */
-    public function markAsUnread()
-    {
-        if (! is_null($this->read_at)) {
-            $this->forceFill(['read_at' => null])->save();
-        }
-    }
-
-    /**
-     * Determine if a notification has been read.
-     *
-     * @return bool
-     */
-    public function read()
-    {
-        return $this->read_at !== null;
-    }
-
-    /**
-     * Determine if a notification has not been read.
-     *
-     * @return bool
-     */
-    public function unread()
-    {
-        return $this->read_at === null;
-    }
-
-    /**
-     * Adds a message to a conversation.
-     *
-     * @param $message
-     * @param Chat $chat
-     * @param User $user
-     * @param string $type
-     *
-     * @return Message|Model
-     */
-    public function send($message, Chat $chat, User $user, $type = 'text')
-    {
-        /** @var Message $message */
-        $message = $chat->messages()->create([
-            'message' => $message,
-            'user_id' => $user->id,
-            'type' => $type,
-        ]);
-
-        $message->load('sender');
-        MessageStatus::make($message, $chat);
-
-        return $message;
     }
 }
