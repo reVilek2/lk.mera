@@ -7,20 +7,39 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
+/**
+ * App\Models\Chat
+ *
+ * @property int $id
+ * @property int $private
+ * @property array|null $data
+ * @property int $deleted
+ * @property string|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Message $last_message
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Message[] $messages
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MessageStatus[] $unReadMessages
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereDeleted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat wherePrivate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereUpdatedAt($value)
+ * @mixin \Eloquent
+ * @property string|null $name
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereName($value)
+ */
 class Chat extends Model
 {
     protected $table = 'chats';
     public $timestamps = true;
-    protected $fillable = ['data'];
-    protected $casts = [
-        'data' => 'array',
-    ];
-
-
-    public function chatsMembers()
-    {
-        return $this->hasMany(ChatMember::class, 'chat_id');
-    }
+    protected $fillable = ['name'];
 
     public function users()
     {
@@ -55,15 +74,15 @@ class Chat extends Model
      *
      * @param array $users members
      *
-     * @param array $data
+     * @param null $name
      * @param bool $private
      * @return Chat
      */
-    public function start($users, $data = [], $private = true)
+    public function start($users, $name = null, $private = true)
     {
         /** @var Chat $chat */
         $chat = $this->create([
-            'data' => $data,
+            'name' => !$name && !$private ? 'группа': $name,
             'private' => $private,
         ]);
 

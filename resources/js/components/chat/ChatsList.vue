@@ -7,13 +7,12 @@
                 <div class="box-body">
                     <ul class="chat-list">
                         <li class="chat-list__item" v-for="chat in chatsList" :class="{'active': chat.active}">
-                            <a :href="chat.url" class="chat-list__link js-load-user-chat" :data-chat="chat.id" @click="loadChat(chat, $event)">
-                                <span class="chat-list__user-icon">
-                                    <img :src="chat.avatar" class="user-image" alt="User Image">
-                                    <span v-if="chat.un_read_messages.length > 0" class="chat-list__unread">{{chat.un_read_messages.length}}</span>
-                                </span>
-                                <span>{{ chat.name }}</span>
-                            </a>
+                            <chat-list-name :chat_url="chat.url"
+                                            :chat_id="chat.id"
+                                            :chat_img="chat.avatar"
+                                            :chat_name="chat.name"
+                                            :count_un_read="chat.un_read_messages.length"
+                                            :key="chat.id"></chat-list-name>
                         </li>
                     </ul>
                 </div>
@@ -21,67 +20,44 @@
         </div>
         <div class="col-md-9">
             <!--<div class="js-chat-messages chat-messages"></div>-->
-            <chat v-for="chat in chatsList" :chat="chat" :userid="userid" :key="chat.id" v-show="chat.active"></chat>
+            <chat-container v-for="chat in chatsList" :chat="chat" :userid="userid" :key="chat.id" v-show="chat.active"></chat-container>
         </div>
     </div>
 </template>
 
 <script>
-    import Chat from './Chat';
+    import ChatContainer from './ChatContainer';
+    import ChatListName from './ChatListName';
     export default {
-        props: [
-            'chats',
-            'userid'
-        ],
-        data: function() {
-            return {
-                chatsList: this.buildChats()
+        props: {
+            chats: {
+                type: Array,
+                default: () => []
+            },
+            userid: {
+                type: Number,
+                default: () => 0
             }
         },
-        components: {Chat},
+        data: function() {
+            return {
+                chatsList: this.buildChatList()
+            }
+        },
+        components: {ChatContainer, ChatListName},
         methods: {
-            loadChat(chat, event) {
-                if (event) {
-                    event.preventDefault();
-                }
-
-                if (chat) {
-                    // set active chat
-                    this.chatsList.forEach(el => {
-
-                        el.active = el === chat;
-                    });
-                    // set active chat
-                    window.location.hash = chat.id;
-
-                    // load chat data
-                    // if (!chat.onload) {
-                    //     axios.get(chat.url).then(response => {
-                    //         if (response.data.status === 'success') {
-                    //             this.chats.forEach(el => {
-                    //                 if (el === chat) {
-                    //                     el.messages = [...el.messages, ...response.data.messages];
-                    //                     el.onload = true;
-                    //                 }
-                    //             });
-                    //         }
-                    //     });
-                    // }
-
-
-                }
-            },
-            buildChats(){
+            buildChatList(){
                 let chats = [];
                 for(let key in this.chats) {
                     if (this.chats.hasOwnProperty(key)) {
                         chats.push({
                             id: this.chats[key].id,
                             url: '/chat/'+this.chats[key].id,
-                            avatar: this.getAvatar(this.chats[key]),
-                            name: this.getName(this.chats[key]),
+                            avatar: this.getChatAvatar(this.chats[key]),
+                            name: this.getChatName(this.chats[key]),
                             messages: this.chats[key].messages,
                             un_read_messages: this.chats[key].un_read_messages,
+                            private: this.chats[key].private,
                             active: false
                         });
                     }
@@ -89,11 +65,12 @@
                 }
                 return chats;
             },
-            getAvatar(chat)
+
+            getChatAvatar(chat)
             {
                 let avatar;
                 if (!chat.private) {
-                    // картинку для группы
+                    avatar = '/images/group.jpg';
                 } else {
                     for(let key in chat.users) {
                         if (chat.users.hasOwnProperty(key) && chat.users[key].id !== this.userid) {
@@ -105,12 +82,13 @@
                 }
                 return avatar;
             },
-            getName(chat)
+
+            getChatName(chat)
             {
                 let name;
                 if (!chat.private) {
                     // картинку для группы
-                    name = chat.group_name;
+                    name = chat.name;
                 } else {
                     for(let key in chat.users) {
                         if (chat.users.hasOwnProperty(key) && chat.users[key].id !== this.userid) {
@@ -121,6 +99,15 @@
 
                 }
                 return name;
+            },
+
+            openChat(chat_id) {
+                // set active chat
+                this.chatsList.forEach(el => {
+                    el.active = parseInt(el.id) === parseInt(chat_id);
+                });
+                // set active chat
+                window.location.hash = chat_id;
             }
         },
         mounted() {
@@ -129,7 +116,7 @@
                 if (chat_id) {
                     this.chatsList.forEach(el => {
                         if (parseInt(el.id) === parseInt(chat_id)) {
-                            this.loadChat(el);
+                            this.openChat(el.id);
                         }
                     });
                 }

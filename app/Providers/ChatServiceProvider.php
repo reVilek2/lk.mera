@@ -39,7 +39,7 @@ class ChatServiceProvider extends ServiceProvider
      */
     private function registerChat()
     {
-        $this->app->bind('chat', function () {
+        $this->app->bind('ChatService', function () {
             return $this->app->make(\App\Services\ChatManager::class);
         });
     }

@@ -34,6 +34,10 @@ class MessageSentNotification extends Notification
      * @var User
      */
     private $sender;
+    /**
+     * @var User
+     */
+    private $receiver;
 
     /**
      * Create a new notification instance.
@@ -41,14 +45,16 @@ class MessageSentNotification extends Notification
      * @param Chat $chat
      * @param Message $message
      * @param User $sender
+     * @param User $receiver
      */
-    public function __construct(Chat $chat, Message $message, User $sender)
+    public function __construct(Chat $chat, Message $message, User $sender, User $receiver)
     {
         $this->chat = $chat;
         $this->chat_id = $chat->id;
         $this->message = $message;
         $this->sender = $sender;
-     }
+        $this->receiver = $receiver;
+    }
 
     /**
      * Get the notification's delivery channels.
@@ -128,20 +134,10 @@ class MessageSentNotification extends Notification
     }
 
     /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return Channel|array|PrivateChannel
+     * @return array|PrivateChannel
      */
     public function broadcastOn()
     {
-        $channels = [];
-        $users = $this->chat->users()->get();
-        foreach ($users as $user) {
-            if ((int) $user->id !== (int) $this->sender->id) {
-                array_push($channels, new PrivateChannel('notification.user.'.$user->id));
-            }
-        }
-
-        return $channels;
+        return new PrivateChannel('notification.user.'.$this->receiver->id);
     }
 }

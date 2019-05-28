@@ -16,7 +16,7 @@ class CreateChatsTable extends Migration
         Schema::create('chats', function (Blueprint $table) {
             $table->increments('id');
             $table->boolean('private')->default(true);
-            $table->text('data')->nullable();
+            $table->string('name')->nullable();
             $table->boolean('deleted')->default(0);
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();

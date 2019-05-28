@@ -13,6 +13,6 @@ class ChatFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'chat';
+        return 'ChatService';
     }
 }

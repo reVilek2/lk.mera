@@ -25,10 +25,12 @@ Vue.directive('scroll', {
     },
 });
 
-import ChatsList from './components/ChatsList.vue';
+import ChatsList from './components/chat/ChatsList.vue';
 import NotificationMessages from './components/NotificationMessages.vue';
 
-new Vue({
+Vue.config.devtools = process.env.NODE_ENV === 'development';
+
+let app = new Vue({
     el: '#app',
     components: {
         ChatsList,

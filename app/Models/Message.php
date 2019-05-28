@@ -32,6 +32,14 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereUserId($value)
  * @mixin \Eloquent
+ * @property int $chat_id
+ * @property string $type
+ * @property-read \App\Models\Chat $chat
+ * @property-read mixed $created_at_humanize
+ * @property-read \App\Models\User $sender
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MessageStatus[] $status
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereChatId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereType($value)
  */
 class Message extends Model
 {

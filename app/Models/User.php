@@ -68,6 +68,12 @@ use Str;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereSecondName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereUpdatedAt($value)
  * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\MediaLibrary\Models\Media[] $media
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Chat[] $chats
+ * @property-read mixed $avatar
+ * @property-read mixed $name
+ * @property-read mixed $role
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Chat[] $ownerChats
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MessageStatus[] $unreadMessages
  */
 class User extends Authenticatable implements HasMedia
 {
@@ -176,15 +182,6 @@ class User extends Authenticatable implements HasMedia
     public function ownerChats()
     {
         return $this->morphMany(Chat::class, 'owner');
-    }
-
-    /**
-     * Set the polymorphic relation.
-     *
-     */
-    public function memberChats()
-    {
-        return $this->hasMany(ChatMember::class, 'user_id');
     }
 
     /**

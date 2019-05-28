@@ -28,13 +28,13 @@ class ChatManager
      * Creates a new conversation.
      *
      * @param array $participants
-     * @param array $data
-     *
+     * @param null $name
+     * @param bool $private
      * @return Chat
      */
-    public function createChat(array $participants, array $data = [])
+    public function createChat(array $participants, $name = null, $private = true)
     {
-        return $this->chat->start($participants, $data);
+        return $this->chat->start($participants, $name, $private);
     }
 
     /**
