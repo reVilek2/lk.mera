@@ -8,10 +8,10 @@
             <!-- Message title and timestamp -->
             <h4>
                 {{notificationMessage.sender.name}}
-                <small><i class="fa fa-clock-o"></i> {{notificationMessage.data.message.created_at_humanize}}</small>
             </h4>
             <!-- The message -->
             <p>{{notificationMessage.data.message.message}}</p>
+            <small><i class="fa fa-clock-o"></i> {{notificationMessage.data.message.created_at_humanize}}</small>
         </a>
     </li>
 </template>

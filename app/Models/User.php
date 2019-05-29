@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Notifications\MessageSentNotification;
 use App\Notifications\ResetPasswordNotification;
 use Exception;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Image\Manipulations;
@@ -465,32 +464,6 @@ class User extends Authenticatable implements HasMedia
      */
     public function unreadNotificationMessages()
     {
-        $notificationsDb = $this->notifications()
-        ->whereNull('read_at')->where('type', MessageSentNotification::class)->get();
-        $notifications = [];
-        foreach ($notificationsDb as $key => $notification) {
-            $notifications[$key]['id'] = $notification->id;
-            $notifications[$key]['type'] = $notification->type;
-            $notifications[$key]['read_at'] = $notification->read_at;
-            $notifications[$key]['created_at'] = $notification->created_at;
-
-            $notifications[$key]['data']['message'] = array_key_exists('message', $notification->data) ? $notification->data['message'] : null;
-            $notifications[$key]['data']['receiver'] = array_key_exists('receiver', $notification->data) ? $notification->data['receiver'] : null;
-
-            if (array_key_exists('sender', $notification->data)) {
-                if ($notification->sender) {
-                    $notifications[$key]['data']['sender'] = [
-                        'id' => $notification->sender->id,
-                        'name' => $notification->sender->getUserName(),
-                        'role' => $notification->sender->getUserRole(),
-                        'avatar' => $notification->sender->getAvatar('thumb'),
-                    ];
-                } else {
-                    $notifications[$key]['data']['sender'] = null;
-                }
-            }
-        }
-
         return $this->notifications()->with('sender')
             ->whereNull('read_at')->where('type', MessageSentNotification::class);
     }

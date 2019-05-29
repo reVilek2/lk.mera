@@ -142,6 +142,14 @@ class Chat extends Model
                 $query->where('messages_status.user_id', $user->getKey())
                     ->where('messages_status.deleted', 0);
             }])
+            ->with([
+                'last_message' => function ($query) use ($user) {
+                    $query->join('messages_status', 'messages_status.message_id', '=', 'messages.id')
+                        ->select('messages_status.*', 'messages.*')
+                        ->where('messages_status.user_id', $user->getKey())
+                        ->where('messages_status.deleted', 0);
+                },
+            ])
             ->with('users')
             ->where('chats_users.user_id', $user->getKey());
 
@@ -152,5 +160,43 @@ class Chat extends Model
         return $chats->orderBy('chats.updated_at', 'DESC')
             ->orderBy('chats.id', 'DESC')
             ->distinct('chats.id')->get();
+    }
+
+    /**
+     * Set Messages status as read
+     *
+     * @param $user
+     * @return mixed
+     */
+    public function markChatAsRead($user)
+    {
+        return $this->messagesStatus($user, true);
+    }
+
+    /**
+     * Get Messages status
+     * @param $user
+     * @return mixed
+     */
+    public function getMessagesStatus($user)
+    {
+        return $this->messagesStatus($user, false);
+    }
+
+    /**
+     * @param $user
+     * @param $readAll
+     * @return mixed
+     */
+    private function messagesStatus($user, $readAll)
+    {
+        $messagesStatus = MessageStatus::where('user_id', $user->getKey())
+            ->where('chat_id', $this->id);
+
+        if ($readAll) {
+            return $messagesStatus->update(['read_at' => $this->freshTimestamp()]);
+        }
+
+        return $messagesStatus->get();
     }
 }

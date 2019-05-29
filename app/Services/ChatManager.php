@@ -84,4 +84,16 @@ class ChatManager
 
         return $message;
     }
+
+    /**
+     * Mark all messages in Conversation as read.
+     *
+     * @param Chat $chat
+     * @param $user
+     * @return void
+     */
+    public function markChatAsRead(Chat $chat, $user)
+    {
+        $chat->markChatAsRead($user);
+    }
 }

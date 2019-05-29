@@ -12,6 +12,9 @@
                                             :chat_img="chat.avatar"
                                             :chat_name="chat.name"
                                             :count_un_read="chat.un_read_messages.length"
+                                            :chat_last_message="chat.last_message"
+                                            :is_last_message="!isEmptyObject(chat.last_message)"
+                                            :userid="userid"
                                             :key="chat.id"></chat-list-name>
                         </li>
                     </ul>
@@ -20,7 +23,14 @@
         </div>
         <div class="col-md-9">
             <!--<div class="js-chat-messages chat-messages"></div>-->
-            <chat-container v-for="chat in chatsList" :chat="chat" :userid="userid" :key="chat.id" v-show="chat.active"></chat-container>
+            <chat-container v-for="chat in chatsList"
+                            :chat="chat"
+                            :userid="userid"
+                            :key="chat.id"
+                            :activeChat="chat.active"
+                            :count_un_read="chat.un_read_messages.length"
+                            v-show="chat.active"
+                            @mark-all-as-read="markAllAsRead"></chat-container>
         </div>
     </div>
 </template>
@@ -45,6 +55,28 @@
             }
         },
         components: {ChatContainer, ChatListName},
+        mounted() {
+            this.$nextTick(function () {
+                let chat_id = location.hash.replace(/^#/, '');
+                if (chat_id) {
+                    this.chatsList.forEach(el => {
+                        if (parseInt(el.id) === parseInt(chat_id)) {
+                            this.openChat(el.id);
+                        }
+                    });
+                }
+            });
+            window.Echo.private('chat.user.'+this.userid).listen('MessageSent', (e) => {
+                this.chatsList.forEach(el => {
+                    if (el.id === e.chat_id) {
+                        let newMessage = [e.message];
+                        el.messages = [...el.messages, ...newMessage];
+                        el.un_read_messages = [...el.un_read_messages, ...newMessage];
+                        el.last_message = e.message;
+                    }
+                });
+            });
+        },
         methods: {
             buildChatList(){
                 let chats = [];
@@ -57,8 +89,10 @@
                             name: this.getChatName(this.chats[key]),
                             messages: this.chats[key].messages,
                             un_read_messages: this.chats[key].un_read_messages,
+                            last_message: this.chats[key].last_message,
                             private: this.chats[key].private,
-                            active: false
+                            active: false,
+                            scroll_bottom: true
                         });
                     }
 
@@ -108,28 +142,33 @@
                 });
                 // set active chat
                 window.location.hash = chat_id;
-            }
-        },
-        mounted() {
-            this.$nextTick(function () {
-                 let chat_id = location.hash.replace(/^#/, '');
-                if (chat_id) {
+            },
+
+            markAllAsRead(done, chat) {
+                if (chat.un_read_messages.length) {
                     this.chatsList.forEach(el => {
-                        if (parseInt(el.id) === parseInt(chat_id)) {
-                            this.openChat(el.id);
+                        if (el.id === chat.id) {
+                            el.un_read_messages = [];
                         }
                     });
+                    axios.get('/chat/'+chat.id+'/mark-as-read').then(response => {
+                        if (response.data.status === 'success') {
+                            done();
+                        }
+                    });
+                } else {
+                    done();
                 }
-            });
-            window.Echo.private('chat.user.'+this.userid).listen('MessageSent', (e) => {
-                this.chatsList.forEach(el => {
-                    if (el.id === e.chat_id) {
-                        let newMessage = [e.message];
-                        el.messages = [...el.messages, ...newMessage];
-                        el.un_read_messages = [...el.un_read_messages, ...newMessage];
+            },
+
+            isEmptyObject(obj) {
+                for (let i in obj) {
+                    if (obj.hasOwnProperty(i)) {
+                        return false;
                     }
-                });
-            });
+                }
+                return true;
+            }
         }
     }
 </script>

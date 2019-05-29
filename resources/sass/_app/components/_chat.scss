@@ -7,13 +7,14 @@
   padding: 0;
 
   &__link {
+    position: relative;
     color: #444444;
     text-decoration: none;
     cursor: pointer;
     display: block;
     padding: 10px;
 
-    &:hover {
+    &:hover, &:active, &:focus{
       color: #444444;
       text-decoration: none;
     }
@@ -26,11 +27,12 @@
     background-color: #f4f4f5;
   }
   &__user-icon {
-    position: relative;
+    position: absolute;
     display: inline-block;
     border-radius: 50%;
     width: 45px;
-    margin-right: 10px;
+    top: 10px;
+    left: 10px;
 
     .user-image {
       border-radius: 50%;
@@ -41,21 +43,60 @@
     }
   }
   &__unread {
-    position: absolute;
     right: -4px;
-    bottom: 0;
-    background-color: $blue;
-    border-radius: 50%;
-    text-align: center;
-    color: $white;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    line-height: 18px;
   }
+
+  &__user-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-left: 55px;
+    min-height: 45px;
+  }
+  &__user-name {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-weight: 600;
+  }
+  &__last-message {
+    flex-grow: 0;
+    color: #999;
+  }
+  &__user-name,
+  &__last-message {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+}
+.unread {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background-color: $blue;
+  border-radius: 50%;
+  text-align: center;
+  color: $white;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  line-height: 18px;
 }
 
 .chat-messages {
+  .direct-chat-name,
+  .direct-chat-timestamp {
+    display: inline-block;
+    font-weight: 400;
+    color: #999;
+  }
+  .direct-chat-name {
+    margin-right: 5px;
+  }
   .direct-chat-messages {
     height: 500px;
   }
@@ -66,10 +107,69 @@
     display: inline-block;
     margin: 5px 0 0 15px;
     float: left;
+    max-width: 600px;
+
+    &__item {
+      white-space: pre-wrap;
+    }
   }
   .right .direct-chat-text {
     margin-right: 15px;
     margin-left: 0;
     float: right;
+  }
+  .direct-chat-text .direct-chat-timestamp{
+    font-size: 11px;
+    display: block;
+    float: none !important;
+    padding-top: 2px;
+  }
+  .direct-chat-text .direct-chat-timestamp.pull-right{
+    text-align: right;
+    color: #d2d6de;
+  }
+  .direct-chat-text .direct-chat-timestamp.pull-left{
+    text-align: right;
+  }
+  .chat-input-group {
+    width: 100%;
+    position: relative;
+    @include clearfix;
+  }
+  textarea {
+    resize: none;
+    position: absolute !important;
+    bottom: 0;
+    width: calc(100% - 92px);
+    left: 0;
+  }
+  .chat-bth {
+    width: 92px;
+    float: right;
+  }
+  .scroll-to-bottom {
+    position: absolute;
+    bottom: 35px;
+    right: -40px;
+    width: 35px;
+    height: 35px;
+    background: white url("../../images/arrow-down.png") no-repeat center center;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgb(198, 198, 198);
+    opacity: 0;
+    transition: opacity .3s, right .3s;
+    cursor: pointer;
+
+    &__unread {
+      right: -7px;
+      bottom: -7px;
+    }
+    &:hover {
+      background-color: #f9f9f9;
+    }
+  }
+  .scroll-to-bottom.active {
+    right: 35px;
+    opacity: 1;
   }
 }

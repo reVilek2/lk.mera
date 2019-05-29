@@ -11,9 +11,10 @@ import Vue from 'vue';
 window.axios = require('axios');
 window.axios.defaults.headers.common['X-CSRF-TOKEN'] = window.Laravel.csrfToken;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
+import VueTextareaAutosize from 'vue-textarea-autosize'
 import sklonyator from './plugins/sklonyator'
 Vue.use(sklonyator);
+Vue.use(VueTextareaAutosize);
 Vue.directive('scroll', {
     inserted: function(el, binding) {
         let f = function(evt) {
@@ -26,7 +27,7 @@ Vue.directive('scroll', {
 });
 
 import ChatsList from './components/chat/ChatsList.vue';
-import NotificationMessages from './components/NotificationMessages.vue';
+import NotificationMessages from './components/notification/NotificationMessages.vue';
 
 Vue.config.devtools = process.env.NODE_ENV === 'development';
 
