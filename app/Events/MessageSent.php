@@ -2,12 +2,12 @@
 
 namespace App\Events;
 
-use App\Models\User;
+use App\Models\Chat;
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -23,32 +23,31 @@ class MessageSent implements ShouldBroadcast
      */
     public $message;
     /**
-     * @var User
-     */
-    private $receiver;
-    /**
-     * @var User
-     */
-    public $sender;
-    /**
-     * @var string
+     * @var mixed
      */
     public $chat_id;
-
+    /**
+     * @var Chat
+     */
+    private $chat;
+    /**
+     * @var User
+     */
+    private $sender;
 
     /**
      * Create a new event instance.
      *
-     * @param User $receiver
-     * @param User $sender
+     * @param Chat $chat
      * @param Message $message
+     * @param User $sender
      */
-    public function __construct(User $receiver, User $sender, Message $message)
+    public function __construct(Chat $chat, Message $message, User $sender)
     {
-        $this->receiver = $receiver;
-        $this->sender = $sender;
+        $this->chat = $chat;
+        $this->chat_id = $chat->id;
         $this->message = $message;
-        $this->chat_id = 'chat-'.$sender->id;
+        $this->sender = $sender;
     }
 
     /**
@@ -58,6 +57,14 @@ class MessageSent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('chat.user.'.$this->receiver->id);
+        $channels = [];
+        $users = $this->chat->users()->get();
+        foreach ($users as $user) {
+            if ((int) $user->id !== (int) $this->sender->id) {
+                array_push($channels, new PrivateChannel('chat.user.' . $user->id));
+            }
+        }
+
+        return $channels;
     }
 }

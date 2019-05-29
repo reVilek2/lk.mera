@@ -17,5 +17,5 @@
             'text' => session('statusMessage'),
         ])
     @endif
-    <chats-list :userid="{{auth()->id()}}" :users="{{$users}}"></chats-list>
+    <chats-list :userid="{{auth()->id()}}" :chats="{{$chats}}"></chats-list>
 @endsection

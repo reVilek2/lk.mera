@@ -177,6 +177,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\PasswordResetServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
+        App\Providers\ChatServiceProvider::class
     ],
 
     /*
@@ -227,7 +228,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
+        'ChatService' => App\Facades\ChatFacade::class
     ],
 
 ];

@@ -16,13 +16,45 @@ class CreateMessagesTable extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->increments('id');
             $table->text('message');
-            $table->boolean('is_seen')->default(0);
-            $table->boolean('deleted_from_sender')->default(0);
-            $table->boolean('deleted_from_receiver')->default(0);
             $table->integer('user_id');
-            $table->integer('conversation_id');
-            $table->timestamp('read_at')->nullable();
+            $table->integer('chat_id');
+            $table->string('type')->default('text');
             $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('chat_id')
+                ->references('id')
+                ->on('chats')
+                ->onDelete('cascade');
+        });
+        Schema::create('messages_status', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('message_id');
+            $table->unsignedInteger('chat_id');
+            $table->unsignedInteger('user_id');
+            $table->boolean('deleted')->default(0);
+            $table->timestamp('read_at')->nullable();
+            $table->boolean('is_sender')->default(false);
+            $table->timestamps();
+
+            $table->index(['user_id', 'message_id']);
+            $table->foreign('message_id')
+                ->references('id')
+                ->on('messages')
+                ->onDelete('cascade');
+            $table->foreign('chat_id')
+                ->references('id')
+                ->on('chats')
+                ->onDelete('cascade');
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 
@@ -34,5 +66,6 @@ class CreateMessagesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('messages');
+        Schema::drop('messages_status');
     }
 }

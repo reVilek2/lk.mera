@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * App\Models\Message
@@ -31,6 +32,14 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereUserId($value)
  * @mixin \Eloquent
+ * @property int $chat_id
+ * @property string $type
+ * @property-read \App\Models\Chat $chat
+ * @property-read mixed $created_at_humanize
+ * @property-read \App\Models\User $sender
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MessageStatus[] $status
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereChatId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereType($value)
  */
 class Message extends Model
 {
@@ -38,101 +47,44 @@ class Message extends Model
 
     public $timestamps = true;
 
-    protected $appends = ['humans_time'];
-
     public $fillable = [
-        'message',
-        'is_seen',
-        'deleted_from_sender',
-        'deleted_from_receiver',
-        'user_id',
-        'conversation_id',
+        'message','user_id', 'type'
     ];
 
+    protected $appends = ['created_at_humanize'];
     /*
      * make dynamic attribute for human readable time
      *
      * @return string
      * */
-    public function getHumansTimeAttribute()
+    public function getCreatedAtHumanizeAttribute()
     {
-        $date = $this->created_at;
-        $now = $date->now();
-
-        return $date->diffForHumans($now, true);
+        return humanize_date($this->created_at, 'd F, H:i');
     }
 
-    /*
-     * make a relation between conversation model
-     *
-     * @return collection
-     * */
-    public function conversation()
+    //Relationships
+    public function chat()
     {
-        return $this->belongsTo(Conversation::class, 'conversation_id');
+        return $this->belongsTo(Chat::class, 'chat_id');
     }
 
-    /*
-   * make a relation between user model
-   *
-   * @return collection
-   * */
+    public function status()
+    {
+        return $this->hasMany(MessageStatus::class, 'message_id');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /*
-   * its an alias of user relation
-   *
-   * @return collection
-   * */
+    /**
+     * Its an alias of user relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function sender()
     {
         return $this->user();
-    }
-
-    /**
-     * Mark the notification as read.
-     *
-     * @return void
-     */
-    public function markAsRead()
-    {
-        if (is_null($this->read_at)) {
-            $this->forceFill(['read_at' => $this->freshTimestamp()])->save();
-        }
-    }
-
-    /**
-     * Mark the notification as unread.
-     *
-     * @return void
-     */
-    public function markAsUnread()
-    {
-        if (! is_null($this->read_at)) {
-            $this->forceFill(['read_at' => null])->save();
-        }
-    }
-
-    /**
-     * Determine if a notification has been read.
-     *
-     * @return bool
-     */
-    public function read()
-    {
-        return $this->read_at !== null;
-    }
-
-    /**
-     * Determine if a notification has not been read.
-     *
-     * @return bool
-     */
-    public function unread()
-    {
-        return $this->read_at === null;
     }
 }

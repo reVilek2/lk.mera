@@ -4,6 +4,34 @@ namespace App\Models;
 
 use Illuminate\Notifications\DatabaseNotification as BaseDatabaseNotification;
 
+/**
+ * App\Models\DatabaseNotification
+ *
+ * @property string $id
+ * @property string $type
+ * @property string $notifiable_type
+ * @property int $notifiable_id
+ * @property int $sender_id
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $read_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $notifiable
+ * @property-read \App\Models\User $sender
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereNotifiableId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereNotifiableType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereReadAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereSenderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class DatabaseNotification extends BaseDatabaseNotification
 {
     // Relationships

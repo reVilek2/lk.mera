@@ -67,6 +67,12 @@ use Str;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereSecondName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereUpdatedAt($value)
  * @property-read \Illuminate\Database\Eloquent\Collection|\Spatie\MediaLibrary\Models\Media[] $media
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Chat[] $chats
+ * @property-read mixed $avatar
+ * @property-read mixed $name
+ * @property-read mixed $role
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Chat[] $ownerChats
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MessageStatus[] $unreadMessages
  */
 class User extends Authenticatable implements HasMedia
 {
@@ -168,13 +174,29 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
-     * All chats messages
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Set the polymorphic relation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
-    public function messages()
+    public function ownerChats()
     {
-        return $this->hasMany(Message::class);
+        return $this->morphMany(Chat::class, 'owner');
     }
+
+    /**
+     * Set the polymorphic relation.
+     *
+     */
+    public function chats()
+    {
+        return $this->belongsToMany(Chat::class, 'chats_users', 'user_id','chat_id');
+    }
+
+    public function unreadMessages()
+    {
+        return $this->hasMany(MessageStatus::class, 'user_id')->where('read_at', '=', null);
+    }
+
 
     /**
      * @param $email
@@ -442,32 +464,6 @@ class User extends Authenticatable implements HasMedia
      */
     public function unreadNotificationMessages()
     {
-        $notificationsDb = $this->notifications()
-        ->whereNull('read_at')->where('type', MessageSentNotification::class)->get();
-        $notifications = [];
-        foreach ($notificationsDb as $key => $notification) {
-            $notifications[$key]['id'] = $notification->id;
-            $notifications[$key]['type'] = $notification->type;
-            $notifications[$key]['read_at'] = $notification->read_at;
-            $notifications[$key]['created_at'] = $notification->created_at;
-
-            $notifications[$key]['data']['message'] = array_key_exists('message', $notification->data) ? $notification->data['message'] : null;
-            $notifications[$key]['data']['receiver'] = array_key_exists('receiver', $notification->data) ? $notification->data['receiver'] : null;
-
-            if (array_key_exists('sender', $notification->data)) {
-                if ($notification->sender) {
-                    $notifications[$key]['data']['sender'] = [
-                        'id' => $notification->sender->id,
-                        'name' => $notification->sender->getUserName(),
-                        'role' => $notification->sender->getUserRole(),
-                        'avatar' => $notification->sender->getAvatar('thumb'),
-                    ];
-                } else {
-                    $notifications[$key]['data']['sender'] = null;
-                }
-            }
-        }
-
         return $this->notifications()->with('sender')
             ->whereNull('read_at')->where('type', MessageSentNotification::class);
     }

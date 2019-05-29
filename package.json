@@ -39,6 +39,7 @@
         "reset-css": "^4.0.1",
         "vue-axios": "^2.1.4",
         "vue-loader": "^15.7.0",
+        "vue-textarea-autosize": "^1.0.4",
         "webfonts-loader": "^4.4.0"
     }
 }

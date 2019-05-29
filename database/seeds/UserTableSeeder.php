@@ -99,11 +99,28 @@ class UserTableSeeder extends Seeder
         $user5->assignRole('manager');
 
         // API tokens
+        /** @var \Illuminate\Database\Eloquent\Collection $users */
         $users = User::where('api_token', null)->get();
         /** @var User $user */
         foreach ($users as $user) {
             $user->api_token = Token::generate();
             $user->save();
         }
+
+        //create demo chats
+        $allUsers = User::all();
+        $allUsers2 = $allUsers;
+        $usersAdminsIds = User::role('admin')->get()->pluck('id')->toArray();
+
+        foreach ($allUsers as $key => $user) {
+            foreach ($allUsers2 as $user2) {
+                if ($user->id !== $user2->id) {
+                    ChatService::createChat([$user->id, $user2->id]);
+                }
+            }
+            unset($allUsers2[$key]);
+        }
+
+        ChatService::createChat($usersAdminsIds, 'Администраторы', false);
     }
 }
