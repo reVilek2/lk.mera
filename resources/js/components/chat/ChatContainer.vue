@@ -50,6 +50,7 @@
                             :max-height="350"
                             rows="1"
                             @keydown.native="sendMessageHandle"
+                            @focus.native="setIsNeedMarkAllAsRead"
                     ></chat-textarea>
                     <span class="input-group-btn chat-bth">
                         <button class="btn btn-primary btn-flat" @click="sendMessage">Отправить</button>
@@ -195,10 +196,10 @@
 
             setIsNeedMarkAllAsRead() {
                 let _this = this;
+
                 if (!_this.bottom_done && _this.active) {
                     let scrollContainer = document.getElementById(_this.id_chat_container);
                     if (scrollContainer.offsetHeight >= scrollContainer.scrollHeight) {
-                        // console.log('setIsNeedMarkAllAsRead');
                         _this.markAllAsRead();
                     }
                 }
