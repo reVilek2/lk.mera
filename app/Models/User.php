@@ -127,7 +127,8 @@ class User extends Authenticatable implements HasMedia
         'email',
         'phone',
         'password',
-        'password_confirmation'
+        'password_confirmation',
+        'api_token'
     ];
 
     /**
@@ -135,7 +136,7 @@ class User extends Authenticatable implements HasMedia
      *
      * @var array
      */
-    protected $hidden = ['password', 'reset_password_code', 'email_confirmation_code', 'phone_confirmation_code', 'phone_verified_at', 'email_verified_at', 'email_confirmation_code_created_at', 'activated_at', 'remember_token', 'api_token', 'phone_confirmation_code_created_at'];
+    protected $hidden = ['password', 'reset_password_code', 'email_confirmation_code', 'phone_confirmation_code', 'phone_verified_at', 'email_verified_at', 'email_confirmation_code_created_at', 'activated_at', 'remember_token', 'api_token', 'phone_confirmation_code_created_at', 'media', 'roles'];
 
     /**
      * @var array The attributes that aren't mass assignable.
@@ -156,13 +157,19 @@ class User extends Authenticatable implements HasMedia
 
     protected $appends = [
         'avatar',
+        'avatar_medium',
         'role',
         'name',
+        'created_at_short'
     ];
 
     function getAvatarAttribute()
     {
         return $this->getAvatar('thumb');
+    }
+    function getAvatarMediumAttribute()
+    {
+        return $this->getAvatar('medium');
     }
     function getNameAttribute()
     {
@@ -172,7 +179,10 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->getUserRole();
     }
-
+    public function getCreatedAtShortAttribute()
+    {
+        return humanize_date($this->created_at, 'd.m.Y H:i');
+    }
     /**
      * Set the polymorphic relation.
      *
@@ -197,6 +207,20 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(MessageStatus::class, 'user_id')->where('read_at', '=', null);
     }
 
+    public function clients()
+    {
+        return $this->belongsToMany(User::class, 'users_managers', 'manager_id', 'client_id')->withTimestamps();
+    }
+
+    public function manager()
+    {
+        return $this->belongsToMany(User::class, 'users_managers', 'client_id', 'manager_id')->withTimestamps();
+    }
+
+    public function getManager()
+    {
+        return $this->manager()->get()->first();
+    }
 
     /**
      * @param $email

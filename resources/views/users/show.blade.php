@@ -2,13 +2,13 @@
 
 @section('title')
     @include('components/title', [
-        'title'=>'Профиль',
-        'description'=>'Просмотр и редактирование информации о пользователе'
-     ])
+        'title'=>'Пользователь',
+        'description'=>''
+    ])
 @endsection
 
 @section('breadcrumbs')
-    {{ Breadcrumbs::render('profile') }}
+    {{ Breadcrumbs::render('user') }}
 @endsection
 
 @section('content')
@@ -18,43 +18,13 @@
             'text' => session('statusMessage'),
         ])
     @endif
-
     <div class="row">
         <div class="col-md-3">
 
             <!-- Profile Image -->
             <div class="box box-primary">
                 <div class="box-body box-profile">
-                    {{-- 128x128 --}}
-                    <div class="avatar">
-                        <form method="post" action="{{ route('profile.avatar.update', $user) }}" enctype="multipart/form-data">
-                            @csrf
-                            @method('put')
-
-                            <label class="avatar-icon-touch">
-                                <input type="file" accept="image/*" name="avatar" class="js-input-avatar">
-                            </label>
-                        </form>
-                        <img class="profile-user-img img-responsive img-circle" src="{{ $user->getAvatar('medium') }}" alt="User avatar">
-                    </div>
-                    @if ($errors->has('avatar'))
-                    <div class="avatar-upload-errors">
-                        <div class="form-group has-error">
-                            <div class="help-block with-errors">
-                                {{ $errors->first('avatar') }}
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                    <h3 class="profile-username text-center">{{ Auth::user()->getUserName() }}</h3>
-
-                    <p class="text-muted text-center">{{ Auth::user()->getUserRole() }}</p>
-
-                    <ul class="list-group list-group-unbordered">
-                        <li class="list-group-item">
-                            <b>Менеджер:</b> <a href="#" class="pull-right">не закреплен</a>
-                        </li>
-                    </ul>
+                    <user-profile-box :current-user="{{$user}}" :managers="{{$managers}}" :current-manager="{{$currentManager ?? '{}'}}"></user-profile-box>
                 </div>
                 <!-- /.box-body -->
             </div>
@@ -64,11 +34,59 @@
         <div class="col-md-9">
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
-                    <li class="{{(session('active_tab') && session('active_tab') == 'settings') || !session('active_tab') ? 'active': ''}}"><a href="#settings" data-toggle="tab">Учетные данные</a></li>
+                    <li class="{{(session('active_tab') && session('active_tab') == 'info') || !session('active_tab') ? 'active': ''}}"><a href="#info" data-toggle="tab">Информация</a></li>
+                    <li class="{{session('active_tab') && session('active_tab') == 'settings' ? 'active': ''}}"><a href="#settings" data-toggle="tab">Учетные данные</a></li>
                     <li class="{{session('active_tab') && session('active_tab') == 'password' ? 'active': ''}}"><a href="#password" data-toggle="tab">Смена пароля</a></li>
                 </ul>
                 <div class="tab-content">
-                    <div class="{{(session('active_tab') && session('active_tab') == 'settings') || !session('active_tab') ? 'active': ''}} tab-pane" id="settings">
+                    <div class="{{(session('active_tab') && session('active_tab') == 'info') || !session('active_tab') ? 'active': ''}} tab-pane" id="info">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h4>Информация о пользователе</h4>
+                                <div class="info-mb-5"><strong>ФИО:</strong> {{$user->last_name}} {{$user->first_name}} {{$user->second_name}}</div>
+                                <div class="info-mb-5"><strong>Роль:</strong> {{$user->role}}</div>
+                                <div class="info-mb-5"><strong>Зарегистрирован:</strong> {{$user->created_at_short}}</div>
+                                <hr>
+                                <h4>Контактные данные</h4>
+                                <div class="info-mb-5">
+                                    <strong>Email:</strong>
+                                    @if($user->email)
+                                        <a href="mailto:{{$user->email}}"> {{$user->email}}</a>
+                                    @else
+                                        —
+                                    @endif
+                                </div>
+                                <div class="info-mb-5">
+                                    <strong>Дата подтверждения email:</strong>
+                                    @if($user->email_verified_at)
+                                        {{humanize_date($user->email_verified_at, 'd.m.Y H:i')}}
+                                    @else
+                                        —
+                                    @endif
+                                </div>
+                                <div class="info-mb-5">
+                                    <strong>Телефон:</strong>
+                                    @if($user->phone)
+                                        <a href="mailto:{{$user->phone}}"> {{$user->phone}}</a>
+                                    @else
+                                        —
+                                    @endif
+                                </div>
+                                <div class="info-mb-5">
+                                    <strong>Дата подтверждения телефона:</strong>
+                                    @if($user->phone_verified_at)
+                                        {{humanize_date($user->phone_verified_at, 'd.m.Y H:i')}}
+                                    @else
+                                        —
+                                    @endif
+                                </div>
+
+                                <br>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="{{session('active_tab') && session('active_tab') == 'settings' ? 'active': ''}} tab-pane" id="settings">
                         @if (session('email_changed'))
                             <div class="row">
                                 <div class="col-sm-offset-2 col-sm-10">
@@ -148,19 +166,19 @@
                                 <div class="col-sm-10">
                                     @if ($user->phone)
                                         <div class="input-group">
-                                    @endif
-                                        <input type="text"
-                                               class="form-control{{ $errors->has('phone') ? ' is-invalid' : '' }}"
-                                               id="inputPhone"
-                                               name="phone"
-                                               placeholder="Введите ваш телефон"
-                                               value="{{ old('phone') ?? $user->phone ?? ''}}">
-                                        @if ($user->phone)
-                                        <div class="input-group-btn" title="{{$user->phone_verified_at ? 'Телефон подтвержден':'Телефон не подтвержден'}}">
-                                            <button type="button" class="btn {{$user->phone_verified_at ? 'btn-success':'btn-danger'}}"><i class="fa fa-check text-white"></i></button>
-                                        </div>
-                                        @endif
-                                    @if ($user->phone)
+                                            @endif
+                                            <input type="text"
+                                                   class="form-control{{ $errors->has('phone') ? ' is-invalid' : '' }}"
+                                                   id="inputPhone"
+                                                   name="phone"
+                                                   placeholder="Введите ваш телефон"
+                                                   value="{{ old('phone') ?? $user->phone ?? ''}}">
+                                            @if ($user->phone)
+                                                <div class="input-group-btn" title="{{$user->phone_verified_at ? 'Телефон подтвержден':'Телефон не подтвержден'}}">
+                                                    <button type="button" class="btn {{$user->phone_verified_at ? 'btn-success':'btn-danger'}}"><i class="fa fa-check text-white"></i></button>
+                                                </div>
+                                            @endif
+                                            @if ($user->phone)
                                         </div>
                                     @endif
                                     <div class="help-block with-errors">
@@ -174,19 +192,19 @@
                                 <div class="col-sm-10">
                                     @if ($user->email)
                                         <div class="input-group">
-                                    @endif
-                                        <input type="email"
-                                               class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
-                                               id="inputEmail"
-                                               name="email"
-                                               placeholder="Введите ваш email"
-                                               value="{{ old('email') ?? $user->email ?? ''}}">
-                                        @if ($user->email)
-                                            <div class="input-group-btn" title="{{$user->email_verified_at ? 'Email подтвержден':'Email не подтвержден'}}">
-                                                <button type="button" class="btn {{$user->email_verified_at ? 'btn-success':'btn-danger'}}"><i class="fa fa-check text-white"></i></button>
-                                            </div>
-                                        @endif
-                                    @if ($user->email)
+                                            @endif
+                                            <input type="email"
+                                                   class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
+                                                   id="inputEmail"
+                                                   name="email"
+                                                   placeholder="Введите ваш email"
+                                                   value="{{ old('email') ?? $user->email ?? ''}}">
+                                            @if ($user->email)
+                                                <div class="input-group-btn" title="{{$user->email_verified_at ? 'Email подтвержден':'Email не подтвержден'}}">
+                                                    <button type="button" class="btn {{$user->email_verified_at ? 'btn-success':'btn-danger'}}"><i class="fa fa-check text-white"></i></button>
+                                                </div>
+                                            @endif
+                                            @if ($user->email)
                                         </div>
                                     @endif
                                     <div class="help-block with-errors">
@@ -195,7 +213,7 @@
                                 </div>
                             </div>
 
-                             <div class="form-group">
+                            <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
                                     <button type="submit" class="btn btn-primary">Сохранить</button>
                                 </div>

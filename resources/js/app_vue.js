@@ -28,6 +28,8 @@ Vue.directive('scroll', {
 
 import ChatsList from './components/chat/ChatsList.vue';
 import NotificationMessages from './components/notification/NotificationMessages.vue';
+import UsersTable from './components/users/UsersTable.vue';
+import UserProfileBox from './components/users/UserProfileBox';
 
 Vue.config.devtools = process.env.NODE_ENV === 'development';
 
@@ -35,7 +37,9 @@ let app = new Vue({
     el: '#app',
     components: {
         ChatsList,
-        NotificationMessages
+        NotificationMessages,
+        UsersTable,
+        UserProfileBox
     },
     data: {},
     mounted() {

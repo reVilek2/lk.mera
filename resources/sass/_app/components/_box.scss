@@ -1,0 +1,50 @@
+.box-profile {
+  position: relative;
+  overflow: hidden;
+}
+.box-profile-manager {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  &__title {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  &__btn {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}
+.box-manager {
+  border-radius: 0 0 3px 3px;
+  padding: 10px;
+  background: $white;
+  position: absolute;
+  transform: translate(100%, 0);
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: block;
+  width: 100%;
+  transition: all 0.3s ease-in-out;
+  z-index: 10;
+
+  &.active {
+    transform: translate(0, 0);
+  }
+  &__success-btn {
+    margin-right: 5px;
+  }
+  &__cancel-btn {
+
+  }
+}

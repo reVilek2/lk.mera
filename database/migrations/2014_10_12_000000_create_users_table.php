@@ -38,6 +38,23 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+
+        Schema::create('users_managers', function (Blueprint $table) {
+            $table->unsignedInteger('client_id');
+            $table->unsignedInteger('manager_id');
+            $table->timestamps();
+
+            $table->primary(['client_id']);
+            $table->foreign('client_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('manager_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+        });
     }
 
     /**
@@ -48,5 +65,6 @@ class CreateUsersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('users');
+        Schema::dropIfExists('users_managers');
     }
 }

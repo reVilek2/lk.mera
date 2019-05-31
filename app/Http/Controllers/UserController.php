@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Rules\PhoneNumber;
-use App\Services\PhoneNormalizer;
+use App\Services\Page;
 use App\Services\UserManager;
 use Auth;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+
 
 class UserController extends Controller
 {
@@ -31,66 +31,87 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Список пользователей
      *
-     * @param  Request $request
-     * @param  User $user
-     * @return Response
-     * @throws \Exception
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
      */
-    public function update(Request $request, User $user)
+    public function index(Request $request)
     {
-        if (Auth::user()->id !== $user->id) {
-            return redirect()->back()
-                ->with('status', 'error')
-                ->with('statusMessage', 'Запрещено редактировать чужие данные!');
+        Page::setTitle('Пользователи | MeraCapital');
+        Page::setDescription('Страница пользователей');
+
+        $whiteListOrderColumns = [
+            'id' => true,
+            'full_name' => true,
+            'email' => true,
+            'phone' => true,
+            'created_at' => true,
+        ];
+        $whiteListSearchColumns = [
+            'email',
+            'phone',
+            'full_name',
+        ];
+        $params = [
+           'sort' => $request->has('column') ? $request->input('column') : null,
+           'dir' => $request->has('dir') && $request->input('dir') === 'asc' ? 'asc' : 'desc',
+           'search' => $request->has('column') && !empty($request->input('search')) ? $request->input('search') : null,
+           'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
+        ];
+
+        $users = $this->userManager->getUsersWithOrderAndPagination($whiteListOrderColumns, $whiteListSearchColumns, $params);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'users' => $users,
+                'draw' => $request->input('draw')
+            ], 200);
         }
-        $this->validate($request, [
-            'email'    => 'nullable|between:6,255|email',
-            'phone'    => ['nullable', new PhoneNumber('Поле phone имеет ошибочный формат.')],
-            'first_name' => 'nullable|string',
-            'second_name' => 'nullable|string',
-            'last_name' => 'nullable|string',
+
+        return view('users.index', [
+            'users' => $users->toJson()
         ]);
-        $email_changed = false;
-        $phone_changed = false;
+    }
 
-        $user->first_name = $request->first_name;
-        $user->second_name = $request->second_name;
-        $user->last_name = $request->last_name;
+    public function show(Request $request, User $user)
+    {
+        Page::setTitle('Пользователь | MeraCapital');
+        Page::setDescription('Страница пользователя');
+        $currentManager = $user->getManager();
+        $managers = User::role(['admin', 'manager'])->with('clients')->get();
 
-        if ($request->has('email') && $request->email) {
-            if ($user->email !== trim($request->email)) {
-                $user->email = trim($request->email);
-                $user->email_verified_at = null;
-                $email_changed = true;
-            }
+        return view('users.show', [
+            'user' => $user,
+            'currentManager' => $currentManager,
+            'managers' => $managers
+        ]);
+    }
+
+    public function attachManager(Request $request, User $user)
+    {
+        if (!Auth::user()) {
+            return response()->json(['error' => 'User not authorized.'], 200);
         }
-        if ($request->has('phone') && $request->phone) {
-            $phoneNormalizer = new PhoneNormalizer();
-            $phoneNormalized = $phoneNormalizer->normalize($request->phone);
-            if ($phoneNormalized) {
-                $phoneNormalized = '+'.$phoneNormalized;
-            }
-            if ($user->phone !== $phoneNormalized) {
-                $user->phone = $request->phone;
-                $user->phone_verified_at = null;
-                $phone_changed = true;
-            }
-        }
-        $user->save();
+        $manager_id = (int) $request->{'manager_id'};
+        $currentManager = $user->getManager();
 
-        if ($email_changed) {
-            // если изменился email то
-            // отсылаем на почту письмо для подтверждения
-            $this->userManager->sendActivationEmail($user);
+        if ($manager_id === 0) {
+            $user = $this->userManager->detachManager($user, $currentManager);
+        } else {
+            $newManager = User::whereId($manager_id)->get()->first();
+            if (!$newManager) {
+                return response()->json(['error' => 'Bad data provided.'], 200);
+            }
+            $user = $this->userManager->changeManager($user, $currentManager, $newManager);
         }
 
-        return redirect()
-            ->route('profile')
-            ->with('status', 'success')
-            ->with('statusMessage', $this->messages['successUpdate'])
-            ->with('email_changed', $email_changed)
-            ->with('phone_changed', $phone_changed);
+        $currentManager = $user->fresh()->getManager();
+
+        return response()->json([
+            'status' => 'success',
+            'user' => $user,
+            'currentManager' => $currentManager,
+        ], 200);
     }
 }
