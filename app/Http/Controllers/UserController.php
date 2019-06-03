@@ -96,6 +96,7 @@ class UserController extends Controller
         $manager_id = (int) $request->{'manager_id'};
         $currentManager = $user->getManager();
 
+        // если отключают менеджера
         if ($manager_id === 0) {
             $user = $this->userManager->detachManager($user, $currentManager);
         } else {
@@ -103,6 +104,7 @@ class UserController extends Controller
             if (!$newManager) {
                 return response()->json(['error' => 'Bad data provided.'], 200);
             }
+
             $user = $this->userManager->changeManager($user, $currentManager, $newManager);
         }
 

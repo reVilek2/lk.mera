@@ -34,12 +34,14 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @mixin \Eloquent
  * @property string|null $name
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereName($value)
+ * @property int $client
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereClient($value)
  */
 class Chat extends Model
 {
     protected $table = 'chats';
     public $timestamps = true;
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'client'];
 
     public function users()
     {
@@ -76,14 +78,16 @@ class Chat extends Model
      *
      * @param null $name
      * @param bool $private
+     * @param bool $client
      * @return Chat
      */
-    public function start($users, $name = null, $private = true)
+    public function start($users, $name = null, $private = true, $client = false)
     {
         /** @var Chat $chat */
         $chat = $this->create([
             'name' => !$name && !$private ? 'группа': $name,
             'private' => $private,
+            'client' => $client,
         ]);
 
         if ($users) {
@@ -112,6 +116,17 @@ class Chat extends Model
         if ($this->fresh()->users->count() > 2) {
             $this->private = false;
             $this->save();
+        }
+
+        return $this;
+    }
+
+    public function syncUsers($userIds)
+    {
+        if (!empty($userIds)) {
+            $this->users()->detach();
+
+            return $this->addUsers($userIds);
         }
 
         return $this;
@@ -181,6 +196,40 @@ class Chat extends Model
     public function getMessagesStatus($user)
     {
         return $this->messagesStatus($user, false);
+    }
+
+    /**
+     * @param $userOne
+     * @param $userTwo
+     * @return \App\Models\Chat|\Illuminate\Database\Query\Builder|null|object
+     */
+    public function getPrivateChatBetweenUsers($userOne, $userTwo)
+    {
+        $userOneId = is_object($userOne) ? $userOne->getKey() : $userOne;
+        $userTwoId = is_object($userTwo) ? $userTwo->getKey() : $userTwo;
+
+        return $this->join('chats_users as cu1', function ($join) use ($userOneId) {
+                $join->on('cu1.chat_id', '=', 'chats.id')
+                    ->where('cu1.user_id', '=', $userOneId);
+            })
+            ->join('chats_users as cu2', function ($join2) use ($userTwoId) {
+                $join2->on('cu2.chat_id', '=', 'chats.id')
+                    ->where('cu2.user_id', '=', $userTwoId);
+            })
+            ->where('private', true)->first();
+    }
+
+    /**
+     * @param $user
+     * @return \App\Models\Chat|\Illuminate\Database\Query\Builder|null|object
+     */
+    public function getPrivateClientChat($user)
+    {
+        $userId = is_object($user) ? $user->getKey() : $user;
+        return $this->join('chats_users', 'chats_users.chat_id', '=', 'chats.id')
+            ->where('chats_users.user_id', $userId)
+            ->where('client', true)
+            ->where('private', true)->first();
     }
 
     /**

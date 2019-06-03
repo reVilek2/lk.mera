@@ -55,7 +55,7 @@ class UserTableSeeder extends Seeder
         foreach (User::all() as $key => $user) {
             foreach ($allUsers as $user2) {
                 if ($user->id !== $user2->id) {
-                    ChatService::createChat([$user->id, $user2->id]);
+                    ChatService::createChat([$user->id, $user2->id], 'Приватный чат');
                 }
             }
             unset($allUsers[$key]);
@@ -63,6 +63,7 @@ class UserTableSeeder extends Seeder
         ChatService::createChat($usersAdminsIds, 'Администраторы', false);
 
         // Фейковые менеджеры
+        $managersIds = [];
         $faker = Faker\Factory::create('ru_RU');
         $limit = 6;
         $count = 0;
@@ -84,6 +85,7 @@ class UserTableSeeder extends Seeder
                 ]
             );
             $user->assignRole('manager');
+            $managersIds[] = $user->id;
             $user = null;
         }
         // Фейковые клиенты
@@ -107,6 +109,10 @@ class UserTableSeeder extends Seeder
                 ]
             );
             $user->assignRole('client');
+            if (array_key_exists($i, $managersIds)) {
+                $user->manager()->attach($managersIds[$i]);
+                ChatService::createChat([$user->id, $managersIds[$i]], 'Приватный чат c менеджером', true, true);
+            }
             $user = null;
         }
 

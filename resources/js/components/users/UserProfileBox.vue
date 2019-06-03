@@ -80,9 +80,11 @@
             attachManager() {
                 if (!this.saved_process) {
                     this.saved_process = true;
-                    axios.post('/users/' + this.currentUser.id + '/attach-manager', {'manager_id': this.managerSelected}).then(response => {
+                    axios.post('/users/' + this.user.id + '/attach-manager', {'manager_id': this.managerSelected}).then(response => {
                         if (response.data.status === 'success') {
-                            this.setManager(response.data.currentManager);
+                            let newManager = response.data.currentManager ? response.data.currentManager : {};
+                            this.user = response.data.user;
+                            this.setManager(newManager);
                             this.closeManagerBox();
                         }
                         this.saved_process = false;
@@ -100,6 +102,7 @@
                 return managerOptions;
             },
             setManager(newManager) {
+                // если есть менеджер то сетим его или пустой объект (в случаее открепления менеджера)
                 if (newManager) {
                     this.manager = newManager;
                 }

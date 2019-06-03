@@ -32,9 +32,9 @@ class ChatManager
      * @param bool $private
      * @return Chat
      */
-    public function createChat(array $participants, $name = null, $private = true)
+    public function createChat(array $participants, $name = null, $private = true, $client = false)
     {
-        return $this->chat->start($participants, $name, $private);
+        return $this->chat->start($participants, $name, $private, $client);
     }
 
     /**
@@ -95,5 +95,39 @@ class ChatManager
     public function markChatAsRead(Chat $chat, $user)
     {
         $chat->markChatAsRead($user);
+    }
+
+    /**
+     * Gets private chat for a specific user.
+     *
+     * @param \App\Models\User | int $userOne
+     * @param \App\Models\User | int $userTwo
+     *
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|object
+     */
+    public function getPrivateChatBetweenUsers($userOne, $userTwo)
+    {
+        return $this->chat->getPrivateChatBetweenUsers($userOne, $userTwo);
+    }
+
+    /**
+     * Gets client private chat for a specific user.
+     *
+     * @param \App\Models\User | int $user
+     *
+     * @return \App\Models\Chat|\Illuminate\Database\Query\Builder|object
+     */
+    public function getPrivateClientChat($user)
+    {
+        return $this->chat->getPrivateClientChat($user);
+    }
+
+    /**
+     * @param \App\Models\Chat $chat
+     * @param array $userIds
+     */
+    public function chatSyncUsers($chat, array $userIds)
+    {
+        $chat->syncUsers($userIds);
     }
 }

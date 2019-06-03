@@ -3,6 +3,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Notifications\EmailConfirmNotification;
+use ChatService;
 use Illuminate\Http\Request;
 use Mail;
 
@@ -95,21 +96,27 @@ class UserManager
 
     /**
      * @param User $user
-     * @param User|null $currManager
+     * @param User|null $oldManager
      * @param User|null $newManager
      * @return User
      */
-    public function changeManager(User $user, User $currManager = null, User $newManager = null)
+    public function changeManager(User $user, User $oldManager = null, User $newManager = null)
     {
-        if (!$newManager || ($currManager && $newManager && $currManager->id === $newManager->id)) {
+        if (!$newManager || ($oldManager && $newManager && $oldManager->id === $newManager->id)) {
             return $user;
         }
-        if (!$currManager) {
+        if (!$oldManager) {
             $user->manager()->attach($newManager->id);
         } else {
-            $user->manager()->detach($currManager->id);
+            $user->manager()->detach($oldManager->id);
             $user->manager()->attach($newManager->id);
         }
+
+        // даем роль "клиент"
+        $user = $this->assignClientRole($user);
+        // синхронизируем чат client/manager
+        $this->syncClientChat($user, $newManager);
+
         return $user;
     }
 
@@ -117,8 +124,40 @@ class UserManager
     {
         if ($currManager) {
             $user->manager()->detach($currManager->id);
+            // синхронизируем чат client/manager
+            $this->syncClientChat($user, null);
         }
 
         return $user;
+    }
+
+    public function assignClientRole(User $user)
+    {
+        if (! $user->hasRole(User::ROLE_CLIENT) ) { // если нет роли "client"
+            if ( $user->hasRole(User::ROLE_USER) ) { // удаляем старую роль "user" если есть
+                $user->removeRole(User::ROLE_USER);
+            }
+            $user->assignRole(User::ROLE_CLIENT);
+        }
+
+        return $user;
+    }
+
+    public function syncClientChat(User $user, User $manager = null)
+    {
+        $participants = [];
+        $participants[] = $user->id;
+        if ($manager) {
+            $participants[] = $manager->id;
+        }
+
+        $chat = ChatService::getPrivateClientChat($user);
+        if ($chat) {
+            // chat sync users
+            ChatService::chatSyncUsers($chat, $participants);
+        } else {
+            // new chat
+            ChatService::createChat($participants, 'Приватный чат c менеджером', true, true);
+        }
     }
 }

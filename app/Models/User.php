@@ -73,6 +73,10 @@ use Str;
  * @property-read mixed $role
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Chat[] $ownerChats
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MessageStatus[] $unreadMessages
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $clients
+ * @property-read mixed $avatar_medium
+ * @property-read mixed $created_at_short
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $manager
  */
 class User extends Authenticatable implements HasMedia
 {
@@ -88,16 +92,15 @@ class User extends Authenticatable implements HasMedia
 
     const ROLE_ADMIN = 'admin';
     const ROLE_MANAGER = 'manager';
-    const ROLES_USER = 'user';
-    const ROLES_USER_CLIENT = 'client';
+    const ROLE_USER = 'user';
+    const ROLE_CLIENT = 'client';
 
     const TRANSLATE_ROLES = [
         // base roles
         self::ROLE_ADMIN => 'Администратор',
         self::ROLE_MANAGER => 'Менеджер',
-        self::ROLES_USER => 'Пользователь',
-        // second only user roles
-        self::ROLES_USER_CLIENT => 'Клиент',
+        self::ROLE_USER => 'Пользователь',
+        self::ROLE_CLIENT => 'Клиент',
     ];
 
     protected $table = 'users';
@@ -416,9 +419,12 @@ class User extends Authenticatable implements HasMedia
 
             return self::TRANSLATE_ROLES[self::ROLE_MANAGER];
         }
+        if ( $this->hasRole(self::ROLE_CLIENT) ) {
 
-        //@TODO разбить роль пользователя на Пользователь/Клиент
-        return self::TRANSLATE_ROLES[self::ROLES_USER];
+            return self::TRANSLATE_ROLES[self::ROLE_CLIENT];
+        }
+
+        return self::TRANSLATE_ROLES[self::ROLE_USER];
     }
 
     /**
