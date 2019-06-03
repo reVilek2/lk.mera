@@ -179,7 +179,7 @@ class UserTableSeeder extends Seeder
                 'email' => 'dg@mera-capital.com',
                 'phone' => null,
                 'first_name' => 'Денис',
-                'last_name' => null,
+                'last_name' => 'Городчанинов',
                 'password' => 'secret',
                 'role' => ['admin', 'manager'],
             ],
