@@ -1,28 +1,37 @@
 <template>
-    <div>
+    <div v-show="loadedComponent">
         <div class="avatar">
-            <form method="post" enctype="multipart/form-data">
-                <label class="avatar-icon-touch">
-                    <input type="file" accept="image/*" name="avatar" class="js-input-avatar">
-                </label>
-            </form>
+            <label class="avatar-icon-touch">
+                <input v-if="!isUploadingFile" type="file" accept="image/*" name="avatar" @change="onFileUpload">
+                <input v-else type="file" accept="image/*" name="avatar" disabled>
+            </label>
             <img class="profile-user-img img-responsive img-circle" :src="user.avatar_medium" alt="User avatar">
+        </div>
+        <div v-if="fileUploadErrors.length > 0" class="avatar-upload-errors">
+            <div class="form-group has-error">
+                <div class="help-block with-errors">
+                    {{fileUploadErrors}}
+                </div>
+            </div>
         </div>
         <h3 class="profile-username text-center">{{user.name}}</h3>
         <p class="text-muted text-center">{{user.role}}</p>
-        <ul class="list-group list-group-unbordered">
+        <ul v-if="is_role_user_or_client" class="list-group list-group-unbordered">
             <li class="list-group-item box-profile-manager">
                 <b class="box-profile-manager__title">Менеджер:</b>
-                <div class="btn-group box-profile-manager__btn">
+                <div v-if="!isProfile" class="btn-group box-profile-manager__btn">
                     <button type="button" class="btn btn-info" @click="openManagerBox()">{{managerName}}</button>
                     <button type="button" class="btn btn-info" @click="openManagerBox()">
                         <i class="fa fa-edit"></i>
                     </button>
                 </div>
+                <div v-else class="btn-group box-profile-manager__btn">
+                    <a href="#">{{managerName}}</a>
+                </div>
             </li>
         </ul>
 
-        <div class="box-manager" :class="{'active': activeBoxManager}">
+        <div v-if="!isProfile && is_role_user_or_client" class="box-manager" :class="{'active': activeBoxManager}">
             <h4>Закрепить менеджера</h4>
             <div class="form-group">
                 <label for="manager-select" >выберите менеджера:</label>
@@ -53,20 +62,33 @@
                 type: Object,
                 default: () => {}
             },
+            profileUser: {
+                type: Object,
+                default: () => {}
+            },
             currentManager: {
                 type: Object,
                 default: () => {}
+            },
+            isProfile: {
+                type: Boolean,
+                default: () => true
             }
         },
         data: function() {
             return {
                 saved_process: false,
-                user: this.currentUser,
+                user: this.profileUser,
                 manager: this.currentManager,
                 managerName: 'Не закреплен',
                 activeBoxManager: false,
                 managerSelected: 0,
-                managerOptions: this.getOptionsManager()
+                managerOptions: this.getOptionsManager(),
+                is_role_user_or_client: false,
+                selectedFile: null,
+                fileUploadErrors: '',
+                isUploadingFile: false,
+                loadedComponent: false,
             }
         },
 
@@ -74,9 +96,11 @@
             openManagerBox() {
                 this.activeBoxManager = true;
             },
+
             closeManagerBox() {
                 this.activeBoxManager = false;
             },
+
             attachManager() {
                 if (!this.saved_process) {
                     this.saved_process = true;
@@ -94,6 +118,7 @@
                     });
                 }
             },
+
             getOptionsManager() {
                 let managerOptions = [{ text:'не выбран', value:0 }];
                 this.managers.forEach(el => {
@@ -101,6 +126,7 @@
                 });
                 return managerOptions;
             },
+
             setManager(newManager) {
                 // если есть менеджер то сетим его или пустой объект (в случаее открепления менеджера)
                 if (newManager) {
@@ -121,14 +147,70 @@
                 } else {
                     this.managerSelected = 0;
                 }
+            },
+
+            checkUserOrClientRoles() {
+                for(let key in this.user.role_names) {
+                    if (this.user.role_names.hasOwnProperty(key)) {
+                        if (this.user.role_names[key] === 'user' || this.user.role_names[key] === 'client') {
+                            this.is_role_user_or_client = true;
+                        }
+                    }
+                }
+            },
+
+            onFileUpload(event) {
+                this.selectedFile = event.target.files[0];
+                if (!this.isUploadingFile && this.selectedFile) {
+                    this.isUploadingFile = true;
+                    const formData = new FormData();
+                    formData.append('avatar', this.selectedFile, this.selectedFile.name);
+                    axios.post('/profile/' + this.user.id + '/avatar', formData, {
+                        onUploadProgress: uploadEvent => {
+                            console.log('Upload progress: ' + Math.round(uploadEvent.loaded / uploadEvent.total * 100) + '%')
+                        }
+                    }).then(response => {
+                        console.log(response);
+                        if (response.data.status === 'success') {
+                            this.fileUploadErrors = '';
+                            if (response.data.hasOwnProperty('user')) {
+                                this.user = response.data.user;
+                                if (parseInt(this.user.id) === parseInt(this.currentUser.id)) {
+                                    let user_avatar_thumb = document.querySelectorAll('.js-user-avatar-thumb');
+                                    let user_avatar_small = document.querySelectorAll('.js-user-avatar-small');
+                                    for (let i = 0; i < user_avatar_thumb.length; i++) {
+                                        user_avatar_thumb[i].setAttribute('src', this.user.avatar);
+                                    }
+                                    for (let i = 0; i < user_avatar_small.length; i++) {
+                                        user_avatar_small[i].setAttribute('src', this.user.avatar_small);
+                                    }
+                                }
+                            }
+                        }
+                        if (response.data.status === 'error') {
+                            if (response.data.errors.hasOwnProperty('avatar')) {
+                                this.fileUploadErrors = response.data.errors.avatar[0];
+                            }
+                        }
+                        this.isUploadingFile = false;
+                    }).catch(errors => {
+                        console.log(errors);
+                        this.isUploadingFile = false;
+                    });
+                }
             }
         },
         mounted() {
             console.log('component UserProfileBox mounted');
-            console.log(this.currentUser.name);
+            let _this = this;
+            // прослушивание скролла
+            setTimeout(function(){
+                _this.loadedComponent = true;
+            }, 10);
         },
         created() {
             this.setManager();
+            this.checkUserOrClientRoles();
         },
     }
 </script>

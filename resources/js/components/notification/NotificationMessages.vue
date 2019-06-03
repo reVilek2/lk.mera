@@ -10,7 +10,7 @@
             <li v-else class="header">У вас нет новых сообщений</li>
             <li>
                 <!-- inner menu: contains the messages -->
-                <ul class="menu">
+                <ul v-if="notifyMessages.length > 0" class="menu">
                     <notification-messages-item v-for="notifyMessage in notifyMessages" :notification-message="notifyMessage" :key="notifyMessage.id"></notification-messages-item>
                 </ul>
                 <!-- /.menu -->

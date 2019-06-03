@@ -7,7 +7,7 @@ Route::get('/', function (){
 });
 Route::get('/profile', 'ProfileController@index')->name('profile');
 Route::put('/profile/{user}', 'ProfileController@update')->name('profile.user.update');
-Route::put('/profile/avatar/{user}', 'ProfileController@updateAvatar')->name('profile.avatar.update');
+Route::post('/profile/{user}/avatar', 'ProfileController@updateAvatar')->name('profile.avatar.update');
 Route::put('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
 
 Route::middleware(['role:admin|manager'])->group(function () {

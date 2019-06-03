@@ -161,9 +161,11 @@ class User extends Authenticatable implements HasMedia
     protected $appends = [
         'avatar',
         'avatar_medium',
+        'avatar_small',
         'role',
         'name',
-        'created_at_short'
+        'created_at_short',
+        'role_names',
     ];
 
     function getAvatarAttribute()
@@ -173,6 +175,10 @@ class User extends Authenticatable implements HasMedia
     function getAvatarMediumAttribute()
     {
         return $this->getAvatar('medium');
+    }
+    function getAvatarSmallAttribute()
+    {
+        return $this->getAvatar('small');
     }
     function getNameAttribute()
     {
@@ -185,6 +191,10 @@ class User extends Authenticatable implements HasMedia
     public function getCreatedAtShortAttribute()
     {
         return humanize_date($this->created_at, 'd.m.Y H:i');
+    }
+    function getRoleNamesAttribute()
+    {
+        return $this->getRoleNames();
     }
     /**
      * Set the polymorphic relation.
@@ -411,20 +421,15 @@ class User extends Authenticatable implements HasMedia
      */
     public function getUserRole()
     {
-        if ( $this->hasRole(self::ROLE_ADMIN) ) {
-
-            return self::TRANSLATE_ROLES[self::ROLE_ADMIN];
-        }
-        if ( $this->hasRole(self::ROLE_MANAGER) ) {
-
-            return self::TRANSLATE_ROLES[self::ROLE_MANAGER];
-        }
-        if ( $this->hasRole(self::ROLE_CLIENT) ) {
-
-            return self::TRANSLATE_ROLES[self::ROLE_CLIENT];
+        $roleNames = $this->getRoleNames();
+        $ruRoleNames = [];
+        foreach ($roleNames as $roleName) {
+            if (array_key_exists($roleName, self::TRANSLATE_ROLES)) {
+                $ruRoleNames[] = self::TRANSLATE_ROLES[$roleName];
+            }
         }
 
-        return self::TRANSLATE_ROLES[self::ROLE_USER];
+        return implode(", ", $ruRoleNames);
     }
 
     /**

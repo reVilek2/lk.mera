@@ -46,8 +46,12 @@ class ProfileController extends Controller
         Page::setTitle('Профиль | MeraCapital');
         Page::setDescription('Страница профиля');
 
+        $user = Auth::user();
+        $currentManager = $user->getManager();
+
         return view('profile.index',[
-            'user' => Auth::user()
+            'user' => Auth::user(),
+            'currentManager' => $currentManager,
         ]);
     }
 
@@ -125,17 +129,21 @@ class ProfileController extends Controller
      */
     public function updateAvatar(Request $request, User $user)
     {
-        if (Auth::user()->id !== $user->id) {
-            return redirect()->back()
-                ->with('status', 'error')
-                ->with('statusMessage', $this->messages['forbiddenEdit']);
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin') && $currUser->id !== $user->id) {
+            return response()->json([
+                'status'=>'error',
+                'errors' => ['avatar' => [$this->messages['forbiddenEdit']]]
+            ], 200);
         }
-        $this->validate($request, [
+
+        $validation = Validator::make(['avatar' => $request->avatar], [
             'avatar'=> 'required|image|mimes:jpeg,png,jpg|max:4000',
         ]);
-
-        $avatar = $request->file('avatar');
-        if ($avatar) {
+        $errors = $validation->errors();
+        $errors = json_decode($errors);
+        if ($validation->passes()) {
+            $avatar = $request->file('avatar');
             // removed old
             $old_avatars = $user->getMedia(User::AVATAR_COLLECTION_NAME);
             if ($old_avatars->count()) {
@@ -148,12 +156,18 @@ class ProfileController extends Controller
             $user->addMedia($avatar)
                 ->usingName($avatar->getClientOriginalName())
                 ->toMediaCollection(User::AVATAR_COLLECTION_NAME);
-        }
 
-        return redirect()
-            ->route('profile')
-            ->with('status', 'success')
-            ->with('statusMessage', $this->messages['successAvatarUpdate']);
+            return response()->json([
+                'status'=>'success',
+                'user' => $user->fresh()
+            ], 200);
+
+        } else {
+            return response()->json([
+                'status'=>'error',
+                'errors' => $errors
+            ], 200);
+        }
     }
 
     /**

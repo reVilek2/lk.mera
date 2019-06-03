@@ -24,7 +24,11 @@
             <!-- Profile Image -->
             <div class="box box-primary">
                 <div class="box-body box-profile">
-                    <user-profile-box :current-user="{{$user}}" :managers="{{$managers}}" :current-manager="{{$currentManager ?? '{}'}}"></user-profile-box>
+                    <user-profile-box :current-user="{{Auth::user()}}"
+                                      :profile-user="{{$user}}"
+                                      :is-profile="false"
+                                      :managers="{{!empty($managers) ? $managers : '[]'}}"
+                                      :current-manager="{{$currentManager ?? '{}'}}"></user-profile-box>
                 </div>
                 <!-- /.box-body -->
             </div>
@@ -112,9 +116,7 @@
                                 </div>
                             </div>
                         @endif
-                        <form class="form-horizontal" method="post" action="{{ route('profile.user.update', $user) }}" autocomplete="off">
-                            @csrf
-                            @method('put')
+                        <div class="form-horizontal">
                             <div class="form-group{{ $errors->has('first_name') ? ' has-error' : '' }}">
                                 <label for="inputFirstName" class="col-sm-2 control-label">Имя</label>
 
@@ -218,12 +220,10 @@
                                     <button type="submit" class="btn btn-primary">Сохранить</button>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                     <div class="{{session('active_tab') && session('active_tab') == 'password' ? 'active': ''}} tab-pane" id="password">
-                        <form class="form-horizontal" method="post" action="{{ route('profile.password.update', $user) }}">
-                            @csrf
-                            @method('put')
+                        <div class="form-horizontal">
                             <div class="form-group{{ $errors->has('old_password') ? ' has-error' : '' }}">
                                 <label for="inputOldPassword" class="col-sm-2 control-label">Текуший пароль</label>
 
@@ -271,7 +271,7 @@
                                     <button type="submit" class="btn btn-primary">Сменить пароль</button>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                     <!-- /.tab-pane -->
                 </div>

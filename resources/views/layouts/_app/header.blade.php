@@ -30,20 +30,20 @@
                     <!-- Menu toggle button -->
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-bell-o"></i>
-                        <span class="label label-warning">10</span>
+                        {{--<span class="label label-warning">10</span>--}}
                     </a>
                     <ul class="dropdown-menu">
-                        <li class="header">У вас 10 уведомлений</li>
+                        <li class="header">У вас нет новых уведомлений</li>
                         <li>
                             <!-- Inner Menu: contains the notifications -->
-                            <ul class="menu">
-                                <li><!-- start notification -->
-                                    <a href="#">
-                                        <i class="fa fa-users text-aqua"></i> 5 new members joined today
-                                    </a>
-                                </li>
+                            {{--<ul class="menu">--}}
+                                {{--<li><!-- start notification -->--}}
+                                    {{--<a href="#">--}}
+                                        {{--<i class="fa fa-users text-aqua"></i> 5 new members joined today--}}
+                                    {{--</a>--}}
+                                {{--</li>--}}
                                 <!-- end notification -->
-                            </ul>
+                            {{--</ul>--}}
                         </li>
                         <li class="footer"><a href="#">Просмотреть все</a></li>
                     </ul>
@@ -53,20 +53,21 @@
                     <!-- Menu Toggle Button -->
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <!-- The user image in the navbar-->
-                        <img src="{{ Auth::user()->getAvatar('thumb') }}" class="user-image" alt="User Image">
+                        <img src="{{ Auth::user()->getAvatar('thumb') }}" class="user-image js-user-avatar-thumb" alt="User Image">
                         <!-- hidden-xs hides the username on small devices so only the image appears. -->
                         <span class="hidden-xs">{{ Auth::user()->getUserName() }}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- The user image in the menu -->
                         <li class="user-header">
-                            <img src="{{ Auth::user()->getAvatar('small') }}" class="img-circle" alt="User Image">
+                            <img src="{{ Auth::user()->getAvatar('small') }}" class="img-circle js-user-avatar-small" alt="User Image">
 
                             <p>
                                 {{ Auth::user()->getUserName() }} - {{ Auth::user()->getUserRole() }}
                                 <small>Зарегистрирован {{diffForHumans(Auth::user()->created_at)}}</small>
                             </p>
                         </li>
+                        @hasanyrole('user|client')
                         <!-- Menu Body -->
                         <li class="user-body">
                             <div class="row">
@@ -79,10 +80,11 @@
                             </div>
                             <!-- /.row -->
                         </li>
+                        @endhasallroles
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
-                                <a href="#" class="btn btn-default btn-flat">Редактировать</a>
+                                <a href="{{route('profile')}}" class="btn btn-default btn-flat">Редактировать</a>
                             </div>
                             <div class="pull-right">
                                 <a href="{{route('logout')}}" class="btn btn-default btn-flat">Выйти</a>

@@ -8,12 +8,15 @@ use App\Services\UserManager;
 use Auth;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Response;
+use Validator;
 
 
 class UserController extends Controller
 {
     protected $messages = array(
         'successUpdate' => 'Пользователь успешно изменен.',
+        'forbiddenEdit' => 'Запрещено редактировать чужие данные!',
     );
 
     /**

@@ -25,36 +25,11 @@
             <!-- Profile Image -->
             <div class="box box-primary">
                 <div class="box-body box-profile">
-                    {{-- 128x128 --}}
-                    <div class="avatar">
-                        <form method="post" action="{{ route('profile.avatar.update', $user) }}" enctype="multipart/form-data">
-                            @csrf
-                            @method('put')
-
-                            <label class="avatar-icon-touch">
-                                <input type="file" accept="image/*" name="avatar" class="js-input-avatar">
-                            </label>
-                        </form>
-                        <img class="profile-user-img img-responsive img-circle" src="{{ $user->getAvatar('medium') }}" alt="User avatar">
-                    </div>
-                    @if ($errors->has('avatar'))
-                    <div class="avatar-upload-errors">
-                        <div class="form-group has-error">
-                            <div class="help-block with-errors">
-                                {{ $errors->first('avatar') }}
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                    <h3 class="profile-username text-center">{{ Auth::user()->getUserName() }}</h3>
-
-                    <p class="text-muted text-center">{{ Auth::user()->getUserRole() }}</p>
-
-                    <ul class="list-group list-group-unbordered">
-                        <li class="list-group-item">
-                            <b>Менеджер:</b> <a href="#" class="pull-right">не закреплен</a>
-                        </li>
-                    </ul>
+                    <user-profile-box :current-user="{{Auth::user()}}"
+                                      :profile-user="{{$user}}"
+                                      :is-profile="true"
+                                      :managers="{{'[]'}}"
+                                      :current-manager="{{$currentManager ?? '{}'}}"></user-profile-box>
                 </div>
                 <!-- /.box-body -->
             </div>

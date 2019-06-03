@@ -149,7 +149,7 @@ class UserTableSeeder extends Seeder
                 'first_name' => 'Игорь',
                 'last_name' => 'Зубарев',
                 'password' => 'secret',
-                'role' => 'admin',
+                'role' => ['admin', 'manager'],
             ],
             [
                 'email' => 'okremaa@gmail.com',
@@ -157,7 +157,7 @@ class UserTableSeeder extends Seeder
                 'first_name' => 'Антон',
                 'last_name' => 'Окрема',
                 'password' => 'secret',
-                'role' => 'admin',
+                'role' => ['admin', 'manager'],
             ],
             [
                 'email' => 'agusev@mera-capital.com',
@@ -165,7 +165,7 @@ class UserTableSeeder extends Seeder
                 'first_name' => 'Андрей',
                 'last_name' => 'Гусев',
                 'password' => 'secret',
-                'role' => 'admin',
+                'role' => ['admin', 'manager'],
             ],
             [
                 'email' => 'o.pershina@mera-capital.com',
@@ -173,7 +173,7 @@ class UserTableSeeder extends Seeder
                 'first_name' => 'Ольга',
                 'last_name' => 'Першина',
                 'password' => 'secret',
-                'role' => 'admin',
+                'role' => ['admin', 'manager'],
             ],
             [
                 'email' => 'dg@mera-capital.com',
@@ -181,7 +181,7 @@ class UserTableSeeder extends Seeder
                 'first_name' => 'Денис',
                 'last_name' => null,
                 'password' => 'secret',
-                'role' => 'admin',
+                'role' => ['admin', 'manager'],
             ],
         ];
     }
