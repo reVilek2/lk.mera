@@ -2,7 +2,8 @@
     <div class="chat-messages">
         <div id="" class="box box-primary direct-chat direct-chat-primary">
             <div class="box-header with-border">
-                <h3 class="box-title">{{chat.name}}</h3>
+                <h3 v-if="chat.status === 1" class="box-title">{{chat.name}}</h3>
+                <h3 v-else class="box-title">Чат не доступен!</h3>
 
                 <div class="box-tools pull-right">
                     <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
@@ -53,7 +54,8 @@
                             @focus.native="setIsNeedMarkAllAsRead"
                     ></chat-textarea>
                     <span class="input-group-btn chat-bth">
-                        <button class="btn btn-primary btn-flat" @click="sendMessage">Отправить</button>
+                        <button v-if="chat.status === 1" class="btn btn-primary btn-flat" @click="sendMessage">Отправить</button>
+                        <button v-else class="btn btn-primary btn-flat" disabled>Отправить</button>
                     </span>
                 </div>
             </div>

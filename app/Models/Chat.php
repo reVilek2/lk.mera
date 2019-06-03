@@ -171,7 +171,6 @@ class Chat extends Model
         if (!is_null($isPrivate)) {
             $chats = $chats->where('chats.private', $isPrivate);
         }
-
         return $chats->orderBy('chats.updated_at', 'DESC')
             ->orderBy('chats.id', 'DESC')
             ->distinct('chats.id')->get();

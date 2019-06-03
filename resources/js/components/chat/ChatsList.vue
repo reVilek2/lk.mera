@@ -91,6 +91,7 @@
                             un_read_messages: this.chats[key].un_read_messages,
                             last_message: this.chats[key].last_message,
                             private: this.chats[key].private,
+                            status: this.getChatStatus(this.chats[key]),
                             active: false,
                             scroll_bottom: true
                         });
@@ -102,9 +103,10 @@
 
             getChatAvatar(chat)
             {
-                let avatar;
+                let avatar = '/images/chats/avatar.jpg';
+
                 if (!chat.private) {
-                    avatar = '/images/group.jpg';
+                    avatar = '/images/chats/group.jpg';
                 } else {
                     for(let key in chat.users) {
                         if (chat.users.hasOwnProperty(key) && chat.users[key].id !== this.userid) {
@@ -112,14 +114,13 @@
                             return avatar;
                         }
                     }
-
                 }
                 return avatar;
             },
 
             getChatName(chat)
             {
-                let name;
+                let name = chat.name;
                 if (!chat.private) {
                     // картинку для группы
                     name = chat.name;
@@ -133,6 +134,15 @@
 
                 }
                 return name;
+            },
+
+            getChatStatus(chat) {
+                let status = 1;
+                if (chat.users.length <= 1) { //если всего один участник
+                    status = 0;
+                }
+
+                return status;
             },
 
             openChat(chat_id) {

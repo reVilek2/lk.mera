@@ -84,12 +84,12 @@ class ChatsController extends Controller
             $body = $request->input('message-data');
             $sender = Auth::user();
             $message = $this->chatManager->makeMessage($body, $chat, $sender);
-            // событие для чата
-            broadcast(new MessageSent($chat, $message, $sender))->toOthers();
 
-            // уведомляем участников чата
             foreach ($chat->users()->get() as $receiver) {
                 if ((int) $receiver->id !== (int) $sender->id) {
+                    // событие для чата
+                    broadcast(new MessageSent($chat, $message, $sender, $receiver));
+                    // уведомляем участников чата
                     /** @var User $receiver */
                     $receiver->notify(new MessageSentNotification($chat, $message, $sender, $receiver));
                 }
