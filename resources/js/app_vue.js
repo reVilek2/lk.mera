@@ -8,11 +8,15 @@ window.Echo = new Echo({
 });
 
 import Vue from 'vue';
+
 window.axios = require('axios');
 window.axios.defaults.headers.common['X-CSRF-TOKEN'] = window.Laravel.csrfToken;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-import VueTextareaAutosize from 'vue-textarea-autosize'
-import sklonyator from './plugins/sklonyator'
+
+import store from './store';
+import VueTextareaAutosize from 'vue-textarea-autosize';
+import sklonyator from './plugins/sklonyator';
+
 Vue.use(sklonyator);
 Vue.use(VueTextareaAutosize);
 Vue.directive('scroll', {
@@ -35,6 +39,7 @@ Vue.config.devtools = process.env.NODE_ENV === 'development';
 
 let app = new Vue({
     el: '#app',
+    store,
     components: {
         ChatsList,
         NotificationMessages,

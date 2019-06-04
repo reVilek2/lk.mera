@@ -200,6 +200,12 @@
                 }
             }
         },
+
+        created() {
+            this.setManager();
+            this.checkUserOrClientRoles();
+        },
+
         mounted() {
             console.log('component UserProfileBox mounted');
             let _this = this;
@@ -207,10 +213,6 @@
             setTimeout(function(){
                 _this.loadedComponent = true;
             }, 10);
-        },
-        created() {
-            this.setManager();
-            this.checkUserOrClientRoles();
         },
     }
 </script>
