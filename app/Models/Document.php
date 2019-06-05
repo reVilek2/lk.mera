@@ -1,14 +1,41 @@
 <?php
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use MoneyAmount;
+use FileService;
 
+/**
+ * App\Models\Document
+ *
+ * @property int $id
+ * @property string $name
+ * @property int $client_id
+ * @property int $manager_id
+ * @property int $amount
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $client
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\File[] $files
+ * @property-read mixed $created_at_humanize
+ * @property-read mixed $humanize_amount
+ * @property-read \App\Models\User $manager
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereClientId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereManagerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Document extends Model
 {
-    const SAVE_FILE_DIR = '/documents';
-
     protected $table = 'documents';
     public $timestamps = true;
     protected $fillable = ['name','amount','client_id','manager_id'];
@@ -54,11 +81,28 @@ class Document extends Model
     public function addFile(array $file)
     {
         $this->files()->create([
-            'path' => $file['path'],
-            'name' => $file['name'],
             'type' => $file['type'],
+            'origin_name' => $file['origin_name'],
+            'name' => $file['name'],
+            'path' => $file['path'],
             'size' => $file['size'],
-            'extension' => $file['ext'],
         ]);
+    }
+
+    public static function nextAutoIncrementId()
+    {
+        $autoIncrement = DB::table('INFORMATION_SCHEMA.TABLES')
+            ->select('AUTO_INCREMENT as id')
+            ->where('TABLE_SCHEMA', env('DB_DATABASE'))
+            ->where('TABLE_NAME', 'documents')
+            ->first();
+
+        return $autoIncrement ? $autoIncrement->id : 0;
+    }
+
+    public static function getSaveFileDir()
+    {
+        $AutoIncrementId = self::nextAutoIncrementId();
+        return FileService::generateFolderName($AutoIncrementId);
     }
 }

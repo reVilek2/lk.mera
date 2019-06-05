@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\File;
 use App\Models\User;
 use App\Services\DocumentManager;
-use App\Services\FileManager;
 use App\Services\Page;
+use Auth;
+use FileService;
 use Illuminate\Http\Request;
 use Storage;
 use Validator;
@@ -14,20 +16,14 @@ use Validator;
 class DocumentController extends Controller
 {
     private $documentManager;
-    /**
-     * @var FileManager
-     */
-    private $fileManager;
 
     /**
      * DocumentController constructor.
      * @param DocumentManager $documentManager
-     * @param FileManager $fileManager
      */
-    public function __construct(DocumentManager $documentManager, FileManager $fileManager)
+    public function __construct(DocumentManager $documentManager)
     {
         $this->documentManager = $documentManager;
-        $this->fileManager = $fileManager;
     }
 
     public function index(Request $request)
@@ -81,14 +77,14 @@ class DocumentController extends Controller
         $errors = json_decode($errors);
         if ($validation->passes()) {
             $file = $request->file('file');
-            $fileData = $this->fileManager->getFileData($file);
-            if (Storage::disk('documents')->exists($fileData['path'].$fileData['name'].'.'.$fileData['ext'])) {
+            $fileData = FileService::getFileData($file, Document::getSaveFileDir());
+            if (Storage::disk('documents')->exists('/'.$fileData['path'].'/'.$fileData['name'])) {
                 return response()->json([
                     'status'=>'error',
                     'errors' => ['file' => ['Файл с таким именем уже существует.']]
                 ], 200);
             }
-            if (Storage::disk('documents')->putFileAs($fileData['path'], $file, $fileData['name'].'.'.$fileData['ext'])) {
+            if (Storage::disk('documents')->putFileAs($fileData['path'], $file, $fileData['name'])) {
                 $document = Document::Create([
                     'name'=> $request->input('name'),
                     'amount'=> $request->input('amount'),
@@ -115,6 +111,33 @@ class DocumentController extends Controller
                 'errors' => $errors
             ], 200);
         }
+    }
 
+    /**
+     * @param Request $request
+     * @param Document $document
+     * @param File $file
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function documentFile(Request $request, Document $document, File $file)
+    {
+        $currUser = Auth::user();
+        $file = File::whereId($file->id)->with('model')->first();
+        $document = Document::whereId($document->id)->with('client')->first();
+        if ($document->id !== $file->model->id || !$currUser || !Storage::disk('documents')->exists(FileService::getFilePath($file))) {
+            abort(404);
+        }
+        if (!$currUser->hasRole('manager|admin') && $currUser->id !== $document->client->id) {
+            abort(403);
+        }
+
+        if (!FileService::isFileTypeDisplayable($file->type) || $request->has('download')) {
+
+            return FileService::download($file, 'documents');
+
+        }else {
+            return FileService::display($file, 'documents');
+        }
     }
 }

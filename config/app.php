@@ -179,6 +179,7 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
         App\Providers\ChatServiceProvider::class,
         App\Providers\BalanceServiceProvider::class,
+        App\Providers\FileServiceProvider::class,
     ],
 
     /*
@@ -230,7 +231,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'ChatService' => App\Facades\ChatFacade::class,
-        'MoneyAmount' => App\Facades\MoneyAmountFacade::class
+        'MoneyAmount' => App\Facades\MoneyAmountFacade::class,
+        'FileService' => App\Facades\FileServiceFacade::class,
     ],
 
 ];

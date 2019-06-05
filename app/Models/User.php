@@ -77,6 +77,8 @@ use Str;
  * @property-read mixed $avatar_medium
  * @property-read mixed $created_at_short
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $manager
+ * @property-read mixed $avatar_small
+ * @property-read mixed $role_names
  */
 class User extends Authenticatable implements HasMedia
 {

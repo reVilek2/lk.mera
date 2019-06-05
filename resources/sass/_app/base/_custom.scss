@@ -1,3 +1,10 @@
 .info-mb-5 {
   margin-bottom: 5px;
 }
+
+.document-link {
+  cursor: pointer;
+}
+.btn-group.open .document-link.dropdown-toggle {
+  box-shadow: none;
+}

@@ -34,9 +34,16 @@
                         <td><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
                         <td>{{item.name}}</td>
                         <td>
-                            <a v-for="file in item.files" :key="file.id" :href="file.path+file.name+'.'+file.extension" target="_blank">
-                                <i class="fa" v-show="file.extension==='pdf'||file.extension==='doc'" :class="{'fa-file-pdf-o': file.extension==='pdf', 'fa-file-word-o': file.extension==='doc'}"></i> {{file.name+'.'+file.extension}}
-                            </a>
+                            <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
+                                <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
+                                    {{file.origin_name}}
+                                </a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a :href="'/documents/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
+                                    <li><a :href="'/documents/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
+                                </ul>
+                            </div>
                         </td>
                         <td><span class="label label-success">Подписан и оплачен</span></td>
                         <td>{{item.humanize_amount}}</td>

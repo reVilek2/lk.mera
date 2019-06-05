@@ -27,11 +27,11 @@ class DocumentsTableSeeder extends Seeder
             ]);
 
             $document->addFile([
-                'path' => '/documents/00001',
-                'name' => 'doument',
+                'path' => '/00001',
+                'name' => 'qweqweqwqweqweqweqe.pdf',
+                'origin_name' => 'doument.pdf',
                 'type' => 'document',
                 'size' => '123456',
-                'ext' => 'pdf',
             ]);
         }
     }

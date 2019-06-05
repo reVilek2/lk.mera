@@ -17,8 +17,8 @@ class CreateFilesTable extends Migration
             $table->increments('id');
             $table->morphs('model');
             $table->string('name');
+            $table->string('origin_name');
             $table->string('type');
-            $table->string('extension');
             $table->string('path');
             $table->string('size');
             $table->timestamps();
