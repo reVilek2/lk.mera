@@ -14,6 +14,8 @@ Route::middleware(['role:admin|manager'])->group(function () {
     Route::get('/users', 'UserController@index')->name('users');
     Route::get('/users/{user}', 'UserController@show')->name('users.show');
     Route::post('/users/{user}/attach-manager', 'UserController@attachManager')->name('attach.manager');
+    Route::get('/documents', 'DocumentController@index')->name('documents');
+    Route::post('/documents', 'DocumentController@create')->name('documents.create');
 });
 
 

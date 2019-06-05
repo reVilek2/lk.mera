@@ -1,0 +1,42 @@
+div.v--modal-overlay {
+  z-index: 9999;
+  .v-modal {
+    background-color: white;
+    text-align: left;
+    border-radius: 3px;
+    box-shadow: 0 20px 60px -2px rgba(27, 33, 58, 0.4);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    &-header {
+      @include clearfix;
+      padding: 15px;
+      border-bottom: 1px solid #f4f4f4;
+      width: 100%;
+
+      .close {
+        margin-top: -2px;
+      }
+    }
+    &-title {
+      margin: 0;
+      line-height: 1.42857143;
+    }
+    &-body {
+      position: relative;
+      padding: 15px;
+      width: 100%;
+      flex-grow: 1;
+    }
+    &-footer {
+      @include clearfix;
+      width: 100%;
+      padding: 15px;
+      text-align: right;
+      border-top: 1px solid #f4f4f4;
+    }
+  }
+}

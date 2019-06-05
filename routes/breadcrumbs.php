@@ -18,6 +18,10 @@ try {
         $trail->parent('users');
         $trail->push('Пользователь', '', ['fa' => 'fa-user']);
     });
+    Breadcrumbs::for('documents', function ($trail) {
+        $trail->parent('home');
+        $trail->push('Документы', '', ['fa' => 'fa-file-pdf-o']);
+    });
 }
 catch (\DaveJamesMiller\Breadcrumbs\Exceptions\DuplicateBreadcrumbException $e) {
     Log::error($e->getMessage());

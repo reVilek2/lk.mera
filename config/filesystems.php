@@ -69,5 +69,12 @@ return [
             'root'   => storage_path('app/public/media'),
             'url' => env('APP_URL').'/storage/media',
         ],
+
+        'documents' => [
+            'driver' => 'local',
+            'root' => storage_path('app/documents'),
+            'url' => env('APP_URL'),
+            'visibility' => 'private',
+        ],
     ],
 ];

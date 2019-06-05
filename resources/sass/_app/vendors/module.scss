@@ -24,3 +24,7 @@
     opacity: 0;
   }
 }
+
+.select2-container .select2-dropdown {
+  z-index: 9999;
+}

@@ -16,7 +16,9 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 import store from './store';
 import VueTextareaAutosize from 'vue-textarea-autosize';
 import sklonyator from './plugins/sklonyator';
+import VModal from 'vue-js-modal';
 
+Vue.use(VModal);
 Vue.use(sklonyator);
 Vue.use(VueTextareaAutosize);
 Vue.directive('scroll', {
@@ -34,6 +36,8 @@ import ChatsList from './components/chat/ChatsList.vue';
 import NotificationMessages from './components/notification/NotificationMessages.vue';
 import UsersTable from './components/users/UsersTable.vue';
 import UserProfileBox from './components/users/UserProfileBox';
+import DocumentsTable from './components/documents/DocumentsTable';
+
 
 Vue.config.devtools = process.env.NODE_ENV === 'development';
 
@@ -44,17 +48,7 @@ let app = new Vue({
         ChatsList,
         NotificationMessages,
         UsersTable,
-        UserProfileBox
-    },
-    data: {},
-    mounted() {
-        // window.Echo.private('chat.'+Laravel.chatId).notification((notification) => {
-        //     if (notification.type === 'App\\Notifications\\MessageSentNotification') {
-        //         console.log(notification);
-        //         this.notificationsMessage.push({
-        //             ...notification
-        //         });
-        //     }
-        // });
-    },
+        UserProfileBox,
+        DocumentsTable
+    }
 });

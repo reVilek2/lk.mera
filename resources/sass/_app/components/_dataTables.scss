@@ -1,0 +1,12 @@
+.documents-table-wrapper {
+  .dataTables {
+    &_length,
+    &_filter{
+      display: inline-block;
+      margin-right: 5px;
+    }
+    &_action {
+      text-align: right;
+    }
+  }
+}
