@@ -88,6 +88,7 @@ class UserTableSeeder extends Seeder
             $managersIds[] = $user->id;
             $user = null;
         }
+
         // Фейковые клиенты
         $limit = 5;
         $count = 0;
@@ -109,9 +110,12 @@ class UserTableSeeder extends Seeder
                 ]
             );
             $user->assignRole('client');
-            if (array_key_exists($i, $managersIds)) {
-                $user->manager()->attach($managersIds[$i]);
-                ChatService::createChat([$user->id, $managersIds[$i]], 'Приватный чат c менеджером', true, true);
+            if ($i < 3) {
+                $user->manager()->attach($managersIds[0]);
+                ChatService::createChat([$user->id, $managersIds[0]], 'Приватный чат c менеджером', true, true);
+            } else {
+                $user->manager()->attach($managersIds[1]);
+                ChatService::createChat([$user->id, $managersIds[1]], 'Приватный чат c менеджером', true, true);
             }
             $user = null;
         }

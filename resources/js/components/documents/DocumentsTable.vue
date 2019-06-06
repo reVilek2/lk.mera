@@ -19,7 +19,7 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <div class="dataTables_action">
+                <div v-if="is_manager || is_admin" class="dataTables_action">
                     <button class="btn btn-success" @click="showModal">Добавить</button>
                 </div>
             </div>
@@ -81,29 +81,13 @@
                 </div>
             </div>
         </div>
-        <modal name="document-create"
-               classes="v-modal"
-               :min-width="200"
-               :min-height="200"
-               :width="'90%'"
-               :height="'auto'"
-               :max-width="500"
-               :adaptive="true"
-               :scrollable="true">
-            <div class="v-modal-header">
-                <button type="button" class="close" @click="hideModal">
-                    <span aria-hidden="true">×</span>
-                </button>
-                <h4 class="v-modal-title">Добавление документа</h4>
-            </div>
-            <div class="v-modal-body">
-                <form-document-create :managers="managers" :current-user="currentUser" :ref="'formDocumentCreate'" @createdDocument="createdDocumentEvent"></form-document-create>
-            </div>
-            <div class="v-modal-footer">
-                <button type="button" class="btn btn-default pull-left" @click="hideModal">Отмена</button>
-                <button type="button" class="btn btn-primary" @click="$refs.formDocumentCreate.onSubmit()">Добавить</button>
-            </div>
-        </modal>
+        <form-document-create :managers="managers"
+                              :current-user="currentUser"
+                              :ref="'formDocumentCreate'"
+                              :clear-form="clearForm"
+                              @createdDocument="createdDocumentEvent"
+                              @formCleared="clearFormDone"></form-document-create>
+
     </div>
 </template>
 <script>
@@ -131,6 +115,7 @@
         },
         created() {
             this.getItems();
+            this.setUserRole();
         },
         data() {
             let sortOrders = {};
@@ -157,7 +142,8 @@
                 sortOrders[column.name] = -1;
             });
             return {
-                init_data: true,
+                init_done: false,
+                clearForm: false,
                 excludeSortOrders: excludeSortOrders,
                 items: [],
                 columns: columns,
@@ -181,18 +167,36 @@
                     from: '',
                     to: ''
                 },
+                user: this.currentUser,
+                is_user:false,
+                is_client:false,
+                is_manager:false,
+                is_admin:false,
             }
         },
         methods: {
             showModal () {
-                this.$modal.show('document-create');
+                if (this.is_manager || this.is_admin) {
+                    this.$modal.show('document-create');
+                }
             },
             hideModal () {
+                if (this.is_manager || this.is_admin) {
+                    this.$modal.hide('document-create');
+                }
+            },
+            createdSuccess () {
                 this.$modal.hide('document-create');
+                this.$modal.hide('document-create-confirm');
+                //отчистить форму создания
+                this.clearForm = true;
+            },
+            clearFormDone (val) {
+              this.clearForm = false;
             },
             getItems(url = '/documents') {
-                if (this.init_data) {
-                    this.init_data = false;
+                if (!this.init_done) {
+                    this.init_done = true;
                     this.items = this.documents.data;
                     this.configPagination(this.documents);
                 } else {
@@ -239,8 +243,24 @@
                     newItems.push(el);
                 });
                 this.items = newItems;
-                this.$modal.hide('document-create');
-            }
+                this.createdSuccess();
+            },
+            setUserRole () {
+                this.currentUser.role_names.forEach(role => {
+                    if (role === 'admin') {
+                        this.is_admin = true;
+                    }
+                    if (role === 'manager') {
+                        this.is_manager = true;
+                    }
+                    if (role === 'client') {
+                        this.is_client = true;
+                    }
+                    if (role === 'user') {
+                        this.is_user = true;
+                    }
+                });
+            },
         }
     };
 </script>

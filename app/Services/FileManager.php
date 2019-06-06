@@ -157,7 +157,7 @@ class FileManager
 
     public function getFilePath(File $file)
     {
-        return '/'.$file->path.'/'.$file->name;
+        return $file->path.'/'.$file->name;
     }
     /**
      * @param File $file

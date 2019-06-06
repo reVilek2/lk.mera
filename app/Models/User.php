@@ -237,6 +237,11 @@ class User extends Authenticatable implements HasMedia
         return $this->manager()->get()->first();
     }
 
+    public function getClients()
+    {
+        return $this->clients()->get();
+    }
+
     /**
      * @param $email
      * @return bool

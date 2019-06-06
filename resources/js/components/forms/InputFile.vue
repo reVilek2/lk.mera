@@ -55,6 +55,9 @@
         watch: {
             selectedFile(val) {
                 this.$emit('newSelectedFile', val);
+            },
+            value(val) {
+                // ?
             }
         },
         data() {

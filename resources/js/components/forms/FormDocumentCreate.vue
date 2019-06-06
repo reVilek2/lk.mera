@@ -1,67 +1,116 @@
 <template>
-    <div class="form-horizontal">
-        <div class="form-group">
-            <label class="col-sm-4 control-label">От кого</label>
-
-            <div class="col-sm-8">
-                <vue-select :options="managerOptions"
-                            :name="'manager'"
-                            :placeholder="'Выберите один из вариантов'"
-                            :search="true"
-                            :allowClear="true"
-                            :validate="managerValidate"
-                            v-model="managerSelected"
-                            @click="setDefaultValidateManager($event)"></vue-select>
+    <div>
+        <modal name="document-create"
+               classes="v-modal"
+               :min-width="200"
+               :min-height="200"
+               :width="'90%'"
+               :height="'auto'"
+               :max-width="500"
+               :adaptive="true"
+               :scrollable="true">
+            <div class="v-modal-header">
+                <button type="button" class="close" @click="hideModal">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="v-modal-title">Добавление документа</h4>
             </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">ФИО клиента:</label>
+            <div class="v-modal-body">
 
-            <div class="col-sm-8">
-                <vue-select :options="clientOptions"
-                            :name="'client'"
-                            :placeholder="'Выберите один из вариантов'"
-                            :search="true"
-                            :allowClear="true"
-                            :disabled="clientSelectDisabled"
-                            v-model="clientSelected"
-                            :validate="clientValidate"
-                            @click="setDefaultValidateClient($event)"></vue-select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Название документа</label>
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">От кого</label>
 
-            <div class="col-sm-8">
-                <vue-input-text :name="'document'"
-                              :placeholder="'Введите название документа'"
-                              v-model="documentValue"
-                              :validate="documentValidate"
-                              @focus="setDefaultValidateDocument($event)"></vue-input-text>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Сумма для оплаты</label>
+                        <div class="col-sm-8">
+                            <vue-select :options="managerOptions"
+                                        :name="'manager'"
+                                        :placeholder="'Выберите один из вариантов'"
+                                        :search="true"
+                                        :allowClear="true"
+                                        :disabled="managerSelectDisabled"
+                                        :validate="managerValidate"
+                                        v-model="managerSelected"
+                                        @click="setDefaultValidateManager($event)"></vue-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">ФИО клиента:</label>
 
-            <div class="col-sm-8">
-                <vue-input-text :name="'amount'"
-                                :placeholder="'Укажите сумму'"
-                                v-model="amountValue"
-                                :validate="amountValidate"
-                                @focus="setDefaultValidateAmount($event)"></vue-input-text>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Документ</label>
+                        <div class="col-sm-8">
+                            <vue-select :options="clientOptions"
+                                        :name="'client'"
+                                        :placeholder="'Выберите один из вариантов'"
+                                        :search="true"
+                                        :allowClear="true"
+                                        :disabled="clientSelectDisabled"
+                                        v-model="clientSelected"
+                                        :validate="clientValidate"
+                                        @click="setDefaultValidateClient($event)"></vue-select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Название документа</label>
 
-            <div class="col-sm-8">
-                <vue-input-file :name="'file'"
-                                :placeholder="'Выберите документ'"
-                                v-model="fileValue"
-                                :validate="fileValidate"
-                                @focus="setDefaultValidateFile($event)"></vue-input-file>
+                        <div class="col-sm-8">
+                            <vue-input-text :name="'document'"
+                                          :placeholder="'Введите название документа'"
+                                          v-model="documentValue"
+                                          :validate="documentValidate"
+                                          @focus="setDefaultValidateDocument($event)"></vue-input-text>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Сумма для оплаты</label>
+
+                        <div class="col-sm-8">
+                            <vue-input-text :name="'amount'"
+                                            :placeholder="'Укажите сумму'"
+                                            v-model="amountValue"
+                                            :validate="amountValidate"
+                                            @focus="setDefaultValidateAmount($event)"></vue-input-text>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Документ</label>
+
+                        <div class="col-sm-8">
+                            <vue-input-file :name="'file'"
+                                            :placeholder="'Выберите документ'"
+                                            v-model="fileValue"
+                                            :validate="fileValidate"
+                                            @focus="setDefaultValidateFile($event)"></vue-input-file>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+            <div class="v-modal-footer">
+                <button type="button" class="btn btn-default pull-left" @click="hideModal">Отмена</button>
+                <button type="button" class="btn btn-primary" @click="beforeOnSubmit">Добавить</button>
+            </div>
+        </modal>
+        <modal name="document-create-confirm"
+               classes="v-modal"
+               :min-width="200"
+               :min-height="200"
+               :width="'90%'"
+               :height="'auto'"
+               :max-width="500"
+               :adaptive="true"
+               :scrollable="true">
+            <div class="v-modal-header">
+                <button type="button" class="close" @click="hideModalConfirm">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="v-modal-title">Предупреждение</h4>
+            </div>
+            <div class="v-modal-body">
+                После отправки удалить документ из личного кабинет клиента сможет только администратор. Отправляем?
+            </div>
+            <div class="v-modal-footer">
+                <button type="button" class="btn btn-default pull-right" @click="hideModalConfirm">Нет</button>
+                <button type="button" class="btn btn-success" @click="onSubmit()" style="margin-right: 10px">Да</button>
+            </div>
+        </modal>
     </div>
 </template>
 <script>
@@ -84,9 +133,14 @@
                 type: Object,
                 default: () => {}
             },
+            clearForm: {
+                type: Boolean,
+                default: () => false
+            },
         },
         data() {
             return {
+                clearData: this.clearForm,
                 managerSelected: null,
                 managerOptions: [],
                 managerValidate: {
@@ -94,6 +148,7 @@
                     message: '',
                     show: false
                 },
+                managerSelectDisabled: true,
                 clientSelected: null,
                 clientOptions: [],
                 clientValidate: {
@@ -122,19 +177,44 @@
                 },
                 formValid: false,
                 isUploadingForm: false,
+                user: this.currentUser,
+                is_user:false,
+                is_client:false,
+                is_manager:false,
+                is_admin:false,
             }
         },
         watch: {
             managerSelected(val) {
                 this.setClientOptions();
+            },
+            clearForm(val) {
+                this.clearData = val;
+                if (this.clearData === true) {
+                    this.clearDocumentForm();
+                }
             }
         },
         methods: {
+            showModalConfirm () {
+                this.hideModal();
+                this.$modal.show('document-create-confirm');
+            },
+            hideModalConfirm () {
+                this.$modal.hide('document-create-confirm');
+                this.showModal();
+            },
+            showModal () {
+                this.$modal.show('document-create');
+            },
+            hideModal () {
+                this.$modal.hide('document-create');
+            },
             setManagerOptions () {
                 let managerOptions = this.managerOptions;
                 let currentUserId = 0;
-                if (this.currentUser.hasOwnProperty('id')) {
-                    currentUserId = this.currentUser.id;
+                if (this.user.hasOwnProperty('id')) {
+                    currentUserId = this.user.id;
                 }
 
                 this.managers.forEach(el => {
@@ -145,6 +225,7 @@
                 });
 
                 this.managerOptions = managerOptions;
+                this.managerSelectDisabled = !this.is_admin;
             },
 
             setClientOptions () {
@@ -192,9 +273,45 @@
                 this.fileValidate.message = '';
                 this.fileValidate.show = false;
             },
-
-            onSubmit() {
+            beforeOnSubmit() {
                 this.formValid = this.validate();
+                if (this.formValid) {
+                    this.showModalConfirm();
+                }
+            },
+            clearDocumentForm() {
+                this.managerSelected = null;
+                this.clientSelected = null;
+                this.documentValue = null;
+                this.amountValue = null;
+                this.fileValue = null;
+                this.formValid = false;
+
+                // отчистка валидации
+                this.managerValidate.valid = true;
+                this.managerValidate.message = '';
+                this.managerValidate.show = false;
+
+                this.clientValidate.valid = true;
+                this.clientValidate.message = '';
+                this.clientValidate.show = false;
+
+                this.documentValidate.valid = true;
+                this.documentValidate.message = '';
+                this.documentValidate.show = false;
+
+                this.amountValidate.valid = true;
+                this.amountValidate.message = '';
+                this.amountValidate.show = false;
+
+                this.fileValidate.valid = true;
+                this.fileValidate.message = '';
+                this.fileValidate.show = false;
+
+                this.setManagerOptions();
+                this.$emit('formCleared', 'cleared success');
+            },
+            onSubmit() {
                 if (this.formValid && !this.isUploadingForm) {
 
                     this.isUploadingForm = true;
@@ -206,7 +323,6 @@
                     formData.append('file', this.fileValue, this.fileValue.name);
 
                     axios.post('/documents', formData).then(response => {
-                        console.log(response.data);
                         if (response.data.status === 'success') {
                             if (response.data.hasOwnProperty('document')) {
                                 this.$emit('createdDocument', response.data.document);
@@ -353,8 +469,25 @@
 
                 return valid;
             },
+            setUserRole () {
+                this.currentUser.role_names.forEach(role => {
+                    if (role === 'admin') {
+                        this.is_admin = true;
+                    }
+                    if (role === 'manager') {
+                        this.is_manager = true;
+                    }
+                    if (role === 'client') {
+                        this.is_client = true;
+                    }
+                    if (role === 'user') {
+                        this.is_user = true;
+                    }
+                });
+            },
         },
         created(){
+            this.setUserRole();
             this.setManagerOptions();
         }
     };

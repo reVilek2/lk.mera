@@ -2,18 +2,20 @@
 namespace App\Services;
 
 use App\Models\Document;
+use App\Models\User;
 
 
 class DocumentManager
 {
 
     /**
+     * @param User $user
      * @param array $orderColumns
      * @param array $searchColumns
      * @param array $params
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection
      */
-    public function getDocumentsWithOrderAndPagination(array $orderColumns = [], array $searchColumns = [], array $params = [])
+    public function getDocumentsWithOrderAndPagination(User $user, array $orderColumns = [], array $searchColumns = [], array $params = [])
     {
         $query = Document::select([
             'documents.id',
@@ -42,6 +44,14 @@ class DocumentManager
                     $q->orWhere($searchColumn, 'like', '%' . $searchValue . '%');
                 }
             });
+        }
+
+        if (!$user->hasRole('admin')) {
+            if ($user->hasRole('manager')) {
+                $query->where('manager_id', '=', $user->id);
+            } else {
+                $query->where('client_id', '=', $user->id);
+            }
         }
 
         if (array_key_exists('length', $params) && $params['length']) {

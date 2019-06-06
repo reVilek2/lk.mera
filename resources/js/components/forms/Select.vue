@@ -71,6 +71,9 @@
         watch: {
             selected(val) {
                 this.$emit('changeEvent', val);
+            },
+            value(val) {
+                this.selected = val;
             }
         },
         data() {

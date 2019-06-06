@@ -30,6 +30,7 @@ class DocumentController extends Controller
     {
         Page::setTitle('Документы | MeraCapital');
         Page::setDescription('Страница документов');
+        $user = Auth::user();
 
         $whiteListOrderColumns = [
             'id' => true,
@@ -48,7 +49,7 @@ class DocumentController extends Controller
             'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
         ];
 
-        $documents = $this->documentManager->getDocumentsWithOrderAndPagination($whiteListOrderColumns, $whiteListSearchColumns, $params);
+        $documents = $this->documentManager->getDocumentsWithOrderAndPagination($user, $whiteListOrderColumns, $whiteListSearchColumns, $params);
         $managers = User::role(['admin', 'manager'])->with('clients')->get();
 
         if ($request->ajax()) {
@@ -66,6 +67,11 @@ class DocumentController extends Controller
 
     public function create(Request $request)
     {
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('manager|admin')) {
+            abort(403);
+        }
+
         $validation = Validator::make($request->all(), [
             'file'=> 'required|mimes:jpeg,png,jpg,pdf|max:10000',
             'name'=> 'required|string',
@@ -78,7 +84,7 @@ class DocumentController extends Controller
         if ($validation->passes()) {
             $file = $request->file('file');
             $fileData = FileService::getFileData($file, Document::getSaveFileDir());
-            if (Storage::disk('documents')->exists('/'.$fileData['path'].'/'.$fileData['name'])) {
+            if (Storage::disk('documents')->exists($fileData['path'].'/'.$fileData['name'])) {
                 return response()->json([
                     'status'=>'error',
                     'errors' => ['file' => ['Файл с таким именем уже существует.']]

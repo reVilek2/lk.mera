@@ -57,6 +57,9 @@
         watch: {
             inputValue(val) {
                 this.$emit('newInputValue', val);
+            },
+            value(val) {
+                this.inputValue = val;
             }
         },
         data() {

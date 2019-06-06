@@ -5,21 +5,33 @@ Route::get('/', function (){
     }
     return redirect()->route('login');
 });
+// profile
 Route::get('/profile', 'ProfileController@index')->name('profile');
 Route::put('/profile/{user}', 'ProfileController@update')->name('profile.user.update');
 Route::post('/profile/{user}/avatar', 'ProfileController@updateAvatar')->name('profile.avatar.update');
 Route::put('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
-
+// documents
+Route::get('/documents', 'DocumentController@index')->name('documents');
 Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFile')->name('documents.files');
 
+// Only admin
+Route::middleware(['role:admin'])->group(function () {
+
+});
+
+// Only manager or admin
 Route::middleware(['role:admin|manager'])->group(function () {
     Route::get('/users', 'UserController@index')->name('users');
     Route::get('/users/{user}', 'UserController@show')->name('users.show');
     Route::post('/users/{user}/attach-manager', 'UserController@attachManager')->name('attach.manager');
-    Route::get('/documents', 'DocumentController@index')->name('documents');
+
     Route::post('/documents', 'DocumentController@create')->name('documents.create');
 });
 
+// Only manager or admin or client
+Route::middleware(['role:admin|manager|client'])->group(function () {
+
+});
 
 
 

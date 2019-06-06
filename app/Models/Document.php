@@ -103,6 +103,6 @@ class Document extends Model
     public static function getSaveFileDir()
     {
         $AutoIncrementId = self::nextAutoIncrementId();
-        return FileService::generateFolderName($AutoIncrementId);
+        return '/'.FileService::generateFolderName($AutoIncrementId);
     }
 }
