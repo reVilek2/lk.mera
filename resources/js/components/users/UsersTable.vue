@@ -5,7 +5,7 @@
                 <div class="dataTables_length">
                     <label>
                         Показывать по:
-                        <select v-model="tableData.length" @change="getUsers()" class="form-control input-sm">
+                        <select v-model="tableData.length" @change="getItems()" class="form-control input-sm">
                             <option v-for="(records, index) in perPage" :key="index" :value="records">{{records}}</option>
                         </select>
                     </label>
@@ -16,7 +16,7 @@
                     <label>
                         Поиск:
                         <input class="form-control input-sm" type="text" v-model="tableData.search" placeholder="Введите фразу"
-                               @input="getUsers()">
+                               @input="getItems()">
                     </label>
                 </div>
             </div>
@@ -25,7 +25,7 @@
             <div class="col-sm-12">
                 <datatable :columns="columns" :sortKey="sortKey" :sortOrders="sortOrders" :excludeSortOrders="excludeSortOrders" @sort="sortBy">
                     <tbody>
-                        <tr v-for="(item, index) in projects" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
+                        <tr v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
                             <td>{{item.id}}</td>
                             <td><span v-if="item.last_name">{{item.last_name}} </span><span v-if="item.first_name">{{item.first_name}} </span><span v-if="item.second_name">{{item.second_name}}</span></td>
                             <td>{{item.role}}</td>
@@ -42,16 +42,21 @@
         </div>
         <div class="row">
             <div class="col-sm-5">
-                <div class="dataTables_info">
-                    Showing 1 to 10 of 57 entries
-                </div>
+                <filter-info :pagination="pagination"></filter-info>
             </div>
             <div class="col-sm-7">
                 <div class="dataTables_paginate paging_simple_numbers">
-                    <!--<pagination :pagination="pagination"-->
-                                <!--@prev="getUsers(pagination.prevPageUrl)"-->
-                                <!--@next="getUsers(pagination.nextPageUrl)">-->
-                    <!--</pagination>-->
+                    <paginate v-show="pagination.lastPage > 1"
+                            v-model="pagination.currentPage"
+                            :page-count="pagination.lastPage"
+                            :page-range="3"
+                            :margin-pages="1"
+                            :click-handler="paginateCallback"
+                            :prev-text="'Назад'"
+                            :next-text="'Вперед'"
+                            :container-class="'pagination'"
+                            :page-class="'page-item'">
+                    </paginate>
                 </div>
             </div>
         </div>
@@ -60,19 +65,20 @@
 
 <script>
 import Datatable from '../datatables/Datatable.vue';
-// import Pagination from '../datatables/Pagination.vue';
+import FilterInfo from '../datatables/FilterInfo.vue';
+import Paginate from 'vuejs-paginate';
+
 export default {
     props: ['users'],
-    components: { datatable: Datatable},
+    components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate},
     created() {
-        this.getUsers();
+        this.getItems();
     },
     data() {
         let sortOrders = {};
         let excludeSortOrders = {
             action: true,
         };
-
         let columns = [
             {width: '25px', label: 'ID', name: 'id' },
             {width: 'auto', label: 'ФИО', name: 'full_name' },
@@ -83,14 +89,14 @@ export default {
             {width: '50px', label: 'Действия', name: 'action' },
 
         ];
-
         columns.forEach((column) => {
            sortOrders[column.name] = -1;
         });
+
         return {
             init_data: true,
             excludeSortOrders: excludeSortOrders,
-            projects: [],
+            items: [],
             columns: columns,
             sortKey: 'deadline',
             sortOrders: sortOrders,
@@ -112,13 +118,17 @@ export default {
                 from: '',
                 to: ''
             },
+            collection_url: '/users',
         }
     },
     methods: {
-        getUsers(url = '/users') {
+        paginateCallback(pageNum){
+            this.getItems(this.collection_url+'?page='+pageNum)
+        },
+        getItems(url = this.collection_url) {
             if (this.init_data) {
                 this.init_data = false;
-                this.projects = this.users.data;
+                this.items = this.users.data;
                 this.configPagination(this.users);
             } else {
                 this.tableData.draw++;
@@ -126,8 +136,8 @@ export default {
                     .then(response => {
                         let data = response.data;
                         if (this.tableData.draw === parseInt(data.draw)) {
-                            this.projects = data.users.data;
-                            this.configPagination(data.users.data);
+                            this.items = data.users.data;
+                            this.configPagination(data.users);
                         }
                     })
                     .catch(errors => {
@@ -151,7 +161,7 @@ export default {
                 this.sortOrders[key] = this.sortOrders[key] * -1;
                 this.tableData.column = key;
                 this.tableData.dir = this.sortOrders[key] === 1 ? 'asc' : 'desc';
-                this.getUsers();
+                this.getItems();
             }
         },
         getIndex(array, key, value) {

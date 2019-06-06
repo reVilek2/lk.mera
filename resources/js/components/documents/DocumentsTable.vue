@@ -68,16 +68,21 @@
         </div>
         <div class="row">
             <div class="col-sm-5">
-                <div class="dataTables_info">
-                    Showing 1 to 10 of 57 entries
-                </div>
+                <filter-info :pagination="pagination"></filter-info>
             </div>
             <div class="col-sm-7">
                 <div class="dataTables_paginate paging_simple_numbers">
-                    <!--<pagination :pagination="pagination"-->
-                    <!--@prev="getItems(pagination.prevPageUrl)"-->
-                    <!--@next="getItems(pagination.nextPageUrl)">-->
-                    <!--</pagination>-->
+                    <paginate v-show="pagination.lastPage > 1"
+                              v-model="pagination.currentPage"
+                              :page-count="pagination.lastPage"
+                              :page-range="3"
+                              :margin-pages="1"
+                              :click-handler="paginateCallback"
+                              :prev-text="'Назад'"
+                              :next-text="'Вперед'"
+                              :container-class="'pagination'"
+                              :page-class="'page-item'">
+                    </paginate>
                 </div>
             </div>
         </div>
@@ -93,7 +98,9 @@
 <script>
     import FormDocumentCreate from '../forms/FormDocumentCreate';
     import Datatable from '../datatables/Datatable.vue';
-    // import Pagination from '../datatables/Pagination.vue';
+    import FilterInfo from '../datatables/FilterInfo.vue';
+    import Paginate from 'vuejs-paginate';
+
     export default {
         props: {
             documents: {
@@ -109,10 +116,7 @@
                 default: () => {}
             },
         },
-        components: {
-            datatable: Datatable,
-            formDocumentCreate: FormDocumentCreate,
-        },
+        components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate,},
         created() {
             this.getItems();
             this.setUserRole();
@@ -172,9 +176,13 @@
                 is_client:false,
                 is_manager:false,
                 is_admin:false,
+                collection_url: '/documents',
             }
         },
         methods: {
+            paginateCallback(pageNum){
+                this.getItems(this.collection_url+'?page='+pageNum)
+            },
             showModal () {
                 if (this.is_manager || this.is_admin) {
                     this.$modal.show('document-create');
@@ -194,7 +202,7 @@
             clearFormDone (val) {
               this.clearForm = false;
             },
-            getItems(url = '/documents') {
+            getItems(url = this.collection_url) {
                 if (!this.init_done) {
                     this.init_done = true;
                     this.items = this.documents.data;
@@ -206,7 +214,7 @@
                             let data = response.data;
                             if (this.tableData.draw === parseInt(data.draw)) {
                                 this.items = data.documents.data;
-                                this.configPagination(data.documents.data);
+                                this.configPagination(data.documents);
                             }
                         })
                         .catch(errors => {

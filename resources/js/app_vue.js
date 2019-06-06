@@ -39,6 +39,7 @@ import UserProfileBox from './components/users/UserProfileBox';
 import DocumentsTable from './components/documents/DocumentsTable';
 
 
+
 Vue.config.devtools = process.env.NODE_ENV === 'development';
 
 let app = new Vue({
