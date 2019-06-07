@@ -148,9 +148,7 @@
             let sortOrders = {};
             let excludeSortOrders = {
                 action: true,
-                manager_full_name: true,
                 status: true,
-                client_full_name: true,
                 file: true,
             };
             let columns = [

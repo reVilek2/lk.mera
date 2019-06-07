@@ -37,15 +37,18 @@ class DocumentController extends Controller
             'name' => true,
             'amount' => true,
             'created_at' => true,
+            'manager_full_name' => true,
+            'client_full_name' => true,
         ];
         $whiteListSearchColumns = [
             'name',
-            'amount'
+            'amount',
+            'full_name'
         ];
         $params = [
             'sort' => $request->has('column') ? $request->input('column') : null,
             'dir' => $request->has('dir') && $request->input('dir') === 'asc' ? 'asc' : 'desc',
-            'search' => $request->has('column') && !empty($request->input('search')) ? $request->input('search') : null,
+            'search' => $request->has('search') && !empty($request->input('search')) ? $request->input('search') : null,
             'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
         ];
 
