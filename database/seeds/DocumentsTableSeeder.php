@@ -36,7 +36,7 @@ class DocumentsTableSeeder extends Seeder
                     'origin_name' => 'отчет.pdf',
                     'name' => '1.pdf',
                     'path' => '/00001',
-                    'size' => '123456',
+                    'size' => '131821',
                 ]);
             }
         }
@@ -54,9 +54,9 @@ class DocumentsTableSeeder extends Seeder
                 $document->addFile([
                     'type' => 'application/pdf',
                     'origin_name' => 'отчет.pdf',
-                    'name' => '11111111111111111.pdf',
+                    'name' => '1.pdf',
                     'path' => '/00001',
-                    'size' => '123456',
+                    'size' => '131821',
                 ]);
             }
         }
