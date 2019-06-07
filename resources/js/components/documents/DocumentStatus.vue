@@ -11,25 +11,25 @@
                 <div class="form-group">
                     <div class="radio">
                         <label>
-                            <input type="radio" :name="'status'+item_id" :value="'0:0'" v-model="selected">
+                            <input type="radio" :name="'status'+item.id" :value="'0:0'" v-model="selected">
                             Не подписан и не оплачен
                         </label>
                     </div>
                     <div class="radio">
                         <label>
-                            <input type="radio" :name="'status'+item_id" :value="'1:0'" v-model="selected">
+                            <input type="radio" :name="'status'+item.id" :value="'1:0'" v-model="selected">
                             Подписан и не оплачен
                         </label>
                     </div>
                     <div class="radio">
                         <label>
-                            <input type="radio" :name="'status'+item_id" :value="'0:1'" v-model="selected">
+                            <input type="radio" :name="'status'+item.id" :value="'0:1'" v-model="selected">
                             Не подписан и оплачен
                         </label>
                     </div>
                     <div class="radio">
                         <label>
-                            <input type="radio" :name="'status'+item_id" :value="'1:1'" v-model="selected">
+                            <input type="radio" :name="'status'+item.id" :value="'1:1'" v-model="selected">
                             Подписан и оплачен
                         </label>
                     </div>
@@ -69,9 +69,9 @@
 <script>
     export default {
         props: {
-            item_id: {
-                type: Number,
-                default: () => 0
+            item: {
+                type: Object,
+                default: () => {}
             },
             signed: {
                 type: Number,
@@ -88,9 +88,9 @@
         },
         data() {
             return {
-                container: 'document-status'+this.item_id,
-                box: 'document-status-box'+this.item_id,
-                modalConfirm: 'document-status-confirm'+this.item_id,
+                container: 'document-status'+this.item.id,
+                box: 'document-status-box'+this.item.id,
+                modalConfirm: 'document-status-confirm'+this.item.id,
                 statusSigned: this.signed,
                 statusPaid: this.paid,
                 selected: this.signed+':'+this.paid,
@@ -106,6 +106,20 @@
             selected(val) {
                 this.setSignedAndPaid(val);
             },
+            signed(val) {
+                this.statusSigned = val;
+                this.selected = this.signed+':'+this.paid;
+                this.default.statusSigned = this.signed;
+                this.default.statusPaid = this.paid;
+                this.default.selected = this.signed+':'+this.paid;
+            },
+            paid(val) {
+                this.statusPaid = val;
+                this.selected = this.signed+':'+this.paid;
+                this.default.statusSigned = this.signed;
+                this.default.statusPaid = this.paid;
+                this.default.selected = this.signed+':'+this.paid;
+            }
         },
         computed: {
             text: function () {
@@ -167,13 +181,22 @@
             beforeOnSubmit() {
                 this.showModalConfirm();
             },
+            setNewChange (signed, paid) {
+                let newItem = this.item;
+                newItem.signed = signed;
+                newItem.paid = paid;
+                this.$emit('updateDocument', newItem);
+            },
             onSubmit() {
                 if (!this.isUploadingForm) {
                     this.isUploadingForm = true;
                     this.hideModalConfirm();
                     this.hideDropdownMenu();
-                    axios.post('/documents/'+this.item_id+'/change-status',{signed:this.statusSigned, paid:this.statusPaid}).then(response => {
+                    axios.post('/documents/'+this.item.id+'/change-status',{signed:this.statusSigned, paid:this.statusPaid}).then(response => {
                         this.isUploadingForm = false;
+                        if (response.data.status === 'success') {
+                            this.setNewChange(response.data.document.signed, response.data.document.paid);
+                        }
                     }).catch(errors => {
                         console.log(errors);
                         this.isUploadingForm = false;

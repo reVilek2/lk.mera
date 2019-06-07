@@ -130,11 +130,11 @@ class DocumentController extends Controller
     {
         $currUser = Auth::user();
         $file = File::whereId($file->id)->with('model')->first();
-        $document = Document::whereId($document->id)->with('client')->first();
+        $document = Document::whereId($document->id)->with('client')->with('manager')->first();
         if ($document->id !== $file->model->id || !$currUser || !Storage::disk('documents')->exists(FileService::getFilePath($file))) {
             abort(404);
         }
-        if (!$currUser->hasRole('manager|admin') && $currUser->id !== $document->client->id) {
+        if (!$currUser->hasRole('admin') && $currUser->id !== $document->client->id && $currUser->id !== $document->manager->id) {
             abort(403);
         }
 
@@ -153,6 +153,7 @@ class DocumentController extends Controller
         if (!$currUser->hasRole('admin')) {
             abort(403);
         }
+
         if (!$request->has('signed') || !$request->has('paid')) {
             return response()->json([
                 'status'=>'error',
@@ -176,5 +177,79 @@ class DocumentController extends Controller
             'status'=>'success',
             'document' => $document
         ], 200);
+    }
+
+    public function changePaid(Request $request, Document $document)
+    {
+        $currUser = Auth::user();
+        $document = Document::whereId($document->id)->with('manager')->first();
+        if (!$currUser->hasRole('admin') && $currUser->id !== $document->manager->id) {
+            abort(403);
+        }
+
+        if (!$request->has('paid')) {
+            return response()->json([
+                'status'=>'error',
+                'errors' => ['Bad data provided.']
+            ], 200);
+        }
+
+        $signed = $document->signed;
+        $paid = (int) $request->input('paid');
+
+        $document->paid = $paid;
+        $document->save();
+        $document->history()->create([
+            'user_id'=>$currUser->id,
+            'signed'=>$signed,
+            'paid'=>$paid,
+        ]);
+
+        return response()->json([
+            'status'=>'success',
+            'document' => $document
+        ], 200);
+    }
+
+    public function changeSigned(Request $request, Document $document)
+    {
+        $currUser = Auth::user();
+        $document = Document::whereId($document->id)->with('client')->with('manager')->first();
+        if (!$currUser->hasRole('admin') && $currUser->id !== $document->manager->id && $currUser->id !== $document->client->id) {
+            abort(403);
+        }
+
+        if (!$request->has('signed')) {
+            return response()->json([
+                'status'=>'error',
+                'errors' => ['Bad data provided.']
+            ], 200);
+        }
+
+        $signed = (int) $request->input('signed');
+        $paid = $document->paid;
+
+        $document->signed = $signed;
+        $document->save();
+        $document->history()->create([
+            'user_id'=>$currUser->id,
+            'signed'=>$signed,
+            'paid'=>$paid,
+        ]);
+
+        return response()->json([
+            'status'=>'success',
+            'document' => $document
+        ], 200);
+    }
+
+    public function documentPaid(Request $request, Document $document)
+    {
+        Page::setTitle('Оплата документа | MeraCapital');
+        Page::setDescription('Страница оплаты документа');
+
+        return view('documents.paid', [
+            'document' => $document
+        ]);
     }
 }

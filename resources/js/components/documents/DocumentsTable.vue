@@ -49,23 +49,21 @@
                             <document-status :signed="item.signed"
                                              :paid="item.paid"
                                              :is_admin="is_admin"
-                                             :item_id="item.id"
-                                             :key="item.id"></document-status>
+                                             :item="item"
+                                             :key="item.id"
+                                             @updateDocument="updateStatus"></document-status>
                         </td>
                         <td>{{item.humanize_amount}}</td>
                         <td><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
                         <td>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-info">Подписать и оплатить</button>
-                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Подписать и оплатить</a></li>
-                                    <li><a href="#">Подписать</a></li>
-                                </ul>
-                            </div>
+                            <document-action :signed="item.signed"
+                                             :paid="item.paid"
+                                             :is_admin="is_admin"
+                                             :is_manager="is_manager"
+                                             :is_client="is_client"
+                                             :item="item"
+                                             :key="item.id"
+                                             @updateDocument="updateStatus"></document-action>
                         </td>
                     </tr>
                     </tbody>
@@ -104,6 +102,7 @@
 <script>
     import FormDocumentCreate from '../forms/FormDocumentCreate';
     import DocumentStatus from './DocumentStatus';
+    import DocumentAction from './DocumentAction';
     import Datatable from '../datatables/Datatable.vue';
     import FilterInfo from '../datatables/FilterInfo.vue';
     import Paginate from 'vuejs-paginate';
@@ -123,7 +122,7 @@
                 default: () => {}
             },
         },
-        components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate, documentStatus: DocumentStatus},
+        components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate, documentStatus: DocumentStatus, documentAction: DocumentAction},
         created() {
             this.getItems();
             this.setUserRole();
@@ -191,6 +190,14 @@
             }
         },
         methods: {
+            updateStatus(document) {
+                this.items.forEach(el => {
+                    if (parseInt(el.id) === parseInt(document.id)) {
+                        el.signed = document.signed;
+                        el.paid = document.paid;
+                    }
+                });
+            },
             paginateCallback(pageNum){
                 this.getItems(this.collection_url+'?page='+pageNum)
             },

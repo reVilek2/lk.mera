@@ -12,7 +12,7 @@ Route::post('/profile/{user}/avatar', 'ProfileController@updateAvatar')->name('p
 Route::put('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
 // documents
 Route::get('/documents', 'DocumentController@index')->name('documents');
-Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFile')->name('documents.files');
+
 
 // Only admin
 Route::middleware(['role:admin'])->group(function () {
@@ -26,11 +26,14 @@ Route::middleware(['role:admin|manager'])->group(function () {
     Route::post('/users/{user}/attach-manager', 'UserController@attachManager')->name('attach.manager');
 
     Route::post('/documents', 'DocumentController@create')->name('documents.create');
+    Route::post('/documents/{document}/change-paid', 'DocumentController@changePaid')->name('documents.change.paid');
 });
 
 // Only manager or admin or client
 Route::middleware(['role:admin|manager|client'])->group(function () {
-
+    Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFile')->name('documents.files');
+    Route::get('/documents/{document}/paid', 'DocumentController@documentPaid')->name('documents.paid');
+    Route::post('/documents/{document}/change-signed', 'DocumentController@changeSigned')->name('documents.change.signed');
 });
 
 
