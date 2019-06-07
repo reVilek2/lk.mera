@@ -45,7 +45,13 @@
                                 </ul>
                             </div>
                         </td>
-                        <td><span class="label label-success">Подписан и оплачен</span></td>
+                        <td>
+                            <document-status :signed="item.signed"
+                                             :paid="item.paid"
+                                             :is_admin="is_admin"
+                                             :item_id="item.id"
+                                             :key="item.id"></document-status>
+                        </td>
                         <td>{{item.humanize_amount}}</td>
                         <td><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
                         <td>
@@ -97,6 +103,7 @@
 </template>
 <script>
     import FormDocumentCreate from '../forms/FormDocumentCreate';
+    import DocumentStatus from './DocumentStatus';
     import Datatable from '../datatables/Datatable.vue';
     import FilterInfo from '../datatables/FilterInfo.vue';
     import Paginate from 'vuejs-paginate';
@@ -116,7 +123,7 @@
                 default: () => {}
             },
         },
-        components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate,},
+        components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate, documentStatus: DocumentStatus},
         created() {
             this.getItems();
             this.setUserRole();
@@ -177,6 +184,10 @@
                 is_manager:false,
                 is_admin:false,
                 collection_url: '/documents',
+                status: {
+                    text: 'Не подписан и не оплачен',
+                    label: 'label-danger'
+                },
             }
         },
         methods: {

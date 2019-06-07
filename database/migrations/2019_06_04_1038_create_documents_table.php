@@ -19,6 +19,8 @@ class CreateDocumentsTable extends Migration
             $table->unsignedInteger('client_id');
             $table->unsignedInteger('manager_id');
             $table->unsignedBigInteger('amount');
+            $table->boolean('signed')->default(false);
+            $table->boolean('paid')->default(false);
             $table->timestamps();
 
             $table->index(['client_id', 'manager_id']);
@@ -27,6 +29,25 @@ class CreateDocumentsTable extends Migration
                 ->on('users')
                 ->onDelete('cascade');
             $table->foreign('manager_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+        });
+
+        Schema::create('documents_history', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('document_id');
+            $table->unsignedInteger('user_id');
+            $table->boolean('signed')->default(false);
+            $table->boolean('paid')->default(false);
+            $table->timestamps();
+
+            $table->index(['document_id', 'user_id']);
+            $table->foreign('document_id')
+                ->references('id')
+                ->on('documents')
+                ->onDelete('cascade');
+            $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');

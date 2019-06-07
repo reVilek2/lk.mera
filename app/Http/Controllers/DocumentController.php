@@ -146,4 +146,35 @@ class DocumentController extends Controller
             return FileService::display($file, 'documents');
         }
     }
+
+    public function changeStatus(Request $request, Document $document)
+    {
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin')) {
+            abort(403);
+        }
+        if (!$request->has('signed') || !$request->has('paid')) {
+            return response()->json([
+                'status'=>'error',
+                'errors' => ['Bad data provided.']
+            ], 200);
+        }
+
+        $signed = (int) $request->input('signed');
+        $paid = (int) $request->input('paid');
+
+        $document->signed = $signed;
+        $document->paid = $paid;
+        $document->save();
+        $document->history()->create([
+            'user_id'=>$currUser->id,
+            'signed'=>$signed,
+            'paid'=>$paid,
+        ]);
+
+        return response()->json([
+            'status'=>'success',
+            'document' => $document
+        ], 200);
+    }
 }

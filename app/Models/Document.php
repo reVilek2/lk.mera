@@ -78,6 +78,11 @@ class Document extends Model
         return $this->hasOne(User::class, 'id', 'manager_id');
     }
 
+    public function history()
+    {
+        return $this->hasMany(DocumentHistory::class, 'document_id');
+    }
+
     public function addFile(array $file)
     {
         $this->files()->create([

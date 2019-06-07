@@ -24,6 +24,8 @@ class DocumentManager
             'documents.created_at',
             'documents.client_id',
             'documents.manager_id',
+            'documents.signed',
+            'documents.paid',
             ])
             ->with('client')
             ->with('manager')

@@ -16,7 +16,7 @@ Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFil
 
 // Only admin
 Route::middleware(['role:admin'])->group(function () {
-
+    Route::post('/documents/{document}/change-status', 'DocumentController@changeStatus')->name('documents.change.status');
 });
 
 // Only manager or admin

@@ -22,3 +22,37 @@
 .has-error .help-block.with-errors {
   color: #dd4b39;
 }
+
+.document_status {
+  .dropdown-toggle {
+    cursor: pointer;
+  }
+}
+.dropdown-staus {
+  box-shadow: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 208px;
+  padding: 5px 10px;
+  margin: 2px 0 0;
+  font-size: 14px;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  .form-group:last-child {
+    margin-bottom: 5px;
+  }
+  .btn {
+    line-height: 1;
+  }
+  input[type=radio] {
+    cursor: pointer;
+  }
+}
