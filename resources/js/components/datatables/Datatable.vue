@@ -14,7 +14,7 @@
 </template>
 
 <script>
-    export default {
+export default {
         props: ['columns', 'sortKey', 'sortOrders', 'excludeSortOrders']
     }
 </script>

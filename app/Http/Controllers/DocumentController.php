@@ -60,6 +60,7 @@ class DocumentController extends Controller
         }
 
         return view('documents.index', [
+            'documents_count' => $documents->count(),
             'documents' => $documents->toJson(),
             'managers' => $managers->toJson()
         ]);

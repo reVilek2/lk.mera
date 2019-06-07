@@ -1,7 +1,7 @@
 <?php
 Route::get('/', function (){
     if (Auth::check()) {
-        return redirect()->route('profile');
+        return redirect()->route('documents');
     }
     return redirect()->route('login');
 });

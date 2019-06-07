@@ -6,13 +6,13 @@
                     <label>
                         Поиск:
                         <input class="form-control input-sm" type="text" v-model="tableData.search" placeholder="Введите фразу"
-                               @input="getItems()">
+                               @input="getItems()" :disabled="item_count === 0 && !filter">
                     </label>
                 </div>
                 <div class="dataTables_length">
                     <label>
                         Показывать по:
-                        <select v-model="tableData.length" @change="getItems()" class="form-control input-sm">
+                        <select v-model="tableData.length" @change="getItems()" class="form-control input-sm" :disabled="item_count === 0 && !filter">
                             <option v-for="(records, index) in perPage" :key="index" :value="records">{{records}}</option>
                         </select>
                     </label>
@@ -26,9 +26,13 @@
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <datatable :columns="columns" :sortKey="sortKey" :sortOrders="sortOrders" :excludeSortOrders="excludeSortOrders" @sort="sortBy">
+                <datatable :columns="columns"
+                           :sortKey="sortKey"
+                           :sortOrders="sortOrders"
+                           :excludeSortOrders="excludeSortOrders"
+                           @sort="sortBy">
                     <tbody>
-                    <tr v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
+                    <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
                         <td>{{item.id}}</td>
                         <td>{{item.created_at_humanize}}</td>
                         <td><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
@@ -66,13 +70,22 @@
                                              @updateDocument="updateStatus"></document-action>
                         </td>
                     </tr>
+                    <tr v-if="item_count === 0" class="odd empty-row">
+                        <td colspan="9" align="center">
+                            <span v-if="filter">Не найдено ни одного документа</span>
+                            <span v-if="!filter">
+                                <span v-if="is_admin || is_manager">Вы не создали ни одного документа</span>
+                                <span v-if="!is_admin && !is_manager">У вас нет ни одного документа</span>
+                            </span>
+                        </td>
+                    </tr>
                     </tbody>
                 </datatable>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-5">
-                <filter-info :pagination="pagination"></filter-info>
+                <filter-info :pagination="pagination" :item_count="item_count"></filter-info>
             </div>
             <div class="col-sm-7">
                 <div class="dataTables_paginate paging_simple_numbers">
@@ -112,6 +125,10 @@
             documents: {
                 type: Object,
                 default: () => {}
+            },
+            documents_count: {
+                type: Number,
+                default: () => 0
             },
             managers: {
                 type: Array,
@@ -156,6 +173,8 @@
                 clearForm: false,
                 excludeSortOrders: excludeSortOrders,
                 items: [],
+                item_count: this.documents_count,
+                filter: false,
                 columns: columns,
                 sortKey: 'deadline',
                 sortOrders: sortOrders,
@@ -183,10 +202,6 @@
                 is_manager:false,
                 is_admin:false,
                 collection_url: '/documents',
-                status: {
-                    text: 'Не подписан и не оплачен',
-                    label: 'label-danger'
-                },
             }
         },
         methods: {
@@ -216,6 +231,8 @@
                 this.$modal.hide('document-create-confirm');
                 //отчистить форму создания
                 this.clearForm = true;
+                // сброс что бы отобразилась хотя бы одна строка
+                this.item_count = 1;
             },
             clearFormDone (val) {
               this.clearForm = false;
@@ -232,6 +249,8 @@
                             let data = response.data;
                             if (this.tableData.draw === parseInt(data.draw)) {
                                 this.items = data.documents.data;
+                                this.item_count = this.items.length;
+                                this.filter = true;
                                 this.configPagination(data.documents);
                             }
                         })
@@ -251,7 +270,7 @@
                 this.pagination.to = data.to;
             },
             sortBy(key) {
-                if (!this.excludeSortOrders.hasOwnProperty(key)) {
+                if (!this.excludeSortOrders.hasOwnProperty(key) && this.item_count > 0) {
                     this.sortKey = key;
                     this.sortOrders[key] = this.sortOrders[key] * -1;
                     this.tableData.column = key;
