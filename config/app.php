@@ -178,7 +178,7 @@ return [
         App\Providers\PasswordResetServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
         App\Providers\ChatServiceProvider::class,
-        App\Providers\BalanceServiceProvider::class,
+        App\Providers\BillingServiceProvider::class,
         App\Providers\FileServiceProvider::class,
     ],
 
@@ -233,6 +233,7 @@ return [
         'ChatService' => App\Facades\ChatFacade::class,
         'MoneyAmount' => App\Facades\MoneyAmountFacade::class,
         'FileService' => App\Facades\FileServiceFacade::class,
+        'BillingService' => App\Facades\BillingFacade::class,
     ],
 
 ];

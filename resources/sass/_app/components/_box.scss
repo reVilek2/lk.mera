@@ -2,7 +2,7 @@
   position: relative;
   overflow: hidden;
 }
-.box-profile-manager {
+.box-profile-list {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -23,7 +23,7 @@
     justify-content: flex-end;
   }
 }
-.box-manager {
+.box-profile-popup {
   border-radius: 0 0 3px 3px;
   padding: 10px;
   background: $white;

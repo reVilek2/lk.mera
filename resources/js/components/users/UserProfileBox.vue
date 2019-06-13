@@ -17,21 +17,33 @@
         <h3 class="profile-username text-center">{{user.name}}</h3>
         <p class="text-muted text-center">{{user.role}}</p>
         <ul v-if="is_role_user_or_client" class="list-group list-group-unbordered">
-            <li class="list-group-item box-profile-manager">
-                <b class="box-profile-manager__title">Менеджер:</b>
-                <div v-if="!isProfile" class="btn-group box-profile-manager__btn">
+            <li class="list-group-item box-profile-list">
+                <b class="box-profile-list__title">Баланс:</b>
+                <div v-if="!isProfile" class="btn-group box-profile-list__btn">
+                    <button type="button" class="btn btn-success" @click="openBalanceBox()">{{balance}}</button>
+                    <button type="button" class="btn btn-success" @click="openBalanceBox()">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                </div>
+                <div v-else class="btn-group box-profile-list__btn">
+                    <span>{{balance}}</span>
+                </div>
+            </li>
+            <li class="list-group-item box-profile-list">
+                <b class="box-profile-list__title">Менеджер:</b>
+                <div v-if="!isProfile" class="btn-group box-profile-list__btn">
                     <button type="button" class="btn btn-info" @click="openManagerBox()">{{managerName}}</button>
                     <button type="button" class="btn btn-info" @click="openManagerBox()">
                         <i class="fa fa-edit"></i>
                     </button>
                 </div>
-                <div v-else class="btn-group box-profile-manager__btn">
+                <div v-else class="btn-group box-profile-list__btn">
                     <a href="#">{{managerName}}</a>
                 </div>
             </li>
         </ul>
 
-        <div v-if="!isProfile && is_role_user_or_client" class="box-manager" :class="{'active': activeBoxManager}">
+        <div v-if="!isProfile && is_role_user_or_client" class="box-profile-popup" :class="{'active': activeBoxManager}">
             <h4>Закрепить менеджера</h4>
             <div class="form-group">
                 <label for="manager-select" >выберите менеджера:</label>
@@ -43,15 +55,21 @@
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <button type="button" class="btn btn-danger pull-right box-manager__cancel-btn" @click="closeManagerBox()">отмена</button>
-                    <button type="button" class="btn btn-success pull-right box-manager__success-btn" @click="attachManager()">сохранить</button>
+                    <button type="button" class="btn btn-danger pull-right box-profile-popup__cancel-btn" @click="closeManagerBox()">отмена</button>
+                    <button type="button" class="btn btn-success pull-right box-profile-popup__success-btn" @click="attachManager()">сохранить</button>
                 </div>
             </div>
         </div>
+
+        <form-manual-balance v-if="!isProfile && is_role_user_or_client"
+                             :active="activeBoxBalance"
+                             :profile-user="user"
+                             @closeBalanceBoxEvent="closeBalanceBox"></form-manual-balance>
     </div>
 </template>
 
 <script>
+    import FormManualBalance from '../forms/FormManualBalance';
     export default {
         props: {
             managers: {
@@ -75,13 +93,17 @@
                 default: () => true
             }
         },
+        components: { formManualBalance: FormManualBalance},
         data: function() {
             return {
-                saved_process: false,
+                manager_saved_process: false,
+                balance_saved_process: false,
                 user: this.profileUser,
+                balance: 0,
                 manager: this.currentManager,
                 managerName: 'Не закреплен',
                 activeBoxManager: false,
+                activeBoxBalance: false,
                 managerSelected: 0,
                 managerOptions: this.getOptionsManager(),
                 is_role_user_or_client: false,
@@ -93,6 +115,12 @@
         },
 
         methods: {
+            openBalanceBox() {
+                this.activeBoxBalance = true;
+            },
+            closeBalanceBox() {
+                this.activeBoxBalance = false;
+            },
             openManagerBox() {
                 this.activeBoxManager = true;
             },
@@ -102,8 +130,8 @@
             },
 
             attachManager() {
-                if (!this.saved_process) {
-                    this.saved_process = true;
+                if (!this.manager_saved_process) {
+                    this.manager_saved_process = true;
                     axios.post('/users/' + this.user.id + '/attach-manager', {'manager_id': this.managerSelected}).then(response => {
                         if (response.data.status === 'success') {
                             let newManager = response.data.currentManager ? response.data.currentManager : {};
@@ -111,10 +139,10 @@
                             this.setManager(newManager);
                             this.closeManagerBox();
                         }
-                        this.saved_process = false;
+                        this.manager_saved_process = false;
                     }).catch(errors => {
                         console.log(errors);
-                        this.saved_process = false;
+                        this.manager_saved_process = false;
                     });
                 }
             },

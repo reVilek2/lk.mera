@@ -3,7 +3,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
-class BalanceServiceProvider extends ServiceProvider
+class BillingServiceProvider extends ServiceProvider
 {
     /**
      * Indicates if loading of the provider is deferred.
@@ -30,10 +30,11 @@ class BalanceServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerMoneyAmount();
+        $this->registerBilling();
     }
 
     /**
-     * Registers Chat.
+     * Registers MoneyAmount.
      *
      * @return void
      */
@@ -41,6 +42,18 @@ class BalanceServiceProvider extends ServiceProvider
     {
         $this->app->bind('MoneyAmount', function () {
             return $this->app->make(\App\Services\MoneyAmount::class);
+        });
+    }
+
+    /**
+     * Registers Billing.
+     *
+     * @return void
+     */
+    private function registerBilling()
+    {
+        $this->app->bind('BillingService', function () {
+            return $this->app->make(\App\Services\BillingManager::class);
         });
     }
 }

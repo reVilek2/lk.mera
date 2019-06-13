@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\Page;
 use App\Services\UserManager;
 use Auth;
+use BillingService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Response;
@@ -118,5 +119,49 @@ class UserController extends Controller
             'user' => $user,
             'currentManager' => $currentManager,
         ], 200);
+    }
+
+    public function changeBalance(Request $request, User $user)
+    {
+        $currUser = Auth::user();
+        $user->getManager();
+        if (!$currUser->hasRole('admin')) {
+            abort(403);
+        }
+
+        if (!$request->has('transaction_type') || !$request->has('amount')) {
+            return response()->json([
+                'status'=>'error',
+                'errors' => ['Bad data provided.']
+            ], 200);
+        }
+        $whiteListTransactionTypes = [
+            'manual_in' => true,
+            'manual_out' => true,
+        ];
+        $transaction_type = $request->input('transaction_type');
+        $amount = $request->input('amount');
+        $comment = $request->input('comment');
+
+        if (!array_key_exists($transaction_type, $whiteListTransactionTypes)) {
+            abort(403);
+        }
+        $validation = Validator::make(['amount' => $amount], [
+            'amount'=> 'required|regex:/^\d*(\.\d+)?$/'
+        ]);
+        $errors = $validation->errors();
+        $errors = json_decode($errors);
+        if ($validation->passes()) {
+            $transaction = BillingService::makeTransaction($user, (int) $amount, $transaction_type, $comment);
+            return response()->json([
+                'status'=>'success',
+                'transaction' => $transaction
+            ], 200);
+        } else {
+            return response()->json([
+                'status'=>'error',
+                'errors' => $errors
+            ], 200);
+        }
     }
 }

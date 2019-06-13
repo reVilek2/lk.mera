@@ -33,6 +33,11 @@ use FileService;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property int $signed
+ * @property int $paid
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\DocumentHistory[] $history
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document wherePaid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereSigned($value)
  */
 class Document extends Model
 {

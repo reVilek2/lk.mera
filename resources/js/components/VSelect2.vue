@@ -1,6 +1,6 @@
 <template>
     <div>
-        <select class="form-control" :id="id" :name="name" :disabled="disabled" :required="required"></select>
+        <select class="form-control" :id="id" :name="name" :disabled="disabled" :required="required" style="width: 100%"></select>
     </div>
 </template>
 <script>
