@@ -4,18 +4,22 @@ namespace App\Services;
 use App\Exceptions\BillingException;
 use App\Models\BillingAccount;
 use App\Models\BillingAccountType;
+use App\Models\BillingOperation;
+use App\Models\BillingOperationType;
 use App\Models\Transaction;
 use App\Models\TransactionStatus;
 use App\Models\TransactionType;
 use App\Models\User;
 use Auth;
+use DB;
+use MoneyAmount;
 
 class BillingManager
 {
     /**
      * Создание Транзакции
      *
-     * @param User $user
+     * @param \App\Models\User $user
      * @param int $amount
      * @param string $type
      * @param string $comment
@@ -41,6 +45,88 @@ class BillingManager
         ]);
 
         return $transaction;
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @return Transaction
+     * @throws \Exception
+     */
+    public function runTransaction(Transaction $transaction)
+    {
+        // Старт транзакции!
+        DB::beginTransaction();
+
+        try {
+
+            $receiverAccount = BillingAccount::whereId($transaction->receiver_acc_id)->first();
+            $senderAccount = BillingAccount::whereId($transaction->sender_acc_id)->first();
+
+            // делаем двойную проводку для истории перемешения средств
+            $this->makeOperation($transaction, $receiverAccount, $senderAccount);
+            // отнимаем от отправителя
+            $this->subtractBalanceAmount($transaction->amount, $senderAccount);
+            // добавляем получателю
+            $this->appendBalanceAmount($transaction->amount, $receiverAccount);
+
+            $transaction->setStatus(TransactionStatus::SUCCESS);
+        }
+        catch(\Exception $e) {
+            // Откат
+            DB::rollback();
+            // помечаем транзакцию как проваленную
+            $transaction->setStatus(TransactionStatus::ERROR);
+
+            throw $e;
+        }
+
+        // Если всё хорошо - фиксируем
+        DB::commit();
+
+        return $transaction;
+    }
+
+    private function makeOperation(Transaction $transaction, BillingAccount $receiverAccount, BillingAccount $senderAccount)
+    {
+        $outgoingOperationType = BillingOperationType::whereCode(BillingOperationType::OUTGOING)->firstOrFail();
+        $incomingOperationType = BillingOperationType::whereCode(BillingOperationType::INCOMING)->firstOrFail();
+        $amount = $transaction->amount;
+
+        // исходящий платеж
+        BillingOperation::create([
+            'account_id' => $senderAccount->id,
+            'transaction_id' => $transaction->id,
+            'type_id' => $outgoingOperationType->id,
+            'amount' => $amount,
+        ]);
+        // входящий платеж
+        BillingOperation::create([
+            'account_id' => $receiverAccount->id,
+            'transaction_id' => $transaction->id,
+            'type_id' => $incomingOperationType->id,
+            'amount' => $amount,
+        ]);
+    }
+
+    private function appendBalanceAmount(int $amount, BillingAccount $account)
+    {
+        $balance = MoneyAmount::toExternal($account->balance);
+        $amount = MoneyAmount::toExternal($amount);
+
+        $account->balance = MoneyAmount::toReadable($balance + $amount);
+        $account->save();
+
+        return $account;
+    }
+    private function subtractBalanceAmount(int $amount, BillingAccount $account)
+    {
+        $balance = MoneyAmount::toExternal($account->balance);
+        $amount = MoneyAmount::toExternal($amount);
+
+        $account->balance = MoneyAmount::toReadable($balance - $amount);
+        $account->save();
+
+        return $account;
     }
 
     /**

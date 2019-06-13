@@ -41,7 +41,7 @@ class BillingServiceProvider extends ServiceProvider
     private function registerMoneyAmount()
     {
         $this->app->bind('MoneyAmount', function () {
-            return $this->app->make(\App\Services\MoneyAmount::class);
+            return $this->app->make(\App\Services\MoneyAmountManager::class);
         });
     }
 

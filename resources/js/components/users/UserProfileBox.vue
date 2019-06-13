@@ -20,13 +20,13 @@
             <li class="list-group-item box-profile-list">
                 <b class="box-profile-list__title">Баланс:</b>
                 <div v-if="!isProfile" class="btn-group box-profile-list__btn">
-                    <button type="button" class="btn btn-success" @click="openBalanceBox()">{{balance}}</button>
+                    <button type="button" class="btn btn-success" @click="openBalanceBox()">{{user.humanize_balance}}</button>
                     <button type="button" class="btn btn-success" @click="openBalanceBox()">
                         <i class="fa fa-edit"></i>
                     </button>
                 </div>
                 <div v-else class="btn-group box-profile-list__btn">
-                    <span>{{balance}}</span>
+                    <span>{{user.humanize_balance}}</span>
                 </div>
             </li>
             <li class="list-group-item box-profile-list">
@@ -64,7 +64,8 @@
         <form-manual-balance v-if="!isProfile && is_role_user_or_client"
                              :active="activeBoxBalance"
                              :profile-user="user"
-                             @closeBalanceBoxEvent="closeBalanceBox"></form-manual-balance>
+                             @closeBalanceBoxEvent="closeBalanceBox"
+                             @changedBalanceDone="changedBalanceDone"></form-manual-balance>
     </div>
 </template>
 
@@ -99,7 +100,6 @@
                 manager_saved_process: false,
                 balance_saved_process: false,
                 user: this.profileUser,
-                balance: 0,
                 manager: this.currentManager,
                 managerName: 'Не закреплен',
                 activeBoxManager: false,
@@ -127,6 +127,10 @@
 
             closeManagerBox() {
                 this.activeBoxManager = false;
+            },
+
+            changedBalanceDone(user) {
+                this.user = user;
             },
 
             attachManager() {

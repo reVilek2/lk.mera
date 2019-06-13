@@ -4,6 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\BillingAccountType
+ *
+ * @property int $id
+ * @property string $code
+ * @property string $name
+ * @property string $type
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccountType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccountType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccountType query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccountType whereCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccountType whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccountType whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccountType whereType($value)
+ * @mixin \Eloquent
+ */
 class BillingAccountType extends Model
 {
     const BALANCE = 'balance';

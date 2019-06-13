@@ -2,7 +2,7 @@
 namespace App\Services;
 
 
-class MoneyAmount
+class MoneyAmountManager
 {
     const PRECISION = 10000;
 

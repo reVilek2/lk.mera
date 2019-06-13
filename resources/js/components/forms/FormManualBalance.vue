@@ -154,10 +154,30 @@
 
                     axios.post('/users/'+this.profileUser.id+'/change-balance', formData).then(response => {
                         if (response.data.status === 'success') {
-                            console.log(response.data);
-                            if (response.data.hasOwnProperty('user')) {
-                                console.log(response.data.user);
-                                // this.$emit('createdDocument', response.data.document);
+                            if (response.data.hasOwnProperty('user') && response.data.hasOwnProperty('transaction')) {
+                                console.log(response.data);
+
+                                if (response.data.transaction.status.code === 'success') {
+                                    new Noty({
+                                        type: 'success',
+                                        text: 'Баланс успешно изменен.',
+                                        layout: 'topRight',
+                                        timeout: 5000,
+                                        progressBar: true,
+                                        theme: 'metroui',
+                                    }).show();
+                                } else {
+                                    new Noty({
+                                        type: 'error',
+                                        text: 'При изменении баланса произошла ошибка.',
+                                        layout: 'topRight',
+                                        timeout: 5000,
+                                        progressBar: true,
+                                        theme: 'metroui',
+                                    }).show();
+                                }
+                                this.closeBalanceBox();
+                                this.$emit('changedBalanceDone', response.data.user);
                             }
                         }
                         if (response.data.status === 'error') {

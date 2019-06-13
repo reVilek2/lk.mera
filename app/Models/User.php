@@ -7,6 +7,7 @@ use App\Notifications\ResetPasswordNotification;
 use Exception;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use MoneyAmount;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
@@ -133,7 +134,7 @@ class User extends Authenticatable implements HasMedia
         'phone',
         'password',
         'password_confirmation',
-        'api_token'
+        'api_token',
     ];
 
     /**
@@ -168,6 +169,8 @@ class User extends Authenticatable implements HasMedia
         'name',
         'created_at_short',
         'role_names',
+        'balance',
+        'humanize_balance',
     ];
 
     function getAvatarAttribute()
@@ -198,6 +201,18 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->getRoleNames();
     }
+
+    function getBalanceAttribute()
+    {
+        $accountBalance = $this->accountBalance()->first();
+        return $accountBalance ? $accountBalance->balance : 0;
+    }
+
+    function getHumanizeBalanceAttribute()
+    {
+        return MoneyAmount::toHumanize($this->balance);
+    }
+
     /**
      * Set the polymorphic relation.
      *
@@ -230,6 +245,11 @@ class User extends Authenticatable implements HasMedia
     public function manager()
     {
         return $this->belongsToMany(User::class, 'users_managers', 'client_id', 'manager_id')->withTimestamps();
+    }
+
+    public function accountBalance()
+    {
+        return $this->hasOne(BillingAccount::class, 'user_id');
     }
 
     public function getManager()

@@ -124,7 +124,6 @@ class UserController extends Controller
     public function changeBalance(Request $request, User $user)
     {
         $currUser = Auth::user();
-        $user->getManager();
         if (!$currUser->hasRole('admin')) {
             abort(403);
         }
@@ -153,9 +152,12 @@ class UserController extends Controller
         $errors = json_decode($errors);
         if ($validation->passes()) {
             $transaction = BillingService::makeTransaction($user, (int) $amount, $transaction_type, $comment);
+            $transaction = BillingService::runTransaction($transaction);
+
             return response()->json([
                 'status'=>'success',
-                'transaction' => $transaction
+                'transaction' => $transaction,
+                'user' => $user->fresh()
             ], 200);
         } else {
             return response()->json([
