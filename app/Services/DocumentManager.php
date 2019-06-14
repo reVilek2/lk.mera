@@ -1,8 +1,13 @@
 <?php
 namespace App\Services;
 
+use App\Exceptions\BillingException;
 use App\Models\Document;
+use App\Models\TransactionType;
 use App\Models\User;
+use Auth;
+use BillingService;
+use DB;
 
 
 class DocumentManager

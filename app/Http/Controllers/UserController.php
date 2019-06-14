@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\Page;
 use App\Services\UserManager;
@@ -135,8 +136,8 @@ class UserController extends Controller
             ], 200);
         }
         $whiteListTransactionTypes = [
-            'manual_in' => true,
-            'manual_out' => true,
+            TransactionType::MANUAL_IN => true,
+            TransactionType::MANUAL_OUT => true,
         ];
         $transaction_type = $request->input('transaction_type');
         $amount = $request->input('amount');
@@ -151,8 +152,16 @@ class UserController extends Controller
         $errors = $validation->errors();
         $errors = json_decode($errors);
         if ($validation->passes()) {
+            if ($transaction_type === TransactionType::MANUAL_OUT && !BillingService::checkAmountOnBalance($user, (int) $amount)){
+                return response()->json([
+                    'status'=>'exception',
+                    'message' => 'Недостаточно средств для выполнения операции!'
+                ], 200);
+            }
+            // транзакция на оплату
             $transaction = BillingService::makeTransaction($user, (int) $amount, $transaction_type, $comment);
-            $transaction = BillingService::runTransaction($transaction);
+            // исполнение транзакции
+            $transaction = BillingService::runTransactionOrRollback($transaction);
 
             return response()->json([
                 'status'=>'success',

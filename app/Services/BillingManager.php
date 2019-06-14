@@ -6,6 +6,7 @@ use App\Models\BillingAccount;
 use App\Models\BillingAccountType;
 use App\Models\BillingOperation;
 use App\Models\BillingOperationType;
+use App\Models\Document;
 use App\Models\Transaction;
 use App\Models\TransactionStatus;
 use App\Models\TransactionType;
@@ -52,24 +53,13 @@ class BillingManager
      * @return Transaction
      * @throws \Exception
      */
-    public function runTransaction(Transaction $transaction)
+    public function runTransactionOrRollback(Transaction $transaction)
     {
         // Старт транзакции!
         DB::beginTransaction();
 
         try {
-
-            $receiverAccount = BillingAccount::whereId($transaction->receiver_acc_id)->first();
-            $senderAccount = BillingAccount::whereId($transaction->sender_acc_id)->first();
-
-            // делаем двойную проводку для истории перемешения средств
-            $this->makeOperation($transaction, $receiverAccount, $senderAccount);
-            // отнимаем от отправителя
-            $this->subtractBalanceAmount($transaction->amount, $senderAccount);
-            // добавляем получателю
-            $this->appendBalanceAmount($transaction->amount, $receiverAccount);
-
-            $transaction->setStatus(TransactionStatus::SUCCESS);
+            $transaction = $this->runTransaction($transaction);
         }
         catch(\Exception $e) {
             // Откат
@@ -86,10 +76,40 @@ class BillingManager
         return $transaction;
     }
 
+    /**
+     * @param Transaction $transaction
+     * @return Transaction
+     * @throws \Exception
+     */
+    public function runTransaction(Transaction $transaction)
+    {
+        $receiverAccount = BillingAccount::whereId($transaction->receiver_acc_id)->first();
+        $senderAccount = BillingAccount::whereId($transaction->sender_acc_id)->first();
+
+        // делаем двойную проводку для истории перемешения средств
+        $this->makeOperation($transaction, $receiverAccount, $senderAccount);
+        // отнимаем от отправителя
+        $this->subtractBalanceAmount($transaction->amount, $senderAccount);
+        // добавляем получателю
+        $this->appendBalanceAmount($transaction->amount, $receiverAccount);
+
+        $transaction->setStatus(TransactionStatus::SUCCESS);
+
+        return $transaction;
+    }
+
     private function makeOperation(Transaction $transaction, BillingAccount $receiverAccount, BillingAccount $senderAccount)
     {
-        $outgoingOperationType = BillingOperationType::whereCode(BillingOperationType::OUTGOING)->firstOrFail();
-        $incomingOperationType = BillingOperationType::whereCode(BillingOperationType::INCOMING)->firstOrFail();
+        $outgoingOperationType = BillingOperationType::whereCode(BillingOperationType::OUTGOING)->first();
+        $incomingOperationType = BillingOperationType::whereCode(BillingOperationType::INCOMING)->first();
+
+        if (!$outgoingOperationType) {
+            throw BillingException::unknownBillingOperationType(BillingOperationType::OUTGOING);
+        }
+        if (!$incomingOperationType) {
+            throw BillingException::unknownBillingOperationType(BillingOperationType::INCOMING);
+        }
+
         $amount = $transaction->amount;
 
         // исходящий платеж
@@ -118,6 +138,7 @@ class BillingManager
 
         return $account;
     }
+
     private function subtractBalanceAmount(int $amount, BillingAccount $account)
     {
         $balance = MoneyAmount::toExternal($account->balance);
@@ -164,12 +185,33 @@ class BillingManager
     }
 
     /**
+     * Проверка что сумма достаточная на
+     *
+     * @param User $user
+     * @param int $amount
+     * @return bool
+     */
+    public function checkAmountOnBalance(User $user, int $amount)
+    {
+        $user = $user->fresh();
+        $accountBalance = $user->accountBalance()->first();
+        $balance = $accountBalance ? $accountBalance->balance : 0;
+
+        return $balance >= $amount;
+    }
+
+    /**
      * @param string $code
      * @return mixed
      */
     public function getTransactionTypeByCode(string $code)
     {
-        return TransactionType::whereCode($code)->firstOrFail();
+        $transactionType = TransactionType::whereCode($code)->first();
+        if (!$transactionType) {
+            throw BillingException::unknownTransactionType($code);
+        }
+
+        return $transactionType;
     }
 
     /**
@@ -178,7 +220,12 @@ class BillingManager
      */
     public function getTransactionStatusByCode(string $code)
     {
-        return TransactionStatus::whereCode($code)->firstOrFail();
+        $transactionStatus = TransactionStatus::whereCode($code)->first();
+        if (!$transactionStatus) {
+            throw BillingException::unknownTransactionStatus($code);
+        }
+
+        return $transactionStatus;
     }
 
     /**
@@ -187,7 +234,12 @@ class BillingManager
      */
     public function getAccountTypeByCode(string $code)
     {
-        return BillingAccountType::whereCode($code)->firstOrFail();
+        $billingAccountType = BillingAccountType::whereCode($code)->first();
+        if (!$billingAccountType) {
+            throw BillingException::unknownBillingAccountType($code);
+        }
+
+        return $billingAccountType;
     }
 
     /**
@@ -223,5 +275,87 @@ class BillingManager
                 'receiver' => BillingAccountType::BALANCE,
             ],
         ];
+    }
+
+    /**
+     * Ручная оплата документа
+     *
+     * @param Document $document
+     * @param bool $is_need_status_paid
+     * @param bool $is_need_status_signed
+     * @return Document|null
+     * @throws \Exception
+     */
+    public function manualPaymentDocument(Document $document, $is_need_status_signed = false)
+    {
+        //@TODO проверить есть ли уже транзакция с оплатой
+        $currUser = Auth::user();
+        $client = $document->client;
+
+
+        // Старт транзакции!
+        DB::beginTransaction();
+
+        try {
+
+            // меняем статус документу
+            $paid = 1;
+            $signed = $document->signed;
+            if ($is_need_status_signed) {
+                $document->signed = 1;
+                $signed = 1;
+            }
+            $document->paid = $paid;
+            $document->save();
+            // log в историю
+            $document->history()->create([
+                'user_id' => $currUser->id,
+                'signed' => $signed,
+                'paid' => $paid,
+            ]);
+
+            /*
+             * транзакция на пополнение баланса
+             */
+            $comment = 'Зачисление на баланс денежных средств в счет документа "'.$document->name.'" от '.humanize_date($document->created_at, 'd.m.Y');
+            $transaction1 = $this->makeTransaction(
+                $client,
+                (int) $document->amount,
+                TransactionType::MANUAL_IN,
+                $comment
+            );
+            // исполнение транзакции
+            $transaction1 = $this->runTransaction($transaction1);
+            if (!$this->checkAmountOnBalance($client, (int) $document->amount)) {
+                throw BillingException::notEnoughFunds();
+            }
+
+            /*
+             * транзакция на оплату документа
+             */
+            $comment = 'Списание денежных средств с баланса в счет документа "' . $document->name . '" от ' . humanize_date($document->created_at, 'd.m.Y');
+            $transaction2 = $this->makeTransaction(
+                $client,
+                (int) $document->amount,
+                TransactionType::SERVICE_IN,
+                $comment
+            );
+            // исполнение транзакции
+            $transaction2 = $this->runTransaction($transaction2);
+
+            $transaction1->setStatus(TransactionStatus::SUCCESS);
+            $transaction2->setStatus(TransactionStatus::SUCCESS);
+        }
+        catch(\Exception $e) {
+            // Откат
+            DB::rollback();
+
+            throw $e;
+        }
+
+        // Если всё хорошо - фиксируем
+        DB::commit();
+
+        return $document->fresh();
     }
 }

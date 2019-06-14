@@ -17,6 +17,7 @@ Route::get('/documents', 'DocumentController@index')->name('documents');
 // Only admin
 Route::middleware(['role:admin'])->group(function () {
     Route::post('/documents/{document}/change-status', 'DocumentController@changeStatus')->name('documents.change.status');
+    Route::post('/users/{user}/change-balance', 'UserController@changeBalance')->name('change.balance');
 });
 
 // Only manager or admin
@@ -24,17 +25,16 @@ Route::middleware(['role:admin|manager'])->group(function () {
     Route::get('/users', 'UserController@index')->name('users');
     Route::get('/users/{user}', 'UserController@show')->name('users.show');
     Route::post('/users/{user}/attach-manager', 'UserController@attachManager')->name('attach.manager');
-    Route::post('/users/{user}/change-balance', 'UserController@changeBalance')->name('change.balance');
 
     Route::post('/documents', 'DocumentController@create')->name('documents.create');
-    Route::post('/documents/{document}/change-paid', 'DocumentController@changePaid')->name('documents.change.paid');
+    Route::post('/documents/{document}/set-paid', 'DocumentController@setPaid')->name('documents.set.paid');
 });
 
 // Only manager or admin or client
 Route::middleware(['role:admin|manager|client'])->group(function () {
     Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFile')->name('documents.files');
     Route::get('/documents/{document}/paid', 'DocumentController@documentPaid')->name('documents.paid');
-    Route::post('/documents/{document}/change-signed', 'DocumentController@changeSigned')->name('documents.change.signed');
+    Route::post('/documents/{document}/set-signed', 'DocumentController@setSigned')->name('documents.set.signed');
 });
 
 

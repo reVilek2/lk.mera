@@ -39,4 +39,9 @@ class BillingAccount extends Model
     {
         $this->attributes['balance'] = MoneyAmount::toExternal($value);
     }
+
+    public function accountType()
+    {
+        return $this->belongsTo(BillingAccountType::class, 'acc_type_id');
+    }
 }

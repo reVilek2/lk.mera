@@ -155,9 +155,7 @@
                     axios.post('/users/'+this.profileUser.id+'/change-balance', formData).then(response => {
                         if (response.data.status === 'success') {
                             if (response.data.hasOwnProperty('user') && response.data.hasOwnProperty('transaction')) {
-                                console.log(response.data);
-
-                                if (response.data.transaction.status.code === 'success') {
+                                     if (response.data.transaction.status.code === 'success') {
                                     new Noty({
                                         type: 'success',
                                         text: 'Баланс успешно изменен.',
@@ -191,6 +189,16 @@
                                 this.transactionAmountValidate.message = response.data.errors.amount[0];
                                 this.transactionAmountValidate.show = true;
                             }
+                        }
+                        if (response.data.status === 'exception') {
+                            new Noty({
+                                type: 'error',
+                                text: response.data.message,
+                                layout: 'topRight',
+                                timeout: 5000,
+                                progressBar: true,
+                                theme: 'metroui',
+                            }).show();
                         }
                         this.isUploadingForm = false;
                         this.hideModalConfirm();

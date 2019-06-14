@@ -137,65 +137,50 @@
         },
         methods: {
             actionSignedAndPaid() {
-                this.resetChanges();
-                if (!this.isUploadingForm) {
-                    this.isUploadingForm = true;
+                if (this.currUser.is_admin) {
+                    let data = {signed:1, paid: 1};
+                    let url = '/documents/'+this.item.id+'/set-paid';
+                    this.submitForm(url, data);
+                } else if (this.currUser.is_client) {
                     let data = {signed:1};
-                    let url = '/documents/'+this.item.id+'/change-signed';
-                    if (this.currUser.is_admin) {
-                        data = {signed:1, paid: 1};
-                        url = '/documents/'+this.item.id+'/change-status';
-                    }
-                    axios.post(url,data).then(response => {
-                        if (this.currUser.is_client) {
-                            window.location = this.paid_url;
-                        } else {
-                            this.isUploadingForm = false;
-                            if (response.data.status === 'success') {
-                                this.setNewChange(response.data.document.signed, response.data.document.paid);
-                            }
-                        }
-                    }).catch(errors => {
-                        console.log(errors);
-                        this.isUploadingForm = false;
-                    });
+                    let url = '/documents/'+this.item.id+'/set-signed';
+                    this.submitForm(url, data, this.redirectToPaid);
                 }
             },
             actionPaid() {
                 this.resetChanges();
                 if (this.currUser.is_client) {
-                    window.location = this.paid_url;
+                    this.redirectToPaid()
                 } else {
-                    if (!this.isUploadingForm) {
-                        this.isUploadingForm = true;
-                        axios.post('/documents/'+this.item.id+'/change-paid',{paid:1}).then(response => {
-                            this.isUploadingForm = false;
-                            if (response.data.status === 'success') {
-                                this.setNewChange(response.data.document.signed, response.data.document.paid);
-                            }
-                        }).catch(errors => {
-                            console.log(errors);
-                            this.isUploadingForm = false;
-                        });
-
-                    }
+                    this.submitForm('/documents/'+this.item.id+'/set-paid', {paid:1});
                 }
             },
             actionSigned() {
+                this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1});
+            },
+
+            submitForm(url, data, callback = () => {}) {
                 this.resetChanges();
                 if (!this.isUploadingForm) {
                     this.isUploadingForm = true;
-                    axios.post('/documents/'+this.item.id+'/change-signed',{signed:1}).then(response => {
+                    axios.post(url, data).then(response => {
                         this.isUploadingForm = false;
                         if (response.data.status === 'success') {
                             this.setNewChange(response.data.document.signed, response.data.document.paid);
                         }
+                        // выполнить функцию после ajax
+                        callback();
                     }).catch(errors => {
                         console.log(errors);
                         this.isUploadingForm = false;
                     });
                 }
             },
+
+            redirectToPaid () {
+                window.location.href = this.paid_url;
+            },
+
             setNewChange (signed, paid) {
                 let newItem = this.item;
                 newItem.signed = signed;

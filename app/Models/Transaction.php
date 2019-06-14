@@ -39,7 +39,7 @@ use MoneyAmount;
 class Transaction extends Model
 {
     protected $table = 'billing_transactions';
-    protected $fillable = ['status_id','type_id','user_id','amount','receiver_acc_id','sender_acc_id'];
+    protected $fillable = ['status_id','type_id','user_id','amount','receiver_acc_id','sender_acc_id', 'comment'];
     public $timestamps = true;
 
     protected $with = ['status','type'];

@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\File;
+use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\DocumentManager;
 use App\Services\Page;
 use Auth;
+use BillingService;
 use FileService;
 use Illuminate\Http\Request;
 use Storage;
@@ -183,7 +185,14 @@ class DocumentController extends Controller
         ], 200);
     }
 
-    public function changePaid(Request $request, Document $document)
+    /**
+     * Менеджер или админ ставит оплату вручную
+     *
+     * @param Request $request
+     * @param Document $document
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function setPaid(Request $request, Document $document)
     {
         $currUser = Auth::user();
         $document = Document::whereId($document->id)->with('manager')->first();
@@ -197,25 +206,39 @@ class DocumentController extends Controller
                 'errors' => ['Bad data provided.']
             ], 200);
         }
+        // если документ уже оплачен то возврашаем просто документ
+        if ($document->paid) {
+            return response()->json([
+                'status'=>'success',
+                'document' => $document,
+            ], 200);
+        }
 
-        $signed = $document->signed;
-        $paid = (int) $request->input('paid');
-
-        $document->paid = $paid;
-        $document->save();
-        $document->history()->create([
-            'user_id'=>$currUser->id,
-            'signed'=>$signed,
-            'paid'=>$paid,
-        ]);
+        $signed = $request->has('signed') && $currUser->hasRole('admin') ? true : false;
+        try {
+            BillingService::manualPaymentDocument($document, $signed);
+        }
+        catch(\Exception $e) {
+            return response()->json([
+                'status'=>'error',
+                'errors' => [$e->getMessage()]
+            ], 200);
+        }
 
         return response()->json([
             'status'=>'success',
-            'document' => $document
+            'document' => $document,
         ], 200);
     }
 
-    public function changeSigned(Request $request, Document $document)
+    /**
+     * Менеджер или админ или клиент ставит подпись документа
+     *
+     * @param Request $request
+     * @param Document $document
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function setSigned(Request $request, Document $document)
     {
         $currUser = Auth::user();
         $document = Document::whereId($document->id)->with('client')->with('manager')->first();
@@ -227,6 +250,13 @@ class DocumentController extends Controller
             return response()->json([
                 'status'=>'error',
                 'errors' => ['Bad data provided.']
+            ], 200);
+        }
+        // усли уже подписан то просто возврашаем документ
+        if ($document->signed) {
+            return response()->json([
+                'status'=>'success',
+                'document' => $document
             ], 200);
         }
 

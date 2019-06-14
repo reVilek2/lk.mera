@@ -267,7 +267,10 @@ class User extends Authenticatable implements HasMedia
 
     public function accountBalance()
     {
-        return $this->hasOne(BillingAccount::class, 'user_id');
+        return $this->hasOne(BillingAccount::class, 'user_id')
+            ->join('billing_account_type', 'billing_account_type.id', '=', 'billing_accounts.acc_type_id')
+            ->select('billing_accounts.*', 'billing_account_type.code', 'billing_account_type.name', 'billing_account_type.type')
+            ->where('code', BillingAccountType::BALANCE);
     }
 
     public function getManager()

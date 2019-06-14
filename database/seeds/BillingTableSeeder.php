@@ -18,8 +18,8 @@ class BillingTableSeeder extends Seeder
             ['code' => 'manual_out', 'name' => 'Ручное списание со счета'],
             ['code' => 'card_in', 'name' => 'Пополнение с карты'],
             ['code' => 'card_out', 'name' => 'Возврат на карту'],
-            ['code' => 'pay_service', 'name' => 'Оплата услуг'],
-            ['code' => 'refund_pay_service', 'name' => 'Возврат оплаты за услуги'],
+            ['code' => 'service_in', 'name' => 'Оплата услуг'],
+            ['code' => 'service_out', 'name' => 'Возврат оплаты за услуги'],
         ]);
 
         DB::table('billing_transaction_status')->insert([
