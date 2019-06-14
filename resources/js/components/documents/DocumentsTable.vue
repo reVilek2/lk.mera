@@ -19,7 +19,7 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <div v-if="is_manager || is_admin" class="dataTables_action">
+                <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action">
                     <button class="btn btn-success" @click="showModal">Добавить</button>
                 </div>
             </div>
@@ -52,19 +52,17 @@
                         <td>
                             <document-status :signed="item.signed"
                                              :paid="item.paid"
-                                             :is_admin="is_admin"
+                                             :current-user="currUser"
                                              :item="item"
                                              :key="item.id"
                                              @updateDocument="updateStatus"></document-status>
                         </td>
-                        <td>{{item.humanize_amount}}</td>
+                        <td>{{item.amount_humanize}}</td>
                         <td><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
                         <td>
                             <document-action :signed="item.signed"
                                              :paid="item.paid"
-                                             :is_admin="is_admin"
-                                             :is_manager="is_manager"
-                                             :is_client="is_client"
+                                             :current-user="currUser"
                                              :item="item"
                                              :key="item.id"
                                              @updateDocument="updateStatus"></document-action>
@@ -74,8 +72,8 @@
                         <td colspan="9" align="center">
                             <span v-if="filter">Не найдено ни одного документа</span>
                             <span v-if="!filter">
-                                <span v-if="is_admin || is_manager">Вы не создали ни одного документа</span>
-                                <span v-if="!is_admin && !is_manager">У вас нет ни одного документа</span>
+                                <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного документа</span>
+                                <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного документа</span>
                             </span>
                         </td>
                     </tr>
@@ -142,7 +140,6 @@
         components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate, documentStatus: DocumentStatus, documentAction: DocumentAction},
         created() {
             this.getItems();
-            this.setUserRole();
         },
         data() {
             let sortOrders = {};
@@ -194,11 +191,7 @@
                     from: '',
                     to: ''
                 },
-                user: this.currentUser,
-                is_user:false,
-                is_client:false,
-                is_manager:false,
-                is_admin:false,
+                currUser: this.currentUser,
                 collection_url: '/documents',
             }
         },
@@ -215,12 +208,12 @@
                 this.getItems(this.collection_url+'?page='+pageNum)
             },
             showModal () {
-                if (this.is_manager || this.is_admin) {
+                if (this.currUser.is_manager || this.currUser.is_admin) {
                     this.$modal.show('document-create');
                 }
             },
             hideModal () {
-                if (this.is_manager || this.is_admin) {
+                if (this.currUser.is_manager || this.currUser.is_admin) {
                     this.$modal.hide('document-create');
                 }
             },
@@ -287,22 +280,6 @@
                 });
                 this.items = newItems;
                 this.createdSuccess();
-            },
-            setUserRole () {
-                this.currentUser.role_names.forEach(role => {
-                    if (role === 'admin') {
-                        this.is_admin = true;
-                    }
-                    if (role === 'manager') {
-                        this.is_manager = true;
-                    }
-                    if (role === 'client') {
-                        this.is_client = true;
-                    }
-                    if (role === 'user') {
-                        this.is_user = true;
-                    }
-                });
             },
         }
     };

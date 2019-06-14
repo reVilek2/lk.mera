@@ -51,17 +51,9 @@
                 type: Number,
                 default: () => 0
             },
-            is_admin: {
-                type: Boolean,
-                default: () => false
-            },
-            is_manager: {
-                type: Boolean,
-                default: () => false
-            },
-            is_client: {
-                type: Boolean,
-                default: () => false
+            currentUser: {
+                type: Object,
+                default: () => {}
             },
         },
         data() {
@@ -77,6 +69,7 @@
                 is_active_item:true,
                 action: ()=> {},
                 action_signed: true,
+                currUser: this.currentUser,
             }
         },
         watch: {
@@ -91,7 +84,7 @@
         },
         computed: {
             btnText: function () {
-                if (this.is_admin || this.is_client) {
+                if (this.currUser.is_admin || this.currUser.is_client) {
                     if (!this.statusSigned && !this.statusPaid) {
                         return {action: this.actionSignedAndPaid, action_signed: true ,value: 'Подписать и оплатить'};
                     }
@@ -103,14 +96,14 @@
                     }
                 }
 
-                if (this.is_manager) {
+                if (this.currUser.is_manager) {
                     return {action: this.actionPaid, action_signed: false, value: 'Оплатить'};
                 }
 
                 return {action: () => {}, action_signed: true, value: ''};
             },
             btnList: function () {
-                if (this.is_admin) {
+                if (this.currUser.is_admin) {
                     let btnList = [];
                     if (!this.statusSigned && !this.statusPaid) {
                         btnList.push({action: this.actionSignedAndPaid, action_signed: true ,value: 'Подписать и оплатить'});
@@ -123,7 +116,7 @@
                     }
                     return btnList;
                 }
-                if (this.is_client) {
+                if (this.currUser.is_client) {
                     let btnList = [];
                     if (!this.statusSigned && !this.statusPaid) {
                         btnList.push({action: this.actionSignedAndPaid, action_signed: true ,value: 'Подписать и оплатить'});
@@ -136,7 +129,7 @@
                     }
                     return btnList;
                 }
-                if (this.is_manager) {
+                if (this.currUser.is_manager) {
                     return [{action: this.actionPaid, action_signed: false ,value: 'Оплатить'}];
                 }
                 return [];
@@ -149,12 +142,12 @@
                     this.isUploadingForm = true;
                     let data = {signed:1};
                     let url = '/documents/'+this.item.id+'/change-signed';
-                    if (this.is_admin) {
+                    if (this.currUser.is_admin) {
                         data = {signed:1, paid: 1};
                         url = '/documents/'+this.item.id+'/change-status';
                     }
                     axios.post(url,data).then(response => {
-                        if (this.is_client) {
+                        if (this.currUser.is_client) {
                             window.location = this.paid_url;
                         } else {
                             this.isUploadingForm = false;
@@ -170,7 +163,7 @@
             },
             actionPaid() {
                 this.resetChanges();
-                if (this.is_client) {
+                if (this.currUser.is_client) {
                     window.location = this.paid_url;
                 } else {
                     if (!this.isUploadingForm) {
@@ -210,10 +203,10 @@
                 this.$emit('updateDocument', newItem);
             },
             isNeedShow () {
-                return this.is_admin || this.is_manager || this.is_client
+                return this.currUser.is_admin || this.currUser.is_manager || this.currUser.is_client
             },
             checkActiveItem () {
-                if (this.is_manager && !this.is_admin && !this.is_client) {
+                if (this.currUser.is_manager && !this.currUser.is_admin && !this.currUser.is_client) {
                     this.is_active_item = !this.statusPaid;
                 } else {
                     this.is_active_item = !this.statusSigned || !this.statusPaid;
@@ -240,7 +233,7 @@
             },
             beforeOnSubmit(action, action_signed) {
                 this.action = action;
-                if (!action_signed && this.is_client) {
+                if (!action_signed && this.currUser.is_client) {
                     window.location = this.paid_url;
                 } else {
                     this.action_signed = action_signed;

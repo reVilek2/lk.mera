@@ -5,7 +5,7 @@
                 <input v-if="!isUploadingFile" type="file" accept="image/*" name="avatar" @change="onFileUpload">
                 <input v-else type="file" accept="image/*" name="avatar" disabled>
             </label>
-            <img class="profile-user-img img-responsive img-circle" :src="user.avatar_medium" alt="User avatar">
+            <img class="profile-user-img img-responsive img-circle" :src="profUser.avatar_medium" alt="User avatar">
         </div>
         <div v-if="fileUploadErrors.length > 0" class="avatar-upload-errors">
             <div class="form-group has-error">
@@ -14,19 +14,19 @@
                 </div>
             </div>
         </div>
-        <h3 class="profile-username text-center">{{user.name}}</h3>
-        <p class="text-muted text-center">{{user.role}}</p>
-        <ul v-if="is_role_user_or_client" class="list-group list-group-unbordered">
+        <h3 class="profile-username text-center">{{profUser.name}}</h3>
+        <p class="text-muted text-center">{{profUser.role}}</p>
+        <ul v-if="profUser.is_client || profUser.is_user" class="list-group list-group-unbordered">
             <li class="list-group-item box-profile-list">
                 <b class="box-profile-list__title">Баланс:</b>
-                <div v-if="!isProfile" class="btn-group box-profile-list__btn">
-                    <button type="button" class="btn btn-success" @click="openBalanceBox()">{{user.humanize_balance}}</button>
+                <div v-if="!isProfile && currUser.is_admin" class="btn-group box-profile-list__btn">
+                    <button type="button" class="btn btn-success" @click="openBalanceBox()">{{profUser.balance_humanize}}</button>
                     <button type="button" class="btn btn-success" @click="openBalanceBox()">
                         <i class="fa fa-edit"></i>
                     </button>
                 </div>
                 <div v-else class="btn-group box-profile-list__btn">
-                    <span>{{user.humanize_balance}}</span>
+                    <span>{{profUser.balance_humanize}}</span>
                 </div>
             </li>
             <li class="list-group-item box-profile-list">
@@ -43,7 +43,7 @@
             </li>
         </ul>
 
-        <div v-if="!isProfile && is_role_user_or_client" class="box-profile-popup" :class="{'active': activeBoxManager}">
+        <div v-if="!isProfile && (profUser.is_client || profUser.is_user)" class="box-profile-popup" :class="{'active': activeBoxManager}">
             <h4>Закрепить менеджера</h4>
             <div class="form-group">
                 <label for="manager-select" >выберите менеджера:</label>
@@ -61,9 +61,9 @@
             </div>
         </div>
 
-        <form-manual-balance v-if="!isProfile && is_role_user_or_client"
+        <form-manual-balance v-if="!isProfile && currUser.is_admin && (profUser.is_client || profUser.is_user)"
                              :active="activeBoxBalance"
-                             :profile-user="user"
+                             :profile-user="profUser"
                              @closeBalanceBoxEvent="closeBalanceBox"
                              @changedBalanceDone="changedBalanceDone"></form-manual-balance>
     </div>
@@ -99,18 +99,18 @@
             return {
                 manager_saved_process: false,
                 balance_saved_process: false,
-                user: this.profileUser,
+                profUser: this.profileUser,
                 manager: this.currentManager,
                 managerName: 'Не закреплен',
                 activeBoxManager: false,
                 activeBoxBalance: false,
                 managerSelected: 0,
                 managerOptions: this.getOptionsManager(),
-                is_role_user_or_client: false,
                 selectedFile: null,
                 fileUploadErrors: '',
                 isUploadingFile: false,
                 loadedComponent: false,
+                currUser: this.currentUser,
             }
         },
 
@@ -130,16 +130,16 @@
             },
 
             changedBalanceDone(user) {
-                this.user = user;
+                this.profUser = user;
             },
 
             attachManager() {
                 if (!this.manager_saved_process) {
                     this.manager_saved_process = true;
-                    axios.post('/users/' + this.user.id + '/attach-manager', {'manager_id': this.managerSelected}).then(response => {
+                    axios.post('/users/' + this.profUser.id + '/attach-manager', {'manager_id': this.managerSelected}).then(response => {
                         if (response.data.status === 'success') {
                             let newManager = response.data.currentManager ? response.data.currentManager : {};
-                            this.user = response.data.user;
+                            this.profUser = response.data.user;
                             this.setManager(newManager);
                             this.closeManagerBox();
                         }
@@ -181,23 +181,13 @@
                 }
             },
 
-            checkUserOrClientRoles() {
-                for(let key in this.user.role_names) {
-                    if (this.user.role_names.hasOwnProperty(key)) {
-                        if (this.user.role_names[key] === 'user' || this.user.role_names[key] === 'client') {
-                            this.is_role_user_or_client = true;
-                        }
-                    }
-                }
-            },
-
             onFileUpload(event) {
                 this.selectedFile = event.target.files[0];
                 if (!this.isUploadingFile && this.selectedFile) {
                     this.isUploadingFile = true;
                     const formData = new FormData();
                     formData.append('avatar', this.selectedFile, this.selectedFile.name);
-                    axios.post('/profile/' + this.user.id + '/avatar', formData, {
+                    axios.post('/profile/' + this.profUser.id + '/avatar', formData, {
                         onUploadProgress: uploadEvent => {
                             console.log('Upload progress: ' + Math.round(uploadEvent.loaded / uploadEvent.total * 100) + '%')
                         }
@@ -206,15 +196,15 @@
                         if (response.data.status === 'success') {
                             this.fileUploadErrors = '';
                             if (response.data.hasOwnProperty('user')) {
-                                this.user = response.data.user;
-                                if (parseInt(this.user.id) === parseInt(this.currentUser.id)) {
+                                this.profUser = response.data.user;
+                                if (parseInt(this.profUser.id) === parseInt(this.currentUser.id)) {
                                     let user_avatar_thumb = document.querySelectorAll('.js-user-avatar-thumb');
                                     let user_avatar_small = document.querySelectorAll('.js-user-avatar-small');
                                     for (let i = 0; i < user_avatar_thumb.length; i++) {
-                                        user_avatar_thumb[i].setAttribute('src', this.user.avatar);
+                                        user_avatar_thumb[i].setAttribute('src', this.profUser.avatar);
                                     }
                                     for (let i = 0; i < user_avatar_small.length; i++) {
-                                        user_avatar_small[i].setAttribute('src', this.user.avatar_small);
+                                        user_avatar_small[i].setAttribute('src', this.profUser.avatar_small);
                                     }
                                 }
                             }
@@ -230,16 +220,14 @@
                         this.isUploadingFile = false;
                     });
                 }
-            }
+            },
         },
 
         created() {
             this.setManager();
-            this.checkUserOrClientRoles();
         },
 
         mounted() {
-            console.log('component UserProfileBox mounted');
             let _this = this;
             // прослушивание скролла
             setTimeout(function(){

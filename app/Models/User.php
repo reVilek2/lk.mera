@@ -170,7 +170,11 @@ class User extends Authenticatable implements HasMedia
         'created_at_short',
         'role_names',
         'balance',
-        'humanize_balance',
+        'balance_humanize',
+        'is_admin',
+        'is_manager',
+        'is_client',
+        'is_user',
     ];
 
     function getAvatarAttribute()
@@ -201,16 +205,30 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->getRoleNames();
     }
-
     function getBalanceAttribute()
     {
         $accountBalance = $this->accountBalance()->first();
         return $accountBalance ? $accountBalance->balance : 0;
     }
-
-    function getHumanizeBalanceAttribute()
+    function getBalanceHumanizeAttribute()
     {
         return MoneyAmount::toHumanize($this->balance);
+    }
+    function getIsAdminAttribute()
+    {
+        return $this->hasRole(self::ROLE_ADMIN);
+    }
+    function getIsManagerAttribute()
+    {
+        return $this->hasRole(self::ROLE_MANAGER);
+    }
+    function getIsClientAttribute()
+    {
+        return $this->hasRole(self::ROLE_CLIENT);
+    }
+    function getIsUserAttribute()
+    {
+        return $this->hasRole(self::ROLE_USER);
     }
 
     /**

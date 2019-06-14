@@ -45,14 +45,14 @@ class Document extends Model
     public $timestamps = true;
     protected $fillable = ['name','amount','client_id','manager_id'];
     protected $appends = [
-        'humanize_amount',
+        'amount_humanize',
         'created_at_humanize',
     ];
     public function getCreatedAtHumanizeAttribute()
     {
         return humanize_date($this->created_at, 'd.m.Y');
     }
-    function getHumanizeAmountAttribute()
+    function getAmountHumanizeAttribute()
     {
         return MoneyAmount::toHumanize($this->amount);
     }

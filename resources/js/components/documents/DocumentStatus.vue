@@ -1,6 +1,6 @@
 <template>
     <div :id="container" class="document_status">
-        <div v-if="!is_admin">
+        <div v-if="!currentUser.is_admin">
             <span class="label" :class="label">{{text}}</span>
         </div>
         <div v-else class="btn-group" :id="box">
@@ -81,10 +81,10 @@
                 type: Number,
                 default: () => 0
             },
-            is_admin: {
-                type: Boolean,
-                default: () => false
-            }
+            currentUser: {
+                type: Object,
+                default: () => {}
+            },
         },
         data() {
             return {

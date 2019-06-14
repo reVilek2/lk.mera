@@ -177,11 +177,7 @@
                 },
                 formValid: false,
                 isUploadingForm: false,
-                user: this.currentUser,
-                is_user:false,
-                is_client:false,
-                is_manager:false,
-                is_admin:false,
+                currUser: this.currentUser,
             }
         },
         watch: {
@@ -213,8 +209,8 @@
             setManagerOptions () {
                 let managerOptions = this.managerOptions;
                 let currentUserId = 0;
-                if (this.user.hasOwnProperty('id')) {
-                    currentUserId = this.user.id;
+                if (this.currUser.hasOwnProperty('id')) {
+                    currentUserId = this.currUser.id;
                 }
 
                 this.managers.forEach(el => {
@@ -225,7 +221,7 @@
                 });
 
                 this.managerOptions = managerOptions;
-                this.managerSelectDisabled = !this.is_admin;
+                this.managerSelectDisabled = !this.currUser.is_admin;
             },
 
             setClientOptions () {
@@ -469,25 +465,8 @@
 
                 return valid;
             },
-            setUserRole () {
-                this.currentUser.role_names.forEach(role => {
-                    if (role === 'admin') {
-                        this.is_admin = true;
-                    }
-                    if (role === 'manager') {
-                        this.is_manager = true;
-                    }
-                    if (role === 'client') {
-                        this.is_client = true;
-                    }
-                    if (role === 'user') {
-                        this.is_user = true;
-                    }
-                });
-            },
         },
         created(){
-            this.setUserRole();
             this.setManagerOptions();
         }
     };
