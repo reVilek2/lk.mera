@@ -27,8 +27,7 @@
                 <div class="box-body">
                     <documents-table :documents="{{$documents}}"
                                      :documents_count="{{$documents_count}}"
-                                     :managers="{{$managers}}"
-                                     :current-user="{{Auth::user()}}"></documents-table>
+                                     :managers="{{$managers}}"></documents-table>
                     {{--@if ($documents_count === 0 && !Auth::user()->hasRole('admin|manager'))--}}
                         {{--<div class="callout callout-info">--}}
                             {{--<h4>I am an info callout!</h4>--}}

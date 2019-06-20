@@ -27,7 +27,6 @@ Route::middleware(['role:admin|manager'])->group(function () {
     Route::post('/users/{user}/attach-manager', 'UserController@attachManager')->name('attach.manager');
 
     Route::post('/documents', 'DocumentController@create')->name('documents.create');
-    Route::post('/documents/{document}/set-paid', 'DocumentController@setPaid')->name('documents.set.paid');
 });
 
 // Only manager or admin or client
@@ -35,6 +34,7 @@ Route::middleware(['role:admin|manager|client'])->group(function () {
     Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFile')->name('documents.files');
     Route::get('/documents/{document}/paid', 'DocumentController@documentPaid')->name('documents.paid');
     Route::post('/documents/{document}/set-signed', 'DocumentController@setSigned')->name('documents.set.signed');
+    Route::post('/documents/{document}/set-paid', 'DocumentController@setPaid')->name('documents.set.paid');
 });
 
 

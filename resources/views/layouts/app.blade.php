@@ -92,6 +92,8 @@ desired effect
 --}}
 <body class="hold-transition skin-red-light sidebar-mini">
 <div id="app" class="wrapper">
+    <vue-store-data :current-user="{{auth()->user()}}"></vue-store-data>
+
     @include('layouts/_app/header')
 
     @include('layouts/_app/sidebar')

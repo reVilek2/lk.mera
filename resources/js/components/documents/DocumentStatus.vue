@@ -1,6 +1,6 @@
 <template>
     <div :id="container" class="document_status">
-        <div v-if="!currentUser.is_admin">
+        <div v-if="!currUser.is_admin">
             <span class="label" :class="label">{{text}}</span>
         </div>
         <div v-else class="btn-group" :id="box">
@@ -67,6 +67,7 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     export default {
         props: {
             item: {
@@ -80,10 +81,6 @@
             paid: {
                 type: Number,
                 default: () => 0
-            },
-            currentUser: {
-                type: Object,
-                default: () => {}
             },
         },
         data() {
@@ -147,7 +144,11 @@
                     label = 'label-success';
                 }
                 return label;
-            }
+            },
+            // смешиваем результат mapGetters с внешним объектом computed
+            ...mapGetters({
+                currUser: 'getCurrentUser'
+            })
         },
         methods: {
             dropdownMenuEvent(e){

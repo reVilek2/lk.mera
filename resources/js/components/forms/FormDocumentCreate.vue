@@ -114,6 +114,7 @@
     </div>
 </template>
 <script>
+    import { mapGetters } from 'vuex';
     import Select from '../forms/Select';
     import InputText from '../forms/InputText';
     import InputFile from '../forms/InputFile';
@@ -128,10 +129,6 @@
             managers: {
                 type: Array,
                 default: () => []
-            },
-            currentUser: {
-                type: Object,
-                default: () => {}
             },
             clearForm: {
                 type: Boolean,
@@ -177,7 +174,6 @@
                 },
                 formValid: false,
                 isUploadingForm: false,
-                currUser: this.currentUser,
             }
         },
         watch: {
@@ -190,6 +186,12 @@
                     this.clearDocumentForm();
                 }
             }
+        },
+        computed: {
+            // смешиваем результат mapGetters с внешним объектом computed
+            ...mapGetters({
+                currUser: 'getCurrentUser'
+            })
         },
         methods: {
             showModalConfirm () {
@@ -208,13 +210,13 @@
             },
             setManagerOptions () {
                 let managerOptions = this.managerOptions;
-                let currentUserId = 0;
+                let currUserId = 0;
                 if (this.currUser.hasOwnProperty('id')) {
-                    currentUserId = this.currUser.id;
+                    currUserId = this.currUser.id;
                 }
 
                 this.managers.forEach(el => {
-                    if (parseInt(currentUserId) === parseInt(el.id)) {
+                    if (parseInt(currUserId) === parseInt(el.id)) {
                         this.managerSelected = el.id
                     }
                     managerOptions.push({ text:el.name, id:el.id });
@@ -466,7 +468,7 @@
                 return valid;
             },
         },
-        created(){
+        mounted(){
             this.setManagerOptions();
         }
     };

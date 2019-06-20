@@ -70,16 +70,13 @@
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     import FormManualBalance from '../forms/FormManualBalance';
     export default {
         props: {
             managers: {
                 type: Array,
                 default: () => []
-            },
-            currentUser: {
-                type: Object,
-                default: () => {}
             },
             profileUser: {
                 type: Object,
@@ -110,8 +107,14 @@
                 fileUploadErrors: '',
                 isUploadingFile: false,
                 loadedComponent: false,
-                currUser: this.currentUser,
             }
+        },
+
+        computed: {
+            // смешиваем результат mapGetters с внешним объектом computed
+            ...mapGetters({
+                currUser: 'getCurrentUser'
+            })
         },
 
         methods: {
@@ -130,6 +133,9 @@
             },
 
             changedBalanceDone(user) {
+                if (parseInt(user.id) === parseInt(this.currUser.id)) {
+                    this.$store.dispatch('setCurrentUser', user);
+                }
                 this.profUser = user;
             },
 
@@ -197,7 +203,7 @@
                             this.fileUploadErrors = '';
                             if (response.data.hasOwnProperty('user')) {
                                 this.profUser = response.data.user;
-                                if (parseInt(this.profUser.id) === parseInt(this.currentUser.id)) {
+                                if (parseInt(this.profUser.id) === parseInt(this.currUser.id)) {
                                     let user_avatar_thumb = document.querySelectorAll('.js-user-avatar-thumb');
                                     let user_avatar_small = document.querySelectorAll('.js-user-avatar-small');
                                     for (let i = 0; i < user_avatar_thumb.length; i++) {

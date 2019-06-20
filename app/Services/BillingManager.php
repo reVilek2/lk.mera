@@ -280,31 +280,47 @@ class BillingManager
     /**
      * Ручная оплата документа
      *
-     * @param Document $document
-     * @param bool $is_need_status_paid
+     * @param \App\Models\Document $document
      * @param bool $is_need_status_signed
      * @return Document|null
      * @throws \Exception
      */
     public function manualPaymentDocument(Document $document, $is_need_status_signed = false)
     {
+        return $this->payDocumentFromUserBalance($document, $is_need_status_signed, true);
+    }
+
+    /**
+     * @param \App\Models\Document $document
+     * @param bool $is_need_status_signed
+     * @param bool $is_need_deposit
+     * @return Document|null
+     * @throws \Exception
+     */
+    public function payDocumentFromUserBalance(Document $document, $is_need_status_signed = false, $is_need_deposit = false)
+    {
         //@TODO проверить есть ли уже транзакция с оплатой
         $currUser = Auth::user();
         $client = $document->client;
-
+        $signed = $document->signed;
+        if ($is_need_status_signed) {
+            $document->signed = 1;
+            $signed = 1;
+            $document->save();
+            // log в историю
+            $document->history()->create([
+                'user_id' => $currUser->id,
+                'signed' => $signed,
+                'paid' => $document->paid,
+            ]);
+        }
 
         // Старт транзакции!
         DB::beginTransaction();
 
         try {
-
-            // меняем статус документу
+            // меняем статус оплаты документу
             $paid = 1;
-            $signed = $document->signed;
-            if ($is_need_status_signed) {
-                $document->signed = 1;
-                $signed = 1;
-            }
             $document->paid = $paid;
             $document->save();
             // log в историю
@@ -314,18 +330,21 @@ class BillingManager
                 'paid' => $paid,
             ]);
 
-            /*
-             * транзакция на пополнение баланса
-             */
-            $comment = 'Зачисление на баланс денежных средств в счет документа "'.$document->name.'" от '.humanize_date($document->created_at, 'd.m.Y');
-            $transaction1 = $this->makeTransaction(
-                $client,
-                (int) $document->amount,
-                TransactionType::MANUAL_IN,
-                $comment
-            );
-            // исполнение транзакции
-            $transaction1 = $this->runTransaction($transaction1);
+            if ($is_need_deposit) {
+                /*
+                 * транзакция на пополнение баланса
+                 */
+                $comment = 'Зачисление на баланс денежных средств в счет документа "' . $document->name . '" от ' . humanize_date($document->created_at, 'd.m.Y');
+                $transaction_deposit = $this->makeTransaction(
+                    $client,
+                    (int)$document->amount,
+                    TransactionType::MANUAL_IN,
+                    $comment
+                );
+                // исполнение транзакции
+                $transaction_deposit = $this->runTransaction($transaction_deposit);
+            }
+
             if (!$this->checkAmountOnBalance($client, (int) $document->amount)) {
                 throw BillingException::notEnoughFunds();
             }
@@ -334,17 +353,20 @@ class BillingManager
              * транзакция на оплату документа
              */
             $comment = 'Списание денежных средств с баланса в счет документа "' . $document->name . '" от ' . humanize_date($document->created_at, 'd.m.Y');
-            $transaction2 = $this->makeTransaction(
+            $transaction = $this->makeTransaction(
                 $client,
                 (int) $document->amount,
                 TransactionType::SERVICE_IN,
                 $comment
             );
             // исполнение транзакции
-            $transaction2 = $this->runTransaction($transaction2);
+            $transaction = $this->runTransaction($transaction);
 
-            $transaction1->setStatus(TransactionStatus::SUCCESS);
-            $transaction2->setStatus(TransactionStatus::SUCCESS);
+            if ($is_need_deposit && isset($transaction_deposit)) {
+                $transaction_deposit->setStatus(TransactionStatus::SUCCESS);
+            }
+
+            $transaction->setStatus(TransactionStatus::SUCCESS);
         }
         catch(\Exception $e) {
             // Откат

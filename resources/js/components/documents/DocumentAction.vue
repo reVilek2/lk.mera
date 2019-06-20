@@ -33,10 +33,34 @@
                 <button type="button" class="btn btn-success" @click="onSuccessConfirm" style="margin-right: 10px">Да</button>
             </div>
         </modal>
+        <modal :name="modalCreditFail"
+               classes="v-modal"
+               :min-width="200"
+               :min-height="200"
+               :width="'90%'"
+               :height="'auto'"
+               :max-width="500"
+               :adaptive="true"
+               :scrollable="true">
+            <div class="v-modal-header">
+                <button type="button" class="close" @click="hideModalCreditFail">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="v-modal-title">Предупреждение</h4>
+            </div>
+            <div class="v-modal-body">
+                Не достаточно средств для оплаты документа. Перейти на страницу оплаты?
+            </div>
+            <div class="v-modal-footer">
+                <button type="button" class="btn btn-default pull-right" @click="hideModalCreditFail">Нет</button>
+                <button type="button" class="btn btn-success" @click="redirectToPaid" style="margin-right: 10px">Да</button>
+            </div>
+        </modal>
     </div>
 </template>
 
 <script>
+    import { mapGetters } from 'vuex';
     export default {
         props: {
             item: {
@@ -51,10 +75,6 @@
                 type: Number,
                 default: () => 0
             },
-            currentUser: {
-                type: Object,
-                default: () => {}
-            },
         },
         data() {
             return {
@@ -62,6 +82,7 @@
                 container_item: 'document-action-item'+this.item.id,
                 box: 'document-action-box'+this.item.id,
                 modalConfirm: 'document-action-confirm'+this.item.id,
+                modalCreditFail: 'document-action-credit-fail'+this.item.id,
                 paid_url: '/documents/'+this.item.id+'/paid',
                 statusSigned: this.signed,
                 statusPaid: this.paid,
@@ -69,7 +90,6 @@
                 is_active_item:true,
                 action: ()=> {},
                 action_signed: true,
-                currUser: this.currentUser,
             }
         },
         watch: {
@@ -134,26 +154,22 @@
                 }
                 return [];
             },
+            // смешиваем результат mapGetters с внешним объектом computed
+            ...mapGetters({
+                currUser: 'getCurrentUser'
+            })
         },
         methods: {
             actionSignedAndPaid() {
-                if (this.currUser.is_admin) {
+                if (this.currUser.is_admin || this.currUser.is_client) {
                     let data = {signed:1, paid: 1};
                     let url = '/documents/'+this.item.id+'/set-paid';
                     this.submitForm(url, data);
-                } else if (this.currUser.is_client) {
-                    let data = {signed:1};
-                    let url = '/documents/'+this.item.id+'/set-signed';
-                    this.submitForm(url, data, this.redirectToPaid);
                 }
             },
             actionPaid() {
                 this.resetChanges();
-                if (this.currUser.is_client) {
-                    this.redirectToPaid()
-                } else {
-                    this.submitForm('/documents/'+this.item.id+'/set-paid', {paid:1});
-                }
+                this.submitForm('/documents/'+this.item.id+'/set-paid', {paid:1});
             },
             actionSigned() {
                 this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1});
@@ -167,6 +183,15 @@
                         this.isUploadingForm = false;
                         if (response.data.status === 'success') {
                             this.setNewChange(response.data.document.signed, response.data.document.paid);
+                            // обновляем currentUser в storage
+                            if (response.data.hasOwnProperty('client')) {
+                                if (parseInt(response.data.client.id) === parseInt(this.currUser.id)) {
+                                    this.$store.dispatch('setCurrentUser', response.data.client);
+                                }
+                            }
+                        }
+                        if (response.data.status === 'error' && response.data.errors[0] === 'credit-fail') {
+                            this.showModalCreditFail();
                         }
                         // выполнить функцию после ajax
                         callback();
@@ -211,6 +236,12 @@
             },
             hideModalConfirm () {
                 this.$modal.hide(this.modalConfirm);
+            },
+            showModalCreditFail () {
+                this.$modal.show(this.modalCreditFail);
+            },
+            hideModalCreditFail () {
+                this.$modal.hide(this.modalCreditFail);
             },
             hideModalConfirmAndReset () {
                 this.hideModalConfirm();

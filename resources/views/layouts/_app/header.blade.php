@@ -18,6 +18,10 @@
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
+                @hasanyrole('user|client')
+                <!-- Balance Menu -->
+                <user-balance-menu></user-balance-menu>
+                @endhasallroles
                 <!-- Messages: style can be found in dropdown.less-->
                 <notification-messages :userid="{{auth()->id()}}"
                                        :notification-messages="{{auth()->user()->unreadNotificationMessages}}"
@@ -71,11 +75,19 @@
                         <!-- Menu Body -->
                         <li class="user-body">
                             <div class="row">
-                                <div class="col-xs-4 text-center">
+                                <div class="col-xs-4">
                                     <a href="#">Менеджер:</a>
                                 </div>
                                 <div class="col-xs-8 text-left">
                                     <span>не закреплен</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <a href="#">Баланс:</a>
+                                </div>
+                                <div class="col-xs-8 text-left">
+                                    <span>{{Auth::user()->balance_humanize}}</span>
                                 </div>
                             </div>
                             <!-- /.row -->

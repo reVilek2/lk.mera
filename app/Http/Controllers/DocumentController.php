@@ -196,7 +196,8 @@ class DocumentController extends Controller
     {
         $currUser = Auth::user();
         $document = Document::whereId($document->id)->with('manager')->first();
-        if (!$currUser->hasRole('admin') && $currUser->id !== $document->manager->id) {
+
+        if (!$currUser->hasRole('admin') && $currUser->id !== $document->manager->id && $currUser->id !== $document->client->id) {
             abort(403);
         }
 
@@ -214,9 +215,25 @@ class DocumentController extends Controller
             ], 200);
         }
 
-        $signed = $request->has('signed') && $currUser->hasRole('admin') ? true : false;
+        $is_client = $currUser->id === $document->client->id;
+        $signed = $request->has('signed') && ($currUser->hasRole('admin') || $is_client) ? true : false;
+
         try {
-            BillingService::manualPaymentDocument($document, $signed);
+            if ($is_client) {
+                if (!BillingService::checkAmountOnBalance($document->client, (int) $document->amount)) {
+
+                    return response()->json([
+                        'status'=>'error',
+                        'errors' => ['credit-fail']
+                    ], 200);
+                }
+                // меняем статус документу
+                BillingService::payDocumentFromUserBalance($document, $signed);
+            }
+            else {
+
+                BillingService::manualPaymentDocument($document, $signed);
+            }
         }
         catch(\Exception $e) {
             return response()->json([
@@ -224,10 +241,11 @@ class DocumentController extends Controller
                 'errors' => [$e->getMessage()]
             ], 200);
         }
-
+        $updatedDocument = $document->fresh();
         return response()->json([
             'status'=>'success',
-            'document' => $document,
+            'document' => $updatedDocument,
+            'client' => $updatedDocument->client,
         ], 200);
     }
 

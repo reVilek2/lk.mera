@@ -52,7 +52,6 @@
                         <td>
                             <document-status :signed="item.signed"
                                              :paid="item.paid"
-                                             :current-user="currUser"
                                              :item="item"
                                              :key="item.id"
                                              @updateDocument="updateStatus"></document-status>
@@ -62,7 +61,6 @@
                         <td>
                             <document-action :signed="item.signed"
                                              :paid="item.paid"
-                                             :current-user="currUser"
                                              :item="item"
                                              :key="item.id"
                                              @updateDocument="updateStatus"></document-action>
@@ -102,7 +100,6 @@
             </div>
         </div>
         <form-document-create :managers="managers"
-                              :current-user="currentUser"
                               :ref="'formDocumentCreate'"
                               :clear-form="clearForm"
                               @createdDocument="createdDocumentEvent"
@@ -111,6 +108,7 @@
     </div>
 </template>
 <script>
+    import { mapGetters } from 'vuex';
     import FormDocumentCreate from '../forms/FormDocumentCreate';
     import DocumentStatus from './DocumentStatus';
     import DocumentAction from './DocumentAction';
@@ -132,15 +130,8 @@
                 type: Array,
                 default: () => []
             },
-            currentUser: {
-                type: Object,
-                default: () => {}
-            },
         },
         components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate, documentStatus: DocumentStatus, documentAction: DocumentAction},
-        created() {
-            this.getItems();
-        },
         data() {
             let sortOrders = {};
             let excludeSortOrders = {
@@ -191,9 +182,14 @@
                     from: '',
                     to: ''
                 },
-                currUser: this.currentUser,
                 collection_url: '/documents',
             }
+        },
+        computed: {
+            // смешиваем результат mapGetters с внешним объектом computed
+            ...mapGetters({
+                currUser: 'getCurrentUser'
+            })
         },
         methods: {
             updateStatus(document) {
@@ -281,6 +277,9 @@
                 this.items = newItems;
                 this.createdSuccess();
             },
-        }
+        },
+        created() {
+            this.getItems();
+        },
     };
 </script>

@@ -38,8 +38,8 @@ import NotificationMessages from './components/notification/NotificationMessages
 import UsersTable from './components/users/UsersTable.vue';
 import UserProfileBox from './components/users/UserProfileBox';
 import DocumentsTable from './components/documents/DocumentsTable';
-
-
+import VueStoreData from './components/VueStoreData';
+import UserBalanceMenu from './components/users/UserBalanceMenu';
 
 Vue.config.devtools = process.env.NODE_ENV === 'development';
 
@@ -47,6 +47,8 @@ let app = new Vue({
     el: '#app',
     store,
     components: {
+        VueStoreData,
+        UserBalanceMenu,
         ChatsList,
         NotificationMessages,
         UsersTable,

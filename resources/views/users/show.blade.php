@@ -24,8 +24,7 @@
             <!-- Profile Image -->
             <div class="box box-primary">
                 <div class="box-body box-profile">
-                    <user-profile-box :current-user="{{Auth::user()}}"
-                                      :profile-user="{{$user}}"
+                    <user-profile-box :profile-user="{{$user}}"
                                       :is-profile="false"
                                       :managers="{{!empty($managers) ? $managers : '[]'}}"
                                       :current-manager="{{$currentManager ?? '{}'}}"></user-profile-box>
