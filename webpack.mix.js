@@ -35,7 +35,7 @@ mix.webpackConfig({
         modules: [
             'node_modules'
         ]
-    },
+    }
 }).options({
     processCssUrls: false,
     postCss: [
@@ -71,6 +71,7 @@ mix.js('resources/js/auth.js', 'public/js')
     ]);
 
 mix.copy('resources/images/', 'public/images/', false);
+mix.copy('resources/svg/', 'public/svg/', false);
 mix.copy('resources/fonts/', 'public/fonts/', false);
 
 mix.disableNotifications();

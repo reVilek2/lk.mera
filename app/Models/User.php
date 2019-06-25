@@ -80,6 +80,13 @@ use Str;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $manager
  * @property-read mixed $avatar_small
  * @property-read mixed $role_names
+ * @property-read \App\Models\BillingAccount $accountBalance
+ * @property-read mixed $balance
+ * @property-read mixed $balance_humanize
+ * @property-read mixed $is_admin
+ * @property-read mixed $is_client
+ * @property-read mixed $is_manager
+ * @property-read mixed $is_user
  */
 class User extends Authenticatable implements HasMedia
 {

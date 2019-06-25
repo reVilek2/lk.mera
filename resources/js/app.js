@@ -20,6 +20,24 @@ import './app_vue';
 window.Noty = require('noty');
 
 $(function () {
+    // const checkout = YandexCheckout('611290');
+    // checkout.tokenize({
+    //     number: '5555555555554444',
+    //     cvc: '111',
+    //     month: '10',
+    //     year: '22'
+    // }).then(res => {
+    //     if (res.status === 'success') {
+    //         const { paymentToken } = res.data.response;
+    //
+    //         return paymentToken;
+    //     }
+    //     console.log(res);
+    // });
+
+
+
+
     // auto update token
     let lifetime_csrf = $('meta[name="csrf-token"]').attr('data-lifetime');
     if (lifetime_csrf) {

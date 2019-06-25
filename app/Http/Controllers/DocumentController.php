@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\File;
-use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\DocumentManager;
 use App\Services\Page;

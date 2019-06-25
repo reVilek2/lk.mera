@@ -92,7 +92,7 @@ desired effect
 --}}
 <body class="hold-transition skin-red-light sidebar-mini">
 <div id="app" class="wrapper">
-    <vue-store-data :current-user="{{auth()->user()}}"></vue-store-data>
+    <vue-store-data :current-user="{{auth()->user()}}" :balance-message="{{json_encode(session()->get('balance-message', 'empty'))}}"></vue-store-data>
 
     @include('layouts/_app/header')
 
@@ -107,6 +107,7 @@ desired effect
 <!-- ./wrapper -->
 
 <!-- Scripts -->
+<script src="https://static.yandex.net/checkout/js/v1/"></script>
 <script src="{{ mix('/js/app.js') }}"></script>
 </body>
 </html>

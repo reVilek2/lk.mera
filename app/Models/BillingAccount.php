@@ -24,6 +24,7 @@ use MoneyAmount;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccount whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingAccount whereUserId($value)
  * @mixin \Eloquent
+ * @property-read \App\Models\BillingAccountType $accountType
  */
 class BillingAccount extends Model
 {

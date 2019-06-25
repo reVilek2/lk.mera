@@ -38,6 +38,7 @@ use FileService;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\DocumentHistory[] $history
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document wherePaid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereSigned($value)
+ * @property-read mixed $amount_humanize
  */
 class Document extends Model
 {

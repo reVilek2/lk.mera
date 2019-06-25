@@ -1,0 +1,22 @@
+.service-balance {
+  margin-bottom: 50px;
+
+  &__title {
+    font-size: 20px;
+  }
+  &__amount {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    &-item {
+      font-size: 30px;
+      font-weight: 600;
+      margin-right: 30px;
+    }
+  }
+  .char-rouble-native {
+    display: inline-block;
+    margin-left: 5px;
+  }
+}

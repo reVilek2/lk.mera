@@ -63,11 +63,16 @@ class Transaction extends Model
         return $this->belongsTo(TransactionType::class, 'type_id');
     }
 
+    public function getStatusCode()
+    {
+        $status = $this->belongsTo(TransactionStatus::class, 'status_id')->first();
+        return $status ? $status->code : null;
+    }
+
     public function setStatus(string $status)
     {
         $transactionSuccessStatus = BillingService::getTransactionStatusByCode($status);
         $this->status()->associate($transactionSuccessStatus);
-        $this->save();
 
         return $this;
     }

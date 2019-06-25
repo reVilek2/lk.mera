@@ -20,9 +20,11 @@ use Illuminate\Database\Eloquent\Model;
  */
 class TransactionStatus extends Model
 {
+    const WAITING = 'waiting';
     const PENDING = 'pending';
     const SUCCESS = 'success';
     const ERROR = 'error';
+    const CANCEL = 'cancel';
 
     protected $table = 'billing_transaction_status';
     public $timestamps = false;

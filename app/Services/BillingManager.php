@@ -29,7 +29,8 @@ class BillingManager
     public function makeTransaction(User $user, int $amount, string $type, string $comment = null)
     {
         $transactionType = $this->getTransactionTypeByCode($type);
-        $transactionStatus = $this->getTransactionStatusByCode(TransactionStatus::PENDING);
+        $transactionStatus = $this->getTransactionStatusByCode(TransactionStatus::WAITING);
+
         $accountTypes = $this->getAccountTypesByTransactionCode($type);
 
         $receiver_acc = $this->getOrCreateAccountByCode($user, $accountTypes['receiver']);
@@ -49,8 +50,8 @@ class BillingManager
     }
 
     /**
-     * @param Transaction $transaction
-     * @return Transaction
+     * @param \App\Models\Transaction $transaction
+     * @return \App\Models\Transaction
      * @throws \Exception
      */
     public function runTransactionOrRollback(Transaction $transaction)
@@ -60,13 +61,14 @@ class BillingManager
 
         try {
             $transaction = $this->runTransaction($transaction);
+            $transaction->save();
         }
         catch(\Exception $e) {
             // Откат
             DB::rollback();
             // помечаем транзакцию как проваленную
             $transaction->setStatus(TransactionStatus::ERROR);
-
+            $transaction->save();
             throw $e;
         }
 
@@ -77,27 +79,76 @@ class BillingManager
     }
 
     /**
-     * @param Transaction $transaction
-     * @return Transaction
+     * @param \App\Models\Transaction $transaction
+     * @return \App\Models\Transaction
      * @throws \Exception
      */
     public function runTransaction(Transaction $transaction)
     {
-        $receiverAccount = BillingAccount::whereId($transaction->receiver_acc_id)->first();
-        $senderAccount = BillingAccount::whereId($transaction->sender_acc_id)->first();
+        if ($transaction->getStatusCode() === TransactionStatus::PENDING) { // исполнить можно только статус "pending"
+            $receiverAccount = BillingAccount::whereId($transaction->receiver_acc_id)->first();
+            $senderAccount = BillingAccount::whereId($transaction->sender_acc_id)->first();
 
-        // делаем двойную проводку для истории перемешения средств
-        $this->makeOperation($transaction, $receiverAccount, $senderAccount);
-        // отнимаем от отправителя
-        $this->subtractBalanceAmount($transaction->amount, $senderAccount);
-        // добавляем получателю
-        $this->appendBalanceAmount($transaction->amount, $receiverAccount);
+            // делаем двойную проводку для истории перемешения средств
+            $this->makeOperation($transaction, $receiverAccount, $senderAccount);
+            // отнимаем от отправителя
+            $this->subtractBalanceAmount($transaction->amount, $senderAccount);
+            // добавляем получателю
+            $this->appendBalanceAmount($transaction->amount, $receiverAccount);
 
-        $transaction->setStatus(TransactionStatus::SUCCESS);
+            $transaction->setStatus(TransactionStatus::SUCCESS);
+        }
+        return $transaction;
+    }
+
+    /**
+     * @param \App\Models\Transaction $transaction
+     * @return \App\Models\Transaction
+     * @throws \Exception
+     */
+    public function cancelTransactionOrRollback(Transaction $transaction)
+    {
+        // Старт транзакции!
+        DB::beginTransaction();
+
+        try {
+            $transaction = $this->cancelTransaction($transaction);
+            $transaction->save();
+        }
+        catch(\Exception $e) {
+            // Откат
+            DB::rollback();
+            // помечаем транзакцию как проваленную
+            $transaction->setStatus(TransactionStatus::ERROR);
+            $transaction->save();
+            throw $e;
+        }
+
+        // Если всё хорошо - фиксируем
+        DB::commit();
 
         return $transaction;
     }
 
+    /**
+     * @param \App\Models\Transaction $transaction
+     * @return \App\Models\Transaction
+     */
+    public function cancelTransaction(Transaction $transaction)
+    {
+        // перевести в статус "canceled" можно только из статуса "pending"
+        if ($transaction->getStatusCode() === TransactionStatus::PENDING || $transaction->getStatusCode() === TransactionStatus::WAITING) {
+            $transaction->setStatus(TransactionStatus::CANCEL);
+        }
+
+        return $transaction;
+    }
+
+    /**
+     * @param \App\Models\Transaction $transaction
+     * @param \App\Models\BillingAccount $receiverAccount
+     * @param \App\Models\BillingAccount $senderAccount
+     */
     private function makeOperation(Transaction $transaction, BillingAccount $receiverAccount, BillingAccount $senderAccount)
     {
         $outgoingOperationType = BillingOperationType::whereCode(BillingOperationType::OUTGOING)->first();
@@ -258,13 +309,13 @@ class BillingManager
                 'sender' => BillingAccountType::BALANCE,
                 'receiver' => BillingAccountType::VIRTUAL,
             ],
-            TransactionType::CARD_IN => [
-                'sender' => BillingAccountType::VIRTUAL,
+            TransactionType::YANDEX_IN => [
+                'sender' => BillingAccountType::KASSA_YANDEX,
                 'receiver' => BillingAccountType::BALANCE,
             ],
-            TransactionType::CARD_OUT => [
+            TransactionType::YANDEX_OUT => [
                 'sender' => BillingAccountType::BALANCE,
-                'receiver' => BillingAccountType::VIRTUAL,
+                'receiver' => BillingAccountType::KASSA_YANDEX,
             ],
             TransactionType::SERVICE_IN => [
                 'sender' => BillingAccountType::BALANCE,
@@ -341,6 +392,7 @@ class BillingManager
                     TransactionType::MANUAL_IN,
                     $comment
                 );
+                $transaction_deposit->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
                 // исполнение транзакции
                 $transaction_deposit = $this->runTransaction($transaction_deposit);
             }
@@ -359,24 +411,24 @@ class BillingManager
                 TransactionType::SERVICE_IN,
                 $comment
             );
+            $transaction->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
             // исполнение транзакции
             $transaction = $this->runTransaction($transaction);
 
             if ($is_need_deposit && isset($transaction_deposit)) {
-                $transaction_deposit->setStatus(TransactionStatus::SUCCESS);
+                $transaction_deposit->save();
             }
 
-            $transaction->setStatus(TransactionStatus::SUCCESS);
+            $transaction->save();
+            // Если всё хорошо - фиксируем
+            DB::commit();
         }
         catch(\Exception $e) {
             // Откат
             DB::rollback();
-
+            // при ошибке не должно создаться транзакций вообще
             throw $e;
         }
-
-        // Если всё хорошо - фиксируем
-        DB::commit();
 
         return $document->fresh();
     }

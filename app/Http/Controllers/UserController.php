@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TransactionStatus;
 use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\Page;
@@ -122,6 +123,12 @@ class UserController extends Controller
         ], 200);
     }
 
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
     public function changeBalance(Request $request, User $user)
     {
         $currUser = Auth::user();
@@ -160,6 +167,8 @@ class UserController extends Controller
             }
             // транзакция на оплату
             $transaction = BillingService::makeTransaction($user, (int) $amount, $transaction_type, $comment);
+            $transaction->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
+            $transaction->save();
             // исполнение транзакции
             $transaction = BillingService::runTransactionOrRollback($transaction);
 

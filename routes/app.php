@@ -12,7 +12,11 @@ Route::post('/profile/{user}/avatar', 'ProfileController@updateAvatar')->name('p
 Route::put('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
 // documents
 Route::get('/documents', 'DocumentController@index')->name('documents');
-
+// finances
+Route::get('/finances', 'FinanceController@index')->name('finances');
+Route::get('/finances/payment', 'PaymentController@index')->name('payment');
+Route::post('/finances/payment', 'PaymentController@create')->name('payment.create');
+Route::get('/finances/check-payment', 'PaymentController@checkPayment')->name('payment.check');
 
 // Only admin
 Route::middleware(['role:admin'])->group(function () {

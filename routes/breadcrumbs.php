@@ -22,6 +22,14 @@ try {
         $trail->parent('home');
         $trail->push('Документы', '', ['fa' => 'fa-file-pdf-o']);
     });
+    Breadcrumbs::for('finances', function ($trail) {
+        $trail->parent('home');
+        $trail->push('Список платежей', route('finances'), ['fa' => 'fa-money']);
+    });
+    Breadcrumbs::for('payment', function ($trail) {
+        $trail->parent('finances');
+        $trail->push('Оплата услуг', '', ['fa' => 'fa-credit-card']);
+    });
 }
 catch (\DaveJamesMiller\Breadcrumbs\Exceptions\DuplicateBreadcrumbException $e) {
     Log::error($e->getMessage());

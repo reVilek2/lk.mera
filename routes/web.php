@@ -13,3 +13,6 @@ Route::get('/clear-cache', function () {
 Route::post('/refresh-csrf', function (){
     return csrf_token();
 });
+
+Route::post('/yandex-kassa-notify', 'YandexNotifyController@index')->name('yandex.kassa.notify');
+Route::get('/yandex-kassa-notify', 'YandexNotifyController@index')->name('yandex.kassa.notify');

@@ -1,0 +1,65 @@
+.payment-boxes {
+  max-width: 800px;
+
+  &__item {
+    margin-bottom: 12px;
+    box-shadow: 1px 2px 7px rgba(0,0,0,.24);
+    background: #f3f3f3;
+    cursor: default;
+    text-decoration: none;
+    padding: 0;
+  }
+  &__header {
+    display: table;
+    &-icon {
+      display: table-cell;
+      padding: 0 24px;
+      height: 120px;
+      vertical-align: middle;
+    }
+    &-item {
+      display: table-cell;
+      padding: 0 20px 0;
+      width: 80%;
+      vertical-align: middle;
+      &-title {
+        font-weight: 600;
+        font-size: 20px;
+      }
+    }
+    &-action {
+      vertical-align: middle;
+      position: relative;
+      text-align: center;
+      display: table-cell;
+      width: 10%;
+      padding-right: 20px;
+      &-close {
+        position: absolute;
+        top: 7px;
+        right: 10px;
+        display: none;
+      }
+    }
+  }
+  &__content {
+    &-details {
+      background: #f3f3f3;
+      padding: 20px;
+    }
+    &-action {
+      padding: 20px;
+      background: #fff;
+    }
+    &-box_amount {
+      max-width: 230px;
+      float: left;
+    }
+  }
+  &__item.active &__header-action-close{
+    display: block;
+  }
+  &__item.active &__header-action-open{
+    display: none;
+  }
+}

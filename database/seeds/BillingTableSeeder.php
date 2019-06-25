@@ -16,16 +16,18 @@ class BillingTableSeeder extends Seeder
         DB::table('billing_transaction_type')->insert([
             ['code' => 'manual_in', 'name' => 'Ручное пополнение счета'],
             ['code' => 'manual_out', 'name' => 'Ручное списание со счета'],
-            ['code' => 'card_in', 'name' => 'Пополнение с карты'],
-            ['code' => 'card_out', 'name' => 'Возврат на карту'],
+            ['code' => 'yandex_in', 'name' => 'Пополнение с yandex кассы'],
+            ['code' => 'yandex_out', 'name' => 'Возврат в yandex кассу'],
             ['code' => 'service_in', 'name' => 'Оплата услуг'],
             ['code' => 'service_out', 'name' => 'Возврат оплаты за услуги'],
         ]);
 
         DB::table('billing_transaction_status')->insert([
-            ['code' => 'pending', 'name' => 'Ожидает исполнения'],
+            ['code' => 'waiting', 'name' => 'Ожидает'],
+            ['code' => 'pending', 'name' => 'Исполняется'],
             ['code' => 'success', 'name' => 'Исполнен'],
             ['code' => 'error', 'name' => 'Ошибка'],
+            ['code' => 'cancel', 'name' => 'Отменен'],
         ]);
 
         DB::table('billing_operation_type')->insert([

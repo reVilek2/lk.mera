@@ -40,6 +40,8 @@ import UserProfileBox from './components/users/UserProfileBox';
 import DocumentsTable from './components/documents/DocumentsTable';
 import VueStoreData from './components/VueStoreData';
 import UserBalanceMenu from './components/users/UserBalanceMenu';
+import PaymentService from './components/payments/PaymentService';
+import FinanceService from './components/finances/FinanceService';
 
 Vue.config.devtools = process.env.NODE_ENV === 'development';
 
@@ -53,6 +55,8 @@ let app = new Vue({
         NotificationMessages,
         UsersTable,
         UserProfileBox,
-        DocumentsTable
+        DocumentsTable,
+        PaymentService,
+        FinanceService,
     }
 });

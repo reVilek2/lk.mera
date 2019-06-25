@@ -180,6 +180,7 @@ return [
         App\Providers\ChatServiceProvider::class,
         App\Providers\BillingServiceProvider::class,
         App\Providers\FileServiceProvider::class,
+        App\ModulePayment\PaymentProvider::class,
     ],
 
     /*
