@@ -254,7 +254,7 @@ class User extends Authenticatable implements HasMedia
         if ($totalPayable > $balance) {
             return MoneyAmount::toReadable($totalPayable - $balance);
         }
-        return 0;        
+        return 0;
     }
     function getTotalPayableHumanizeAttribute()
     {
