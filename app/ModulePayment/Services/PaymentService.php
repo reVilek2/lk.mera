@@ -122,14 +122,14 @@ class PaymentService implements PaymentServiceInterface
      * @param array $extraParams
      * @return string
      */
-    public function getPaymentData($amount,
+    public function regularPayment($amount,
                                   $paymentType = self::PAYMENT_TYPE_CARD,
                                   $description = '',
                                   $successReturnUrl = '',
                                   $metadata = [],
                                   $extraParams = [])
     {
-        return $this->getCurrentDriver()->getPaymentData(
+        return $this->getCurrentDriver()->regularPayment(
             $amount,
             $paymentType,
             $description,
@@ -139,9 +139,36 @@ class PaymentService implements PaymentServiceInterface
         );
     }
 
-    public function makePayment($paymentData)
+    public function fastPayment($amount,
+                                $card_id,
+                                $description = '',
+                                $metadata = [],
+                                $extraParams = [])
     {
-        return $this->getCurrentDriver()->makePayment($paymentData);
+        return $this->getCurrentDriver()->fastPayment(
+            $amount,
+            $card_id,
+            $description,
+            $metadata,
+            $extraParams
+        );
+    }
+
+    public function makePaymentTransaction($amount,
+                                           $paymentType = self::PAYMENT_TYPE_CARD,
+                                           $description = '',
+                                           $idempotencyKey)
+    {
+        return $this->getCurrentDriver()->makePaymentTransaction(
+            $amount,
+            $paymentType,
+            $description,
+            $idempotencyKey);
+    }
+
+    public function updatePaymentTransaction($payment, $paymentData)
+    {
+        return $this->getCurrentDriver()->updatePaymentTransaction($payment, $paymentData);
     }
 
     public function getPaymentByUniqueKey($key)

@@ -16,6 +16,7 @@ Route::get('/documents', 'DocumentController@index')->name('documents');
 Route::get('/finances', 'FinanceController@index')->name('finances');
 Route::get('/finances/payment', 'PaymentController@index')->name('payment');
 Route::post('/finances/payment', 'PaymentController@create')->name('payment.create');
+Route::post('/finances/payment/pay-fast', 'PaymentController@payFast')->name('payment.payFast');
 Route::get('/finances/check-payment', 'PaymentController@checkPayment')->name('payment.check');
 
 // Only admin

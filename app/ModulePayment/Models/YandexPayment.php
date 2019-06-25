@@ -17,7 +17,7 @@ use MoneyAmount;
  * @property string $payment_id
  * @property string $payment_type
  * @property string|null $payment_method_type
- * @property string|null $payment_meta
+ * @property string|null $payment_method_meta
  * @property string $status
  * @property string|null $description
  * @property int $user_id
@@ -37,7 +37,7 @@ use MoneyAmount;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment whereIdempotencyKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment wherePaid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment wherePaymentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment wherePaymentMeta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment wherePaymentMethodMeta($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment wherePaymentMethodType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment wherePaymentType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment whereStatus($value)
@@ -70,7 +70,7 @@ class YandexPayment extends Model implements ModelPaymentInterface
         'payment_id' ,
         'payment_type' ,
         'payment_method_type' ,
-        'payment_meta',
+        'payment_method_meta',
         'status',
         'description',
         'user_id',
@@ -93,16 +93,18 @@ class YandexPayment extends Model implements ModelPaymentInterface
     {
         $this->attributes['paid_amount'] = MoneyAmount::toExternal($value);
     }
-    public function getPaymentMetaAttribute($value)
+    public function getPaymentMethodMetaAttribute($value)
     {
         return $value ? unserialize($value, array('allowed_classes' => true)) : [];
     }
-    public function setPaymentMetaAttribute($value)
+    public function setPaymentMethodMetaAttribute($value)
     {
-        $this->attributes['payment_meta'] = serialize($value);
+        $this->attributes['payment_method_meta'] = serialize($value);
     }
 
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -119,6 +121,11 @@ class YandexPayment extends Model implements ModelPaymentInterface
     public function getTransaction()
     {
         return $this->belongsTo(Transaction::class, 'transaction_id')->first();
+    }
+
+    public function getUser()
+    {
+        return $this->user()->first();
     }
 
     public function getStatus()

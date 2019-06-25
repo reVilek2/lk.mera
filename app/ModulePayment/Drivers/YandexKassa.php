@@ -71,7 +71,7 @@ class YandexKassa implements PaymentTransportInterface
      * @throws \YandexCheckout\Common\Exceptions\TooManyRequestsException
      * @throws \YandexCheckout\Common\Exceptions\UnauthorizedException
      */
-    public function getPaymentData($params, $idempotencyKey = null)
+    public function createPayment($params, $idempotencyKey = null)
     {
         $response = $this->getClient()->createPayment($this->prepareParams($params), $idempotencyKey);
 

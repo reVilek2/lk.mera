@@ -7,6 +7,7 @@ use App\Models\TransactionType;
 use App\ModulePayment\Interfaces\ModelPaymentInterface;
 use App\ModulePayment\Interfaces\PaymentServiceInterface;
 use App\ModulePayment\Interfaces\PaymentTransportInterface;
+use App\ModulePayment\Models\PaymentCard;
 use App\ModulePayment\Models\YandexPayment;
 use BillingService;
 use DB;
@@ -51,7 +52,7 @@ class YandexDriver implements PaymentServiceInterface
      * @param array $extraParams
      * @return string
      */
-    public function getPaymentData($amount,
+    public function regularPayment($amount,
                                    $paymentType = self::PAYMENT_TYPE_CARD,
                                    $description = '',
                                    $successReturnUrl = '',
@@ -64,57 +65,75 @@ class YandexDriver implements PaymentServiceInterface
             $currency = $cur['alpha3'];
         }
         $paymentType = $this->getPaymentMethod($paymentType);
+        $save_payment_method = $metadata['save_card'] ?? false;
+        $idempotencyKey = $metadata['idempotency_key'] ?? null;
         $params = [
-            'amount'              => [
+            'amount'    => [
                 'value'    => $amount,
                 'currency' => $currency,
             ],
-            'metadata'            => $metadata,
-            'confirmation'        => [
+            'metadata'  => $metadata,
+            'confirmation'   => [
                 'type'       => 'redirect',
                 'return_url' => $successReturnUrl,
             ],
             'payment_method_data' => [
                 'type' => $paymentType,
             ],
+            'save_payment_method' => $save_payment_method,
             'description'         => $description,
             'capture'             => true, //двух этапное списание (false - это включено)
         ];
-        if ($paymentType === self::PAYMENT_TYPE_QIWI && isset($extraParams['phone'])) {
-            $params['payment_method_data']['phone'] = $extraParams['phone'];
-        }
 
         $params = array_merge($params, $extraParams);
-        return $this->getTransport()->getPaymentData($params, $idempotencyKey = $params['metadata']['idempotency_key'] ?? null);
+        return $this->getTransport()->createPayment($params, $idempotencyKey);
+    }
+
+    public function fastPayment($amount,
+                                $card_id,
+                                $description = '',
+                                $metadata = [],
+                                $extraParams = [])
+    {
+        $currency = self::CURRENCY_RUR_ISO;
+        if (is_numeric($currency)) {
+            $cur = (new ISO4217())->getByNumeric($currency);
+            $currency = $cur['alpha3'];
+        }
+        $idempotencyKey = $metadata['idempotency_key'] ?? null;
+        $params = [
+            'amount'    => [
+                'value'    => $amount,
+                'currency' => $currency,
+            ],
+            'metadata'            => $metadata,
+            'payment_method_id'   => $card_id,
+            'description'         => $description,
+            'capture'             => true, //двух этапное списание (false - это включено)
+        ];
+
+        $params = array_merge($params, $extraParams);
+        return $this->getTransport()->createPayment($params, $idempotencyKey);
     }
 
     /**
-     * @param $paymentData
+     * @param $amount
+     * @param string $paymentType
+     * @param string $description
+     * @param $idempotencyKey
      * @return mixed
      * @throws \Exception
      */
-    public function makePayment($paymentData)
+    public function makePaymentTransaction($amount,
+                                           $paymentType = self::PAYMENT_TYPE_CARD,
+                                           $description = '',
+                                           $idempotencyKey)
     {
         // Старт транзакции!
         DB::beginTransaction();
 
-        $this->setPaymentData($paymentData);
         try {
-            $amount = $this->getAmount();
-            $paid = $this->getPaid();
-            if (empty($paid)) {
-                $paid = false;
-            }
-            $payment_id = $this->getPaymentId();
-            $payment_method_type = $this->getPaymentMethodType();
-            $payment_meta = $this->getParam('payment_method');
-            $status = $this->getStatus();
-            $description = $this->getParam('description');
-            $idempotency_key = $this->getParam('metadata.idempotency_key');
-            if(!$idempotency_key || empty($idempotency_key)) {
-                $idempotency_key = $payment_id;
-            }
-
+            $paymentType = $this->getPaymentMethod($paymentType);
             /*
              * транзакция на пополнение баланса
              */
@@ -127,14 +146,11 @@ class YandexDriver implements PaymentServiceInterface
             );
 
             $yandexPayment = YandexPayment::create([
-                'idempotency_key' => $idempotency_key,
+                'idempotency_key' => $idempotencyKey,
                 'amount' => $amount,
-                'paid' => $paid,
-                'payment_id' => $payment_id,
                 'payment_type' => YandexPayment::TYPE_PAYMENT,
-                'payment_method_type' => $payment_method_type,
-                'payment_meta' => $payment_meta,
-                'status' => $status,
+                'payment_method_type' => $paymentType,
+                'status' => ModelPaymentInterface::STATUS_PENDING,
                 'description' => $comment,
                 'user_id' => \Auth::user()->id,
                 'transaction_id' => $transaction_deposit->id,
@@ -150,6 +166,29 @@ class YandexDriver implements PaymentServiceInterface
             DB::rollback();
             throw $e;
         }
+    }
+
+    public function updatePaymentTransaction($payment, $paymentData)
+    {
+        if (!$payment || !$payment instanceof ModelPaymentInterface) {
+            return null;
+        }
+
+        $this->setPaymentData($paymentData);
+        $payment_id = $this->getPaymentId();
+        $payment_method_meta = $this->getParam('payment_method', null);
+
+        if ($payment_id && !empty($payment_id)) {
+            $payment->payment_id = $payment_id;
+            $payment->payment_method_meta = $payment_method_meta;
+
+            $payment->save();
+        } else {
+
+            info('updatePaymentTransaction: Ошибка при обработке уведомлений yandex, идентификатор платежа пустой.');
+        }
+
+        return $payment;
     }
 
     public function getPaymentByUniqueKey($key)
@@ -199,21 +238,40 @@ class YandexDriver implements PaymentServiceInterface
     {
         $this->setPaymentData($paymentData);
         $payment_id = $this->getPaymentId();
+
         if ($payment_id && !empty($payment_id)) {
             /** @var \App\Models\Transaction $transaction */
             $transaction = $payment->getTransaction();
+            $payment_method_meta = $this->getParam('payment_method');
 
             if ($payment->getStatus() !== $this->getStatus()) { // если статус изменился
                 switch ($this->getStatus()) { // статус из ответа
                     case YandexPayment::STATUS_CANCELED:
+                        $payment->payment_method_meta = $payment_method_meta;
                         $payment->setStatus(YandexPayment::STATUS_CANCELED);
                         $payment->save();
                         BillingService::cancelTransactionOrRollback($transaction);
 
                         break;
                     case YandexPayment::STATUS_SUCCEEDED:
+                        if ($payment->payment_method_type === $this->getPaymentMethod(self::PAYMENT_TYPE_CARD)) {// если оплата картой
+                            if ($this->getParam('payment_method.saved', false)) {// если нужно сохранить карту
+                                (new \App\ModulePayment\Models\PaymentCard)->saveCard($payment->getUser(), [
+                                    'card_id' => $this->getPaymentMethodId(),
+                                    'year' => $this->getParam('payment_method.expiryYear', null),
+                                    'month' => $this->getParam('payment_method.expiryMonth', null),
+                                    'type' => $this->getParam('payment_method.cardType', null),
+                                    'first' => $this->getParam('payment_method.first6', null),
+                                    'last' => $this->getParam('payment_method.last4', null),
+                                    'pan' => $this->getParam('payment_method.first6', '') . '******' . $this->getParam('payment_method.last4', ''),
+                                    'card_default' => false,
+                                ]);
+                            }
+                        }
+                        $payment->payment_method_meta = $payment_method_meta;
                         $payment->setStatus(YandexPayment::STATUS_SUCCEEDED);
                         $payment->save();
+
                         if ($transaction->getStatusCode() === TransactionStatus::WAITING) {
                             // получаем сумму из платежа
                             $amount = $this->getAmount();
@@ -226,14 +284,14 @@ class YandexDriver implements PaymentServiceInterface
                             session()->flash('balance-message', 'replenished');
                         } else {
 
-                            info('Ошибка при обработке уведомлений yandex, транзакция находится не в надлежашем статусе');
+                            info('processPayment: Ошибка при обработке уведомлений yandex, транзакция находится не в надлежашем статусе');
                         }
                         break;
                 }
             }
         } else {
 
-            info('Ошибка при обработке уведомлений yandex, идентификатор платежа пустой.');
+            info('processPayment: Ошибка при обработке уведомлений yandex, идентификатор платежа пустой.');
         }
 
         return $payment;
@@ -285,8 +343,11 @@ class YandexDriver implements PaymentServiceInterface
         try {
             $this->setPaymentData($request['object'] ?? []);
             $payment_id = $this->getPaymentId();
-            if (!$payment_id && !empty($payment_id)) {
+            if ($payment_id && !empty($payment_id)) {
                 $payment = YandexPayment::wherePaymentId($payment_id)->first();
+                if (!$payment) {
+                    throw new \Exception('Не найден платеж в системе.');
+                }
                 $this->processPayment($payment, $request['object']);
             } else {
 
@@ -410,7 +471,7 @@ class YandexDriver implements PaymentServiceInterface
      */
     public function getPan()
     {
-        return $this->getPaymentParam('payment_method.card.first6') . '******' . $this->getPaymentParam('payment_method.card.last4');
+        return $this->getPaymentParam('payment_method.first6') . '******' . $this->getPaymentParam('payment_method.last4');
     }
 
     /**
@@ -418,11 +479,12 @@ class YandexDriver implements PaymentServiceInterface
      *
      * @param string $name
      *
+     * @param string $default
      * @return mixed
      */
-    public function getParam($name)
+    public function getParam($name, $default = '')
     {
-        return $this->getPaymentParam($name);
+        return $this->getPaymentParam($name, $default);
     }
 
     /**

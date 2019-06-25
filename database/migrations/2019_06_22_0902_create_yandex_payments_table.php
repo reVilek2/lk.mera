@@ -19,10 +19,10 @@ class CreateYandexPaymentsTable extends Migration
             $table->bigInteger('amount')->default(0);
             $table->boolean('paid')->default(false);
 
-            $table->string('payment_id');
-            $table->string('payment_type');
+            $table->string('payment_id')->nullable();
+            $table->string('payment_type')->nullable();
             $table->string('payment_method_type')->nullable();
-            $table->text('payment_meta')->nullable();
+            $table->text('payment_method_meta')->nullable();
             $table->string('status')->default('pending');
             $table->text('description')->nullable();
 
@@ -39,6 +39,26 @@ class CreateYandexPaymentsTable extends Migration
 
             $table->timestamps();
         });
+
+        Schema::create('payment_cards', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('card_id')->unique();
+            $table->string('year')->nullable();
+            $table->string('month')->nullable();
+            $table->string('type')->nullable();
+            $table->string('first')->nullable();
+            $table->string('last')->nullable();
+            $table->string('pan')->nullable();
+            $table->boolean('card_default')->default(false);
+            $table->unsignedInteger('user_id');
+
+            $table->index(['user_id']);
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users');
+
+            $table->timestamps();
+        });
     }
 
     /**
@@ -49,5 +69,6 @@ class CreateYandexPaymentsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('yandex_payments');
+        Schema::dropIfExists('payment_cards');
     }
 }

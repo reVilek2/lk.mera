@@ -22,7 +22,7 @@
         <div class="col-xs-12">
             <div class="box">
                 <div class="box-body">
-                    <payment-service></payment-service>
+                    <payment-service :payment-cards="{{json_encode($payment_cards)}}"></payment-service>
                     {{--<form action="{{route('payment.create')}}" method="post">--}}
                         {{--@csrf--}}
                         {{--<input name="amount" type="text">--}}

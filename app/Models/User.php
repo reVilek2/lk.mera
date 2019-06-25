@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\ModulePayment\Models\PaymentCard;
 use App\Notifications\MessageSentNotification;
 use App\Notifications\ResetPasswordNotification;
+use DB;
 use Exception;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -87,6 +89,7 @@ use Str;
  * @property-read mixed $is_client
  * @property-read mixed $is_manager
  * @property-read mixed $is_user
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\ModulePayment\Models\PaymentCard[] $paymentCards
  */
 class User extends Authenticatable implements HasMedia
 {
@@ -182,6 +185,8 @@ class User extends Authenticatable implements HasMedia
         'is_manager',
         'is_client',
         'is_user',
+        'total_payable',
+        'total_payable_humanize',
     ];
 
     function getAvatarAttribute()
@@ -237,6 +242,24 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasRole(self::ROLE_USER);
     }
+    function getTotalPayableAttribute()
+    {
+        $documentsPayable = DB::table('documents')
+            ->select(DB::raw("SUM(amount) as total"))
+            ->where('client_id', $this->id)
+            ->where('paid', false)
+            ->first();
+        $balance = MoneyAmount::toExternal($this->balance);
+        $totalPayable = $documentsPayable->total ?? 0;
+        if ($totalPayable > $balance) {
+            return MoneyAmount::toReadable($totalPayable - $balance);
+        }
+        return 0;        
+    }
+    function getTotalPayableHumanizeAttribute()
+    {
+        return MoneyAmount::toHumanize($this->total_payable);
+    }
 
     /**
      * Set the polymorphic relation.
@@ -278,6 +301,11 @@ class User extends Authenticatable implements HasMedia
             ->join('billing_account_type', 'billing_account_type.id', '=', 'billing_accounts.acc_type_id')
             ->select('billing_accounts.*', 'billing_account_type.code', 'billing_account_type.name', 'billing_account_type.type')
             ->where('code', BillingAccountType::BALANCE);
+    }
+
+    public function paymentCards()
+    {
+        return $this->hasMany(PaymentCard::class, 'user_id');
     }
 
     public function getManager()
