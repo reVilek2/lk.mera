@@ -6,6 +6,14 @@
                 type: Object,
                 default: () => {}
             },
+            currentManager: {
+                type: Object,
+                default: () => {}
+            },
+            currentClients: {
+                type: Array,
+                default: () => {}
+            },
             balanceMessage: {
                 type: String,
                 default: ''
@@ -13,6 +21,9 @@
         },
         mounted() {
             this.$store.dispatch('setCurrentUser', this.currentUser);
+            this.$store.dispatch('setCurrentManager', this.currentManager);
+            this.$store.dispatch('setCurrentClients', this.currentClients);
+
             if (this.balanceMessage === 'replenished') {
                 new Noty({
                     type: 'success',

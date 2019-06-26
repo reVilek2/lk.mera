@@ -40,6 +40,7 @@ import UserProfileBox from './components/users/UserProfileBox';
 import DocumentsTable from './components/documents/DocumentsTable';
 import VueStoreData from './components/VueStoreData';
 import UserBalanceMenu from './components/users/UserBalanceMenu';
+import UserAccountMenu from './components/users/UserAccountMenu';
 import PaymentService from './components/payments/PaymentService';
 import FinanceService from './components/finances/FinanceService';
 
@@ -51,6 +52,7 @@ let app = new Vue({
     components: {
         VueStoreData,
         UserBalanceMenu,
+        UserAccountMenu,
         ChatsList,
         NotificationMessages,
         UsersTable,

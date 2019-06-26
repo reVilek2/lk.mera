@@ -18,10 +18,10 @@
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
-                @hasanyrole('user|client')
+                {{--@hasanyrole('user|client')--}}
                 <!-- Balance Menu -->
                 <user-balance-menu></user-balance-menu>
-                @endhasallroles
+                {{--@endhasallroles--}}
                 <!-- Messages: style can be found in dropdown.less-->
                 <notification-messages :userid="{{auth()->id()}}"
                                        :notification-messages="{{auth()->user()->unreadNotificationMessages}}"
@@ -53,57 +53,7 @@
                     </ul>
                 </li>
                 <!-- User Account Menu -->
-                <li class="dropdown user user-menu">
-                    <!-- Menu Toggle Button -->
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <!-- The user image in the navbar-->
-                        <img src="{{ Auth::user()->getAvatar('thumb') }}" class="user-image js-user-avatar-thumb" alt="User Image">
-                        <!-- hidden-xs hides the username on small devices so only the image appears. -->
-                        <span class="hidden-xs">{{ Auth::user()->getUserName() }}</span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <!-- The user image in the menu -->
-                        <li class="user-header">
-                            <img src="{{ Auth::user()->getAvatar('small') }}" class="img-circle js-user-avatar-small" alt="User Image">
-
-                            <p>
-                                {{ Auth::user()->getUserName() }} - {{ Auth::user()->getUserRole() }}
-                                <small>Зарегистрирован {{diffForHumans(Auth::user()->created_at)}}</small>
-                            </p>
-                        </li>
-                        @hasanyrole('user|client')
-                        <!-- Menu Body -->
-                        <li class="user-body">
-                            <div class="row">
-                                <div class="col-xs-4">
-                                    <a href="#">Менеджер:</a>
-                                </div>
-                                <div class="col-xs-8 text-left">
-                                    <span>не закреплен</span>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-4">
-                                    <a href="#">Баланс:</a>
-                                </div>
-                                <div class="col-xs-8 text-left">
-                                    <span>{{Auth::user()->balance_humanize}}</span>
-                                </div>
-                            </div>
-                            <!-- /.row -->
-                        </li>
-                        @endhasallroles
-                        <!-- Menu Footer-->
-                        <li class="user-footer">
-                            <div class="pull-left">
-                                <a href="{{route('profile')}}" class="btn btn-default btn-flat">Редактировать</a>
-                            </div>
-                            <div class="pull-right">
-                                <a href="{{route('logout')}}" class="btn btn-default btn-flat">Выйти</a>
-                            </div>
-                        </li>
-                    </ul>
-                </li>
+                <user-account-menu></user-account-menu>
                 <!-- Control Sidebar Toggle Button -->
                 {{--<li>--}}
                     {{--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>--}}

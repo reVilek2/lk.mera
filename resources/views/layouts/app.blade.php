@@ -92,7 +92,10 @@ desired effect
 --}}
 <body class="hold-transition skin-red-light sidebar-mini">
 <div id="app" class="wrapper">
-    <vue-store-data :current-user="{{auth()->user()}}" :balance-message="{{json_encode(session()->get('balance-message', 'empty'))}}"></vue-store-data>
+    <vue-store-data :current-user="{{json_encode(auth()->user())}}"
+                    :current-manager="{{json_encode(auth()->user()->getManager())}}"
+                    :current-clients="{{json_encode(auth()->user()->getClients())}}"
+                    :balance-message="{{json_encode(session()->get('balance-message', 'empty'))}}"></vue-store-data>
 
     @include('layouts/_app/header')
 

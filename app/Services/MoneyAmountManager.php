@@ -19,9 +19,9 @@ class MoneyAmountManager
     function toHumanize($number)
     {
         $tmp = explode(',', $number);
-        $out = number_format($tmp[0], 0, '.', ' '). ' руб.';
-        if (isset($tmp[1])) $out .= ' '.$tmp[1].' коп.';
+        $out = number_format($tmp[0], 0, '.', ' ');
+        if (isset($tmp[1])) $out .= '.'.$tmp[1];
 
-        return $out;
+        return $out. ' руб.';
     }
 }

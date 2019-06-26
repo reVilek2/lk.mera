@@ -29,6 +29,7 @@
     </div>
 </template>
 <script>
+    import {amountToRaw} from "../../libs/utils";
     export default {
         props: {
             card: {
@@ -49,10 +50,10 @@
         },
         computed: {
             raw_amount: function () {
-                return this.getRawAmount(this.amount ? this.amount :0)
+                return amountToRaw(this.amount ? this.amount : 0)
             },
             disable_btn: function () {
-                return parseInt(this.getRawAmount(this.amount ? this.amount :0)) === 0;
+                return amountToRaw(this.amount ? this.amount : 0) === 0;
             },
         },
         watch: {
@@ -61,14 +62,8 @@
             }
         },
         methods: {
-            getRawAmount(val) {
-                if (val) {
-                    return val.replace(/\D/g, '');
-                }
-                return 0;
-            },
             submit () {
-                if (parseInt(this.raw_amount) > 0 && !this.isUploadingForm) {
+                if (this.raw_amount > 0 && !this.isUploadingForm) {
                     this.isUploadingForm = true;
                     axios.post(this.payment_url, { card_id: this.card.card_id, amount: this.raw_amount }).then(response => {
                         this.isUploadingForm = false;

@@ -38,7 +38,7 @@
                     </button>
                 </div>
                 <div v-else class="btn-group box-profile-list__btn">
-                    <a href="#">{{managerName}}</a>
+                    <span>{{managerName}}</span>
                 </div>
             </li>
         </ul>

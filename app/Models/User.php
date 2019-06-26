@@ -5,6 +5,7 @@ namespace App\Models;
 use App\ModulePayment\Models\PaymentCard;
 use App\Notifications\MessageSentNotification;
 use App\Notifications\ResetPasswordNotification;
+use App\Services\MoneyAmountManager;
 use DB;
 use Exception;
 use Illuminate\Notifications\Notifiable;
@@ -178,6 +179,7 @@ class User extends Authenticatable implements HasMedia
         'role',
         'name',
         'created_at_short',
+        'created_at_diff',
         'role_names',
         'balance',
         'balance_humanize',
@@ -212,6 +214,10 @@ class User extends Authenticatable implements HasMedia
     public function getCreatedAtShortAttribute()
     {
         return humanize_date($this->created_at, 'd.m.Y H:i');
+    }
+    public function getCreatedAtDiffAttribute()
+    {
+        return diffForHumans($this->created_at);
     }
     function getRoleNamesAttribute()
     {
@@ -249,12 +255,9 @@ class User extends Authenticatable implements HasMedia
             ->where('client_id', $this->id)
             ->where('paid', false)
             ->first();
-        $balance = MoneyAmount::toExternal($this->balance);
         $totalPayable = $documentsPayable->total ?? 0;
-        if ($totalPayable > $balance) {
-            return MoneyAmount::toReadable($totalPayable - $balance);
-        }
-        return 0;
+
+        return MoneyAmount::toReadable($totalPayable);
     }
     function getTotalPayableHumanizeAttribute()
     {

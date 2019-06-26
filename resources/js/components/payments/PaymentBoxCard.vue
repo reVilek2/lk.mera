@@ -47,8 +47,13 @@
 </template>
 <script>
     import {VMoney} from 'v-money';
+    import {amountToRaw} from "../../libs/utils";
     export default {
         props: {
+            moneyParam: {
+                type: Object,
+                default: () => {}
+            },
             active: {
                 type: Boolean,
                 default: () => false
@@ -63,23 +68,16 @@
                 payment_type: 'card',
                 save_card: true,
                 amount: this.totalPayable,
-                money: {
-                    decimal: '',
-                    thousands: ' ',
-                    prefix: '',
-                    suffix: ' руб.',
-                    precision: 0,
-                    masked: false
-                },
+                money: this.moneyParam,
                 isUploadingForm:false,
             }
         },
         computed: {
             raw_amount: function () {
-                return this.getRawAmount(this.amount ? this.amount : 0)
+                return amountToRaw(this.amount ? this.amount : 0)
             },
             disable_btn: function () {
-                return parseInt(this.getRawAmount(this.amount ? this.amount :0)) === 0;
+                return amountToRaw(this.amount ? this.amount : 0) === 0;
             },
         },
         watch: {
@@ -88,12 +86,6 @@
             }
         },
         methods: {
-            getRawAmount(val) {
-                if (val) {
-                    return val.replace(/\D/g, '');
-                }
-                return 0;
-            },
             closed() {
                 this.$emit('itemCardChangeActive', false);
             },
@@ -101,7 +93,7 @@
                 this.$emit('itemCardChangeActive', true);
             },
             submit() {
-                if (parseInt(this.raw_amount) > 0 && !this.isUploadingForm) {
+                if (this.raw_amount > 0 && !this.isUploadingForm) {
                     this.isUploadingForm = true;
                     axios.post(this.payment_url, {payment_type:this.payment_type, save_card:this.save_card, amount: this.raw_amount}).then(response => {
                         this.isUploadingForm = false;
