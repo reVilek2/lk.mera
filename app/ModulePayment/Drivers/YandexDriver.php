@@ -176,6 +176,7 @@ class YandexDriver implements PaymentServiceInterface
     public function updatePaymentTransaction($payment, $paymentData)
     {
         if (!$payment || !$payment instanceof ModelPaymentInterface) {
+            info('updatePaymentTransaction: $payment not instanceof ModelPaymentInterface');
             return null;
         }
 
@@ -243,13 +244,13 @@ class YandexDriver implements PaymentServiceInterface
     {
         $this->setPaymentData($paymentData);
         $payment_id = $this->getPaymentId();
-
         if ($payment_id && !empty($payment_id)) {
-            /** @var \App\Models\Transaction $transaction */
-            $transaction = $payment->getTransaction();
-            $payment_method_meta = $this->getParam('payment_method');
-
             if ($payment->getStatus() !== $this->getStatus()) { // если статус изменился
+
+                /** @var \App\Models\Transaction $transaction */
+                $transaction = $payment->getTransaction();
+                $payment_method_meta = $this->getParam('payment_method');
+
                 switch ($this->getStatus()) { // статус из ответа
                     case YandexPayment::STATUS_CANCELED:
                         $payment->payment_method_meta = $payment_method_meta;
@@ -294,15 +295,19 @@ class YandexDriver implements PaymentServiceInterface
                             $transaction->save();
                             BillingService::runTransaction($transaction->refresh());
 
-                            // сообщение при успешном пополнении баланса
-                            session()->flash('balance-message', 'replenished');
-                            // Уведомление
-                            /** @var User $receiver */
-                            $receiver = $transaction->getUser();
-                            $receiver->notify(new ServiceTextNotification($receiver, [
-                                'text' => 'Баланс пополнен: +'. MoneyAmount::toHumanize($amount),
-                                'created_at' => humanize_date(Carbon::now('Europe/Moscow'), 'd F, H:i'),
-                            ]));
+                            try {
+                                // сообщение при успешном пополнении баланса
+                                session()->flash('balance-message', 'replenished');
+                                // Уведомление
+                                /** @var User $receiver */
+                                $receiver = $transaction->getUser();
+                                $receiver->notify(new ServiceTextNotification($receiver, [
+                                    'text' => 'Баланс пополнен: +' . MoneyAmount::toHumanize($amount),
+                                    'created_at' => humanize_date(Carbon::now('Europe/Moscow'), 'd F, H:i'),
+                                ]));
+                            } catch (\Exception $e) {
+                                info('processPayment: Ошибка при отправке уведомления.');
+                            }
                         } else {
 
                             info('processPayment: Ошибка при обработке уведомлений yandex, транзакция находится не в надлежашем статусе');
@@ -362,21 +367,21 @@ class YandexDriver implements PaymentServiceInterface
     public function processNotificationRequest($request)
     {
         try {
-            $this->setPaymentData($request['object'] ?? []);
+            $this->setPaymentData($request ?? []);
             $payment_id = $this->getPaymentId();
             if ($payment_id && !empty($payment_id)) {
                 $payment = YandexPayment::wherePaymentId($payment_id)->first();
                 if (!$payment) {
                     throw new \Exception('Не найден платеж в системе.');
                 }
-                $this->processPayment($payment, $request['object']);
+                $this->processPayment($payment, $request);
             } else {
 
                 throw new \Exception('Ошибка при обработке уведомлений yandex, идентификатор платежа пустой.');
             }
         } catch (\Exception $e) {
 
-            info('NotificationRequest: '.$e->getMessage());
+            info('yandex notify process: '.$e->getMessage());
             return false;
         }
 

@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use PayService;
+use YandexCheckout\Request\Payments\PaymentResponse;
 
 class YandexNotifyController extends Controller
 {
     public function index(Request $request)
     {
-        info('yandex notify: '.print_r($request->all()));
-
-        if (PayService::processNotificationRequest($request->all())) {
-            info('request process: true');
+        if (PayService::processNotificationRequest(new PaymentResponse($request->input('object')))) {
+            info('yandex notify process: true');
             return PayService::getNotificationResponse(200);
         }
-        info('request process: false');
+
         return PayService::getNotificationResponse(500);
     }
 }

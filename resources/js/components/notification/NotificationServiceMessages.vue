@@ -56,11 +56,9 @@
         },
         mounted() {
             window.Echo.private('service.notification.user.'+this.currUser.id).notification((notification) => {
-                if (notification.type === 'App\\Notifications\\MessageSentNotification') {
+                if (notification.type === 'App\\Notifications\\ServiceTextNotification') {
                     let newNotification = {
-                        data: {message: notification.message, sender: notification.sender, chat: notification.chat},
-                        sender: notification.sender
-
+                        data: {message: notification.message},
                     };
                     this.notifyMessages.push(newNotification);
                     this.un_read_count = this.un_read_count + 1;
