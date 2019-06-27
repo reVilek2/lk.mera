@@ -38,8 +38,11 @@ use MoneyAmount;
  */
 class Transaction extends Model
 {
+    const INCOMING = 'incoming';
+    const OUTGOING = 'outgoing';
+
     protected $table = 'billing_transactions';
-    protected $fillable = ['status_id','type_id','user_id','amount','receiver_acc_id','sender_acc_id', 'comment'];
+    protected $fillable = ['status_id','type_id','user_id', 'initiator_user_id','amount','receiver_acc_id','sender_acc_id', 'operation', 'comment', 'meta_data'];
     public $timestamps = true;
 
     protected $with = ['status','type'];
@@ -52,6 +55,15 @@ class Transaction extends Model
     {
         $this->attributes['amount'] = MoneyAmount::toExternal($value);
     }
+    public function getMetaDataAttribute($value)
+    {
+        return $value ? unserialize($value, array('allowed_classes' => true)) : [];
+    }
+    public function setMetaDataAttribute($value)
+    {
+        $this->attributes['meta_data'] = serialize($value);
+    }
+
 
     public function status()
     {

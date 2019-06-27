@@ -31,7 +31,7 @@ use MoneyAmount;
 class BillingOperation extends Model
 {
     protected $table = 'billing_operations';
-    protected $fillable = ['account_id','transaction_id', 'type_id', 'amount'];
+    protected $fillable = ['account_id','transaction_id', 'type_id', 'amount', 'balance'];
     public $timestamps = true;
 
     public function getAmountAttribute($value)
@@ -41,5 +41,13 @@ class BillingOperation extends Model
     public function setAmountAttribute($value)
     {
         $this->attributes['amount'] = MoneyAmount::toExternal($value);
+    }
+    public function getBalanceAttribute($value)
+    {
+        return MoneyAmount::toReadable($value);
+    }
+    public function setBalanceAttribute($value)
+    {
+        $this->attributes['balance'] = MoneyAmount::toExternal($value);
     }
 }

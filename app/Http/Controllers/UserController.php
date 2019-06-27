@@ -170,7 +170,7 @@ class UserController extends Controller
             $transaction->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
             $transaction->save();
             // исполнение транзакции
-            $transaction = BillingService::runTransactionOrRollback($transaction);
+            $transaction = BillingService::runTransaction($transaction);
 
             return response()->json([
                 'status'=>'success',

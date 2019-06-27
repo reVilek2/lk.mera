@@ -44,7 +44,7 @@ class Document extends Model
 {
     protected $table = 'documents';
     public $timestamps = true;
-    protected $fillable = ['name','amount','client_id','manager_id'];
+    protected $fillable = ['name','amount','client_id','manager_id','transaction_id'];
     protected $appends = [
         'amount_humanize',
         'created_at_humanize',
@@ -87,6 +87,16 @@ class Document extends Model
     public function history()
     {
         return $this->hasMany(DocumentHistory::class, 'document_id');
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class, 'transaction_id');
+    }
+
+    public function getTransaction()
+    {
+        return $this->transaction()->first();
     }
 
     public function addFile(array $file)

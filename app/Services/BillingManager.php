@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Exceptions\BillingException;
+use App\Exceptions\DocumentException;
 use App\Models\BillingAccount;
 use App\Models\BillingAccountType;
 use App\Models\BillingOperation;
@@ -32,16 +33,25 @@ class BillingManager
         $transactionStatus = $this->getTransactionStatusByCode(TransactionStatus::WAITING);
 
         $accountTypes = $this->getAccountTypesByTransactionCode($type);
-
+        $operationType = $this->getOperationTypeByTransactionCode($type);
         $receiver_acc = $this->getOrCreateAccountByCode($user, $accountTypes['receiver']);
         $sender_acc = $this->getOrCreateAccountByCode($user, $accountTypes['sender']);
 
+        $user_balance = $user->balance;
+        $meta_data = [
+            'balance' => MoneyAmount::toHumanize($user_balance),
+            'balance_external' => MoneyAmount::toExternal($user_balance)
+        ];
+
         $transaction = Transaction::create([
+            'initiator_user_id' => Auth::user()->id,
+            'user_id' => $user->id,
             'status_id' => $transactionStatus->id,
             'type_id' => $transactionType->id,
-            'user_id' => Auth::user()->id,
             'amount' => $amount,
             'comment' => $comment,
+            'operation' => $operationType,
+            'meta_data' => $meta_data,
             'receiver_acc_id' => $receiver_acc->id,
             'sender_acc_id' => $sender_acc->id,
         ]);
@@ -54,50 +64,32 @@ class BillingManager
      * @return \App\Models\Transaction
      * @throws \Exception
      */
-    public function runTransactionOrRollback(Transaction $transaction)
+    public function runTransaction(Transaction $transaction)
     {
-        // Старт транзакции!
-        DB::beginTransaction();
-
         try {
-            $transaction = $this->runTransaction($transaction);
-            $transaction->save();
+            if ($transaction->getStatusCode() === TransactionStatus::PENDING) { // исполнить можно только статус "pending"
+                $receiverAccount = BillingAccount::whereId($transaction->receiver_acc_id)->first();
+                $senderAccount = BillingAccount::whereId($transaction->sender_acc_id)->first();
+
+                // делаем двойную проводку для истории перемешения средств
+                $this->makeOperation($transaction, $receiverAccount, $senderAccount);
+                // отнимаем от отправителя
+                $this->subtractBalanceAmount($transaction->amount, $senderAccount);
+                // добавляем получателю
+                $this->appendBalanceAmount($transaction->amount, $receiverAccount);
+
+                $transaction->setStatus(TransactionStatus::SUCCESS);
+
+                $transaction->save();
+            }
         }
         catch(\Exception $e) {
-            // Откат
-            DB::rollback();
             // помечаем транзакцию как проваленную
             $transaction->setStatus(TransactionStatus::ERROR);
             $transaction->save();
             throw $e;
         }
 
-        // Если всё хорошо - фиксируем
-        DB::commit();
-
-        return $transaction;
-    }
-
-    /**
-     * @param \App\Models\Transaction $transaction
-     * @return \App\Models\Transaction
-     * @throws \Exception
-     */
-    public function runTransaction(Transaction $transaction)
-    {
-        if ($transaction->getStatusCode() === TransactionStatus::PENDING) { // исполнить можно только статус "pending"
-            $receiverAccount = BillingAccount::whereId($transaction->receiver_acc_id)->first();
-            $senderAccount = BillingAccount::whereId($transaction->sender_acc_id)->first();
-
-            // делаем двойную проводку для истории перемешения средств
-            $this->makeOperation($transaction, $receiverAccount, $senderAccount);
-            // отнимаем от отправителя
-            $this->subtractBalanceAmount($transaction->amount, $senderAccount);
-            // добавляем получателю
-            $this->appendBalanceAmount($transaction->amount, $receiverAccount);
-
-            $transaction->setStatus(TransactionStatus::SUCCESS);
-        }
         return $transaction;
     }
 
@@ -162,6 +154,9 @@ class BillingManager
         }
 
         $amount = $transaction->amount;
+        $amountExternal = MoneyAmount::toExternal($amount);
+        $senderBalanceExternal = MoneyAmount::toExternal($senderAccount->balance);
+        $receiverBalanceExternal = MoneyAmount::toExternal($receiverAccount->balance);
 
         // исходящий платеж
         BillingOperation::create([
@@ -169,6 +164,7 @@ class BillingManager
             'transaction_id' => $transaction->id,
             'type_id' => $outgoingOperationType->id,
             'amount' => $amount,
+            'balance' => MoneyAmount::toReadable($senderBalanceExternal - $amountExternal),
         ]);
         // входящий платеж
         BillingOperation::create([
@@ -176,6 +172,7 @@ class BillingManager
             'transaction_id' => $transaction->id,
             'type_id' => $incomingOperationType->id,
             'amount' => $amount,
+            'balance' => MoneyAmount::toReadable($receiverBalanceExternal + $amountExternal),
         ]);
     }
 
@@ -199,22 +196,6 @@ class BillingManager
         $account->save();
 
         return $account;
-    }
-
-    /**
-     * Получаем типы счетов
-     *
-     * @param string $transactionCode
-     * @return mixed
-     */
-    public function getAccountTypesByTransactionCode(string $transactionCode)
-    {
-        $accountTypeMapping = $this->getAccountTypeMapping();
-        if (!array_key_exists($transactionCode, $accountTypeMapping)) {
-
-            throw BillingException::unknownTransactionTypeInMapping($transactionCode);
-        }
-        return $accountTypeMapping[$transactionCode];
     }
 
     /**
@@ -294,6 +275,119 @@ class BillingManager
     }
 
     /**
+     * Ручная оплата документа
+     *
+     * @param \App\Models\Document $document
+     * @param bool $is_need_status_signed
+     * @return Document|null
+     * @throws \Exception
+     */
+    public function manualPaymentDocument(Document $document, $is_need_status_signed = false)
+    {
+        return $this->payDocumentFromUserBalance($document, $is_need_status_signed, true);
+    }
+
+    /**
+     * @param \App\Models\Document $document
+     * @param bool $is_need_status_signed
+     * @param bool $is_need_deposit
+     * @return Document|null
+     * @throws \Exception
+     */
+    public function payDocumentFromUserBalance(Document $document, $is_need_status_signed = false, $is_need_deposit = false)
+    {
+        if ($document->getTransaction()) {
+            throw DocumentException::issetDocumentTransaction();
+        }
+
+        $currUser = Auth::user();
+        $client = $document->client;
+        $signed = $document->signed;
+        if ($is_need_status_signed) {
+            $document->signed = 1;
+            $signed = 1;
+            $document->save();
+            // log в историю
+            $document->history()->create([
+                'user_id' => $currUser->id,
+                'signed' => $signed,
+                'paid' => $document->paid,
+            ]);
+        }
+
+        try {
+            // меняем статус оплаты документу
+            $paid = 1;
+            $document->paid = $paid;
+            $document->save();
+            // log в историю
+            $document->history()->create([
+                'user_id' => $currUser->id,
+                'signed' => $signed,
+                'paid' => $paid,
+            ]);
+
+            if ($is_need_deposit) {
+                /*
+                 * транзакция на пополнение баланса
+                 */
+                $comment = 'Ручное пополнение баланса в счет документа "' . $document->name . '" от ' . humanize_date($document->created_at, 'd.m.Y');
+                $transaction_deposit = $this->makeTransaction(
+                    $client,
+                    (int)$document->amount,
+                    TransactionType::MANUAL_IN,
+                    $comment
+                );
+                $transaction_deposit->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
+                // исполнение транзакции
+                $this->runTransaction($transaction_deposit);
+            }
+
+            if (!$this->checkAmountOnBalance($client, (int) $document->amount)) {
+                throw BillingException::notEnoughFunds();
+            }
+
+            /*
+             * транзакция на оплату документа
+             */
+            $comment = 'Оплата документа "' . $document->name . '" от ' . humanize_date($document->created_at, 'd.m.Y');
+            $transaction = $this->makeTransaction(
+                $client,
+                (int) $document->amount,
+                TransactionType::SERVICE_IN,
+                $comment
+            );
+            $transaction->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
+            // исполнение транзакции
+            $this->runTransaction($transaction);
+
+            $document->transaction()->associate($transaction);
+            $document->save();
+        }
+        catch(\Exception $e) {
+            throw $e;
+        }
+
+        return $document->fresh();
+    }
+
+    /**
+     * Получаем типы счетов
+     *
+     * @param string $transactionCode
+     * @return mixed
+     */
+    public function getAccountTypesByTransactionCode(string $transactionCode)
+    {
+        $accountTypeMapping = $this->getAccountTypeMapping();
+        if (!array_key_exists($transactionCode, $accountTypeMapping)) {
+
+            throw BillingException::unknownTransactionTypeInMapping($transactionCode);
+        }
+        return $accountTypeMapping[$transactionCode];
+    }
+
+    /**
      * Массив сопоставления типа транзакции с типом счетов
      *
      * @return array
@@ -329,107 +423,35 @@ class BillingManager
     }
 
     /**
-     * Ручная оплата документа
+     * Получаем тип операции (входящия/исходящия)
      *
-     * @param \App\Models\Document $document
-     * @param bool $is_need_status_signed
-     * @return Document|null
-     * @throws \Exception
+     * @param string $transactionCode
+     * @return mixed
      */
-    public function manualPaymentDocument(Document $document, $is_need_status_signed = false)
+    public function getOperationTypeByTransactionCode(string $transactionCode)
     {
-        return $this->payDocumentFromUserBalance($document, $is_need_status_signed, true);
+        $operationTypeMapping = $this->getOperationTypeMapping();
+        if (!array_key_exists($transactionCode, $operationTypeMapping)) {
+
+            throw BillingException::unknownTransactionOperationTypeInMapping($transactionCode);
+        }
+        return $operationTypeMapping[$transactionCode];
     }
 
     /**
-     * @param \App\Models\Document $document
-     * @param bool $is_need_status_signed
-     * @param bool $is_need_deposit
-     * @return Document|null
-     * @throws \Exception
+     * Массив сопоставления типа транзакции с типом счетов
+     *
+     * @return array
      */
-    public function payDocumentFromUserBalance(Document $document, $is_need_status_signed = false, $is_need_deposit = false)
+    public function getOperationTypeMapping()
     {
-        //@TODO проверить есть ли уже транзакция с оплатой
-        $currUser = Auth::user();
-        $client = $document->client;
-        $signed = $document->signed;
-        if ($is_need_status_signed) {
-            $document->signed = 1;
-            $signed = 1;
-            $document->save();
-            // log в историю
-            $document->history()->create([
-                'user_id' => $currUser->id,
-                'signed' => $signed,
-                'paid' => $document->paid,
-            ]);
-        }
-
-        // Старт транзакции!
-        DB::beginTransaction();
-
-        try {
-            // меняем статус оплаты документу
-            $paid = 1;
-            $document->paid = $paid;
-            $document->save();
-            // log в историю
-            $document->history()->create([
-                'user_id' => $currUser->id,
-                'signed' => $signed,
-                'paid' => $paid,
-            ]);
-
-            if ($is_need_deposit) {
-                /*
-                 * транзакция на пополнение баланса
-                 */
-                $comment = 'Зачисление на баланс денежных средств в счет документа "' . $document->name . '" от ' . humanize_date($document->created_at, 'd.m.Y');
-                $transaction_deposit = $this->makeTransaction(
-                    $client,
-                    (int)$document->amount,
-                    TransactionType::MANUAL_IN,
-                    $comment
-                );
-                $transaction_deposit->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
-                // исполнение транзакции
-                $transaction_deposit = $this->runTransaction($transaction_deposit);
-            }
-
-            if (!$this->checkAmountOnBalance($client, (int) $document->amount)) {
-                throw BillingException::notEnoughFunds();
-            }
-
-            /*
-             * транзакция на оплату документа
-             */
-            $comment = 'Списание денежных средств с баланса в счет документа "' . $document->name . '" от ' . humanize_date($document->created_at, 'd.m.Y');
-            $transaction = $this->makeTransaction(
-                $client,
-                (int) $document->amount,
-                TransactionType::SERVICE_IN,
-                $comment
-            );
-            $transaction->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
-            // исполнение транзакции
-            $transaction = $this->runTransaction($transaction);
-
-            if ($is_need_deposit && isset($transaction_deposit)) {
-                $transaction_deposit->save();
-            }
-
-            $transaction->save();
-            // Если всё хорошо - фиксируем
-            DB::commit();
-        }
-        catch(\Exception $e) {
-            // Откат
-            DB::rollback();
-            // при ошибке не должно создаться транзакций вообще
-            throw $e;
-        }
-
-        return $document->fresh();
+        return [
+            TransactionType::MANUAL_IN => Transaction::INCOMING,
+            TransactionType::MANUAL_OUT => Transaction::OUTGOING,
+            TransactionType::YANDEX_IN => Transaction::INCOMING,
+            TransactionType::YANDEX_OUT => Transaction::OUTGOING,
+            TransactionType::SERVICE_IN => Transaction::OUTGOING,
+            TransactionType::SERVICE_OUT => Transaction::INCOMING,
+        ];
     }
 }

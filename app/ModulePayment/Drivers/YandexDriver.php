@@ -2,6 +2,7 @@
 namespace App\ModulePayment\Drivers;
 
 use Alcohol\ISO4217;
+use App\Events\BalanceReplenished;
 use App\Models\TransactionStatus;
 use App\Models\TransactionType;
 use App\ModulePayment\Interfaces\ModelPaymentInterface;
@@ -289,10 +290,12 @@ class YandexDriver implements PaymentServiceInterface
                             $transaction->amount = $amount; // ставим сумму из платеже для случая если пользователь оплатил частичную сумму
                             $transaction->setStatus(TransactionStatus::PENDING); // переключаем статус для исполнения
                             $transaction->save();
-                            BillingService::runTransactionOrRollback($transaction->refresh());
+                            BillingService::runTransaction($transaction->refresh());
 
                             // сообщение при успешном пополнении баланса
                             session()->flash('balance-message', 'replenished');
+                            // событие для чата
+                            broadcast(new BalanceReplenished($receiver));
                         } else {
 
                             info('processPayment: Ошибка при обработке уведомлений yandex, транзакция находится не в надлежашем статусе');

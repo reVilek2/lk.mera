@@ -21,17 +21,20 @@ class CreateDocumentsTable extends Migration
             $table->unsignedBigInteger('amount');
             $table->boolean('signed')->default(false);
             $table->boolean('paid')->default(false);
+            $table->unsignedInteger('transaction_id')->nullable();
             $table->timestamps();
 
             $table->index(['client_id', 'manager_id']);
+            $table->index(['client_id', 'transaction_id']);
+            $table->foreign('transaction_id')
+                ->references('id')
+                ->on('billing_transactions');
             $table->foreign('client_id')
                 ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
+                ->on('users');
             $table->foreign('manager_id')
                 ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
+                ->on('users');
         });
 
         Schema::create('documents_history', function (Blueprint $table) {

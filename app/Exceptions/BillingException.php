@@ -10,6 +10,10 @@ class BillingException extends Exception
     {
         return new static("There is no mapping transaction type name `{$name}`");
     }
+    public static function unknownTransactionOperationTypeInMapping(string $name)
+    {
+        return new static("There is no mapping for operation by transaction type name `{$name}`");
+    }
     public static function unknownBillingAccountType(string $name)
     {
         return new static("Unknown billing account type `{$name}`");

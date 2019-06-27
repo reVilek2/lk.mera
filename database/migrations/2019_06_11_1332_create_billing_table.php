@@ -55,15 +55,19 @@ class CreateBillingTable extends Migration
 
         Schema::create('billing_transactions', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('initiator_user_id')->index();
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('receiver_acc_id')->index();
             $table->unsignedInteger('sender_acc_id')->index();
             $table->unsignedBigInteger('amount')->default(0);
+            $table->string('operation');
             $table->unsignedInteger('status_id')->index();
             $table->unsignedInteger('type_id')->index();
             $table->text('comment')->nullable();
+            $table->text('meta_data')->nullable();
             $table->timestamps();
 
+            $table->index(['initiator_user_id']);
             $table->index(['receiver_acc_id', 'user_id']);
             $table->index(['sender_acc_id', 'user_id']);
 
@@ -75,6 +79,9 @@ class CreateBillingTable extends Migration
                 ->references('id')
                 ->on('billing_accounts');
 
+            $table->foreign('initiator_user_id')
+                ->references('id')
+                ->on('users');
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
@@ -94,6 +101,7 @@ class CreateBillingTable extends Migration
             $table->unsignedInteger('transaction_id')->index();
             $table->unsignedInteger('type_id')->index();
             $table->unsignedBigInteger('amount')->default(0);
+            $table->bigInteger('balance')->default(0);
             $table->timestamps();
 
             $table->index(['account_id', 'transaction_id']);

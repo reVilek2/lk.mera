@@ -45,4 +45,14 @@ class BillingAccount extends Model
     {
         return $this->belongsTo(BillingAccountType::class, 'acc_type_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function gerUser()
+    {
+        return $this->user()->first();
+    }
 }
