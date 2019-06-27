@@ -31,8 +31,8 @@ class BillingTableSeeder extends Seeder
         ]);
 
         DB::table('billing_operation_type')->insert([
-            ['code' => 'incoming', 'name' => 'Входящий платеж'],
-            ['code' => 'outgoing', 'name' => 'Исходящий платеж'],
+            ['code' => 'incoming', 'name' => 'доход'],
+            ['code' => 'outgoing', 'name' => 'расход'],
         ]);
 
         DB::table('billing_account_type')->insert([

@@ -43,6 +43,23 @@
                 </div>
             </div>
         </div>
+        <modal :name="modalAlert"
+               classes="v-modal v-modal-alert"
+               :min-width="200"
+               :min-height="200"
+               :width="'90%'"
+               :height="'auto'"
+               :max-width="400"
+               :adaptive="true"
+               :scrollable="true">
+            <div class="alert alert-dismissible" :class="modalAlertClass">
+                <button type="button" class="close" @click="hideModalAlert">×</button>
+                <h4><i class="icon fa fa-ban"></i> Ошибка!</h4>
+                <p>
+                    {{modalAlertText}}
+                </p>
+            </div>
+        </modal>
     </div>
 </template>
 <script>
@@ -64,6 +81,9 @@
         },
         data() {
             return {
+                modalAlert: 'modal-alert-pay-card',
+                modalAlertText: 'Технические неполадки.',
+                modalAlertClass: 'alert-danger',
                 payment_url: '/finances/payment',
                 payment_type: 'card',
                 save_card: true,
@@ -86,6 +106,26 @@
             }
         },
         methods: {
+            showModalAlertError (message) {
+                if (message) {
+                    this.modalAlertText = message;
+                }
+                this.modalAlertClass = 'alert-danger';
+                this.showModalAlert();
+            },
+            showModalAlertWarning (message) {
+                if (message) {
+                    this.modalAlertText = message;
+                }
+                this.modalAlertClass = 'alert-warning';
+                this.showModalAlert();
+            },
+            showModalAlert () {
+                this.$modal.show(this.modalAlert);
+            },
+            hideModalAlert () {
+                this.$modal.hide(this.modalAlert);
+            },
             closed() {
                 this.$emit('itemCardChangeActive', false);
             },
@@ -97,9 +137,22 @@
                     this.isUploadingForm = true;
                     axios.post(this.payment_url, {payment_type:this.payment_type, save_card:this.save_card, amount: this.raw_amount}).then(response => {
                         this.isUploadingForm = false;
-                        console.log(response);
                         if (response.data.status === 'success') {
                             this.redirectToPaid(response.data.pay_link);
+                        }
+                        if (response.data.status === 'error') {
+                            if (response.data.errors.hasOwnProperty('amount')) {
+                                this.showModalAlertWarning(response.data.errors.amount[0]);
+                            }
+                            if (response.data.errors.hasOwnProperty('save_card')) {
+                                this.showModalAlertWarning(response.data.errors.save_card[0]);
+                            }
+                            if (response.data.errors.hasOwnProperty('payment_type')) {
+                                this.showModalAlertWarning(response.data.errors.payment_type[0]);
+                            }
+                        }
+                        if (response.data.status === 'exception') {
+                            this.showModalAlertError(response.data.message);
                         }
                     }).catch(errors => {
                         console.log(errors);
@@ -117,13 +170,12 @@
             },
             redirectToPaid(pay_link) {
                 if (pay_link) {
-                    // window.location.href = pay_link;
-                    window.open(pay_link);
+                    window.location.href = pay_link;
+                    //window.open(pay_link);
                 }
             }
         },
         mounted() {
-            console.log('payment service mounted');
         },
         directives: {money: VMoney}
     }

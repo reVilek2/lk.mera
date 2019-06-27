@@ -26,6 +26,8 @@
                     <h2 class="page-header">
                         <i class="fa fa-clock-o"></i> История операций:
                     </h2>
+                       <transaction-table :transactions="transactions"
+                                          :transactions_count="transactions_count"></transaction-table>
                 </div>
             </div>
         </div>
@@ -33,7 +35,19 @@
 </template>
 <script>
     import { mapGetters } from 'vuex';
+    import TransactionTable from './TransactionTable';
     export default {
+        props: {
+            transactions: {
+                type: Object,
+                default: () => {}
+            },
+            transactions_count: {
+                type: Number,
+                default: () => 0
+            },
+        },
+        components: { transactionTable: TransactionTable },
         data: function() {
             return {
                 user_balance: 0,

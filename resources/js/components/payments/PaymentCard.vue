@@ -26,6 +26,24 @@
                 <div class="loader__dot"></div>
             </div>
         </div>
+
+        <modal :name="modalAlert"
+               classes="v-modal v-modal-alert"
+               :min-width="200"
+               :min-height="200"
+               :width="'90%'"
+               :height="'auto'"
+               :max-width="400"
+               :adaptive="true"
+               :scrollable="true">
+            <div class="alert alert-dismissible" :class="modalAlertClass">
+                <button type="button" class="close" @click="hideModalAlert">×</button>
+                <h4><i class="icon fa fa-ban"></i> Ошибка!</h4>
+                <p>
+                    {{modalAlertText}}
+                </p>
+            </div>
+        </modal>
     </div>
 </template>
 <script>
@@ -42,6 +60,9 @@
         },
         data() {
             return {
+                modalAlert: 'modal-alert-card'+this.card.id,
+                modalAlertText: 'Технические неполадки.',
+                modalAlertClass: 'alert-danger',
                 payment_url: '/finances/payment/pay-fast',
                 payment_check_url: '/finances/check-payment',
                 amount: this.totalPayable,
@@ -62,6 +83,26 @@
             }
         },
         methods: {
+            showModalAlertError (message) {
+                if (message) {
+                    this.modalAlertText = message;
+                }
+                this.modalAlertClass = 'alert-danger';
+                this.showModalAlert();
+            },
+            showModalAlertWarning (message) {
+                if (message) {
+                    this.modalAlertText = message;
+                }
+                this.modalAlertClass = 'alert-warning';
+                this.showModalAlert();
+            },
+            showModalAlert () {
+                this.$modal.show(this.modalAlert);
+            },
+            hideModalAlert () {
+                this.$modal.hide(this.modalAlert);
+            },
             submit () {
                 if (this.raw_amount > 0 && !this.isUploadingForm) {
                     this.isUploadingForm = true;
@@ -71,17 +112,15 @@
                             this.redirectToCheckPaid(response.data.pay_key)
                         }
                         if (response.data.status === 'error') {
-                            console.log(response.data.errors);
-                            new Noty({
-                                type: 'error',
-                                text: 'Произошла ошибка.',
-                                layout: 'topRight',
-                                timeout: 5000,
-                                progressBar: true,
-                                theme: 'metroui',
-                            }).show();
+                            if (response.data.errors.hasOwnProperty('amount')) {
+                                this.showModalAlertWarning(response.data.errors.amount[0]);
+                            }
+                        }
+                        if (response.data.status === 'exception') {
+                            this.showModalAlertError(response.data.message);
                         }
                     }).catch(errors => {
+                        console.log('tyt');
                         console.log(errors);
                         new Noty({
                             type: 'error',
@@ -100,6 +139,8 @@
                     window.location.href = this.payment_check_url+'?pay_key='+pay_key;
                 }
             }
+        },
+        mounted() {
         }
     }
 </script>

@@ -55,7 +55,6 @@ class DocumentController extends Controller
 
         $documents = $this->documentManager->getDocumentsWithOrderAndPagination($user, $whiteListOrderColumns, $whiteListSearchColumns, $params);
         $managers = User::role(['admin', 'manager'])->with('clients')->get();
-
         if ($request->ajax()) {
             return response()->json([
                 'documents' => $documents,

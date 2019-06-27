@@ -64,6 +64,7 @@ class YandexDriver implements PaymentServiceInterface
             $cur = (new ISO4217())->getByNumeric($currency);
             $currency = $cur['alpha3'];
         }
+        $amount = number_format($amount, 2, '.', '');
         $paymentType = $this->getPaymentMethod($paymentType);
         $save_payment_method = $metadata['save_card'] ?? false;
         $idempotencyKey = $metadata['idempotency_key'] ?? null;
@@ -100,6 +101,7 @@ class YandexDriver implements PaymentServiceInterface
             $cur = (new ISO4217())->getByNumeric($currency);
             $currency = $cur['alpha3'];
         }
+        $amount = number_format($amount, 2, '.', '');
         $idempotencyKey = $metadata['idempotency_key'] ?? null;
         $params = [
             'amount'    => [
@@ -255,18 +257,22 @@ class YandexDriver implements PaymentServiceInterface
                         break;
                     case YandexPayment::STATUS_SUCCEEDED:
                         if ($payment->payment_method_type === $this->getPaymentMethod(self::PAYMENT_TYPE_CARD)) {// если оплата картой
+                            $pan = $this->getPan();
+                            $cardType = $this->getParam('payment_method.cardType', null);
                             if ($this->getParam('payment_method.saved', false)) {// если нужно сохранить карту
                                 (new \App\ModulePayment\Models\PaymentCard)->saveCard($payment->getUser(), [
                                     'card_id' => $this->getPaymentMethodId(),
                                     'year' => $this->getParam('payment_method.expiryYear', null),
                                     'month' => $this->getParam('payment_method.expiryMonth', null),
-                                    'type' => $this->getParam('payment_method.cardType', null),
+                                    'type' => $cardType,
                                     'first' => $this->getParam('payment_method.first6', null),
                                     'last' => $this->getParam('payment_method.last4', null),
-                                    'pan' => $this->getParam('payment_method.first6', '') . '******' . $this->getParam('payment_method.last4', ''),
+                                    'pan' => $pan,
                                     'card_default' => false,
                                 ]);
                             }
+
+                            $payment->description = $cardType ? 'Пополнение картой: '. $cardType .' '.$pan : 'Пополнение картой: '.$pan;
                         }
                         $payment->payment_method_meta = $payment_method_meta;
                         $payment->setStatus(YandexPayment::STATUS_SUCCEEDED);
@@ -275,6 +281,11 @@ class YandexDriver implements PaymentServiceInterface
                         if ($transaction->getStatusCode() === TransactionStatus::WAITING) {
                             // получаем сумму из платежа
                             $amount = $this->getAmount();
+                            if ($payment->payment_method_type === $this->getPaymentMethod(self::PAYMENT_TYPE_CARD)) {// если оплата картой
+                                $pan = $this->getPan();
+                                $cardType = $this->getParam('payment_method.cardType', null);
+                                $transaction->comment = $cardType ? 'Пополнение картой: '. $cardType .' '.$pan : 'Пополнение картой: '.$pan;
+                            }
                             $transaction->amount = $amount; // ставим сумму из платеже для случая если пользователь оплатил частичную сумму
                             $transaction->setStatus(TransactionStatus::PENDING); // переключаем статус для исполнения
                             $transaction->save();
@@ -471,7 +482,14 @@ class YandexDriver implements PaymentServiceInterface
      */
     public function getPan()
     {
-        return $this->getPaymentParam('payment_method.first6') . '******' . $this->getPaymentParam('payment_method.last4');
+        $first = $this->getPaymentParam('payment_method.first6', null);
+        if ($first) {
+            $first = $this->substrCardNum($first).' ';
+        } else {
+            $first = '**** ';
+        }
+
+        return $first . '**** ****' . $this->getPaymentParam('payment_method.last4');
     }
 
     /**
@@ -566,5 +584,10 @@ class YandexDriver implements PaymentServiceInterface
             $this->uniqid(++$recursion_level);
         }
         return $uniqid;
+    }
+
+    private function substrCardNum(string $val)
+    {
+        return substr($val, 0, 4);
     }
 }

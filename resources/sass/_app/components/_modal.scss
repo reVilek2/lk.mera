@@ -40,3 +40,14 @@ div.v--modal-overlay {
     }
   }
 }
+.v-modal-alert {
+  background-color: transparent !important;
+  .alert {
+    margin-bottom: 0;
+    width: 100%;
+    min-height: 100px;
+    p{
+      font-size: 16px;
+    }
+  }
+}

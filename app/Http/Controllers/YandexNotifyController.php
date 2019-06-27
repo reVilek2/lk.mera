@@ -9,7 +9,8 @@ class YandexNotifyController extends Controller
 {
     public function index(Request $request)
     {
-        info('request: '.$request->all());
+        info('yandex notify: '.print_r($request->all()));
+
         if (PayService::processNotificationRequest($request->all())) {
             info('request process: true');
             return PayService::getNotificationResponse(200);

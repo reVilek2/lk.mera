@@ -38,7 +38,11 @@ class PaymentController extends Controller
         $paymentType = $request->input('payment_type');
         $saveCard = $request->input('save_card');
 
-        $validation = Validator::make($request->all(), [
+        $validation = Validator::make([
+            'save_card'=> $saveCard,
+            'payment_type'=> $paymentType,
+            'amount'=> $amount
+        ], [
             'save_card'=> 'required|boolean',
             'payment_type'=> 'required|string',
             'amount'=> 'required|regex:/^\d*(\.\d+)?$/',
@@ -54,37 +58,44 @@ class PaymentController extends Controller
                 ], 200);
             }
 
-            $idempotency_key = PayService::uniqid();
-            $description = 'Пополнение баланса через "Yandex Kassa"';
-            /** @var ModelPaymentInterface $payment */
-            $payment = PayService::makePaymentTransaction( // создаем транзакции
-                $amount,
-                $paymentType,
-                $description,
-                $idempotency_key
-            );
+            try {
+                $idempotency_key = PayService::uniqid();
+                $description = 'Пополнение баланса через "Yandex Kassa"';
+                /** @var ModelPaymentInterface $payment */
+                $payment = PayService::makePaymentTransaction( // создаем транзакции
+                    $amount,
+                    $paymentType,
+                    $description,
+                    $idempotency_key
+                );
 
-            $paymentData = PayService::regularPayment(
-                $amount,
-                $paymentType,
-                $description,
-                $successReturnUrl = route('payment.check').'?pay_key='.$idempotency_key,
-                $metadata = [
-                    'idempotency_key'=> $idempotency_key,
-                    'save_card' => $saveCard
-                ],
-                $extraParams = []
-            );
+                $paymentData = PayService::regularPayment(
+                    $amount,
+                    $paymentType,
+                    $description,
+                    $successReturnUrl = route('payment.check').'?pay_key='.$idempotency_key,
+                    $metadata = [
+                        'idempotency_key'=> $idempotency_key,
+                        'save_card' => $saveCard
+                    ],
+                    $extraParams = []
+                );
 
-            PayService::updatePaymentTransaction($payment, $paymentData); // обновляем транзакции
+                PayService::updatePaymentTransaction($payment, $paymentData); // обновляем транзакции
 
-            $payLink  = PayService::getPayLink($paymentData);
+                $payLink  = PayService::getPayLink($paymentData);
 
-            return response()->json([
-                'status'=>'success',
-                'pay_link' => $payLink,
-            ], 200);
-
+                return response()->json([
+                    'status'=>'success',
+                    'pay_link' => $payLink,
+                ], 200);
+            }
+            catch (\Exception $e) {
+                return response()->json([
+                    'status'=>'exception',
+                    'message' => $e->getMessage()
+                ], 200);
+            }
         } else {
             return response()->json([
                 'status'=>'error',
@@ -149,7 +160,7 @@ class PaymentController extends Controller
 
         $card_id = $request->input('card_id');
         $amount = $request->input('amount');
-        $validation = Validator::make($request->all(), [
+        $validation = Validator::make(['amount' => $amount], [
             'amount'=> 'required|regex:/^\d*(\.\d+)?$/',
         ]);
 
@@ -164,34 +175,43 @@ class PaymentController extends Controller
                     'message' => 'Карта не найдена.'
                 ], 200);
             }
-            $idempotency_key = PayService::uniqid();
-            $description = 'Пополнение баланса через "Yandex Kassa"';
 
-            /** @var ModelPaymentInterface $payment */
-            $payment = PayService::makePaymentTransaction( // создаем транзакции
-                $amount,
-                PaymentServiceInterface::PAYMENT_TYPE_CARD,
-                $description,
-                $idempotency_key
-            );
+            try {
+                $idempotency_key = PayService::uniqid();
+                $description = 'Пополнение баланса через "Yandex Kassa"';
 
-            $paymentData = PayService::fastPayment(
-                $amount,
-                $card_id,
-                $description,
-                $metadata = [
-                    'idempotency_key'=> $idempotency_key,
-                ],
-                $extraParams = []
-            );
+                /** @var ModelPaymentInterface $payment */
+                $payment = PayService::makePaymentTransaction( // создаем транзакции
+                    $amount,
+                    PaymentServiceInterface::PAYMENT_TYPE_CARD,
+                    $description,
+                    $idempotency_key
+                );
 
-            PayService::updatePaymentTransaction($payment, $paymentData); // обновляем транзакции
+                $paymentData = PayService::fastPayment(
+                    $amount,
+                    $card_id,
+                    $description,
+                    $metadata = [
+                        'idempotency_key' => $idempotency_key,
+                    ],
+                    $extraParams = []
+                );
 
-            return response()->json([
-                'status'=>'success',
-                'pay_key' => $idempotency_key,
-            ], 200);
+                PayService::updatePaymentTransaction($payment, $paymentData); // обновляем транзакции
 
+                return response()->json([
+                    'status'=>'success',
+                    'pay_key' => $idempotency_key,
+                ], 200);
+
+            }
+            catch (\Exception $e) {
+                return response()->json([
+                    'status'=>'exception',
+                    'message' => $e->getMessage()
+                ], 200);
+            }
         } else {
             return response()->json([
                 'status'=>'error',

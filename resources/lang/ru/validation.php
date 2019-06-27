@@ -30,7 +30,7 @@ return [
         "string"  => "Длина :attribute должна быть от :min до :max символов.",
         "array"   => "Поле :attribute должно содержать :min - :max элементов.",
     ],
-    'boolean'              => 'The :attribute field must be true or false.',
+    'boolean'              => 'Поле :attribute имеет ошибочный формат.',
     "confirmed"            => "Поле :attribute не совпадает с подтверждением.",
     "date"                 => "Поле :attribute не является датой.",
     "date_format"          => "Поле :attribute не соответствует формату :format.",

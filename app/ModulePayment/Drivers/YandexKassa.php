@@ -1,6 +1,7 @@
 <?php
 namespace App\ModulePayment\Drivers;
 
+use App\ModulePayment\Exceptions\YandexPaymentException;
 use YandexCheckout\Client;
 use App\ModulePayment\Interfaces\PaymentTransportInterface;
 use YandexCheckout\Helpers\UUID;
@@ -58,41 +59,38 @@ class YandexKassa implements PaymentTransportInterface
     /**
      * Get payment data
      *
-     * @param null $idempotencyKey
      * @param mixed $params
      *
+     * @param null $idempotencyKey
      * @return string
-     * @throws \YandexCheckout\Common\Exceptions\ApiException
-     * @throws \YandexCheckout\Common\Exceptions\BadApiRequestException
-     * @throws \YandexCheckout\Common\Exceptions\ForbiddenException
-     * @throws \YandexCheckout\Common\Exceptions\InternalServerError
-     * @throws \YandexCheckout\Common\Exceptions\NotFoundException
-     * @throws \YandexCheckout\Common\Exceptions\ResponseProcessingException
-     * @throws \YandexCheckout\Common\Exceptions\TooManyRequestsException
-     * @throws \YandexCheckout\Common\Exceptions\UnauthorizedException
+     * @throws YandexPaymentException
      */
     public function createPayment($params, $idempotencyKey = null)
     {
-        $response = $this->getClient()->createPayment($this->prepareParams($params), $idempotencyKey);
+        try {
+            $response = $this->getClient()->createPayment($this->prepareParams($params), $idempotencyKey);
+        }
+        catch (\Exception $exception) {
 
+            throw YandexPaymentException::parse($exception);
+        }
         return $response;
     }
 
     /**
      * @param $payment_id
      * @return \YandexCheckout\Model\PaymentInterface
-     * @throws \YandexCheckout\Common\Exceptions\ApiException
-     * @throws \YandexCheckout\Common\Exceptions\BadApiRequestException
-     * @throws \YandexCheckout\Common\Exceptions\ForbiddenException
-     * @throws \YandexCheckout\Common\Exceptions\InternalServerError
-     * @throws \YandexCheckout\Common\Exceptions\NotFoundException
-     * @throws \YandexCheckout\Common\Exceptions\ResponseProcessingException
-     * @throws \YandexCheckout\Common\Exceptions\TooManyRequestsException
-     * @throws \YandexCheckout\Common\Exceptions\UnauthorizedException
+     * @throws YandexPaymentException
      */
     public function getPayInfo($payment_id)
     {
-        return $this->getClient()->getPaymentInfo($payment_id);
+        try {
+            return $this->getClient()->getPaymentInfo($payment_id);
+        }
+        catch (\Exception $exception) {
+
+            throw YandexPaymentException::parse($exception);
+        }
     }
 
     /**

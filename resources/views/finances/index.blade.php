@@ -22,7 +22,8 @@
         <div class="col-xs-12">
             <div class="box">
                 <div class="box-body">
-                    <finance-service></finance-service>
+                    <finance-service :transactions="{{$transactions}}"
+                                     :transactions_count="{{$transactions_count}}"></finance-service>
                 </div>
             </div>
         </div>
