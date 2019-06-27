@@ -67,7 +67,6 @@ class CreateBillingTable extends Migration
             $table->text('meta_data')->nullable();
             $table->timestamps();
 
-            $table->index(['initiator_user_id']);
             $table->index(['receiver_acc_id', 'user_id']);
             $table->index(['sender_acc_id', 'user_id']);
 

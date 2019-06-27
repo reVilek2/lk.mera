@@ -39,6 +39,9 @@ use FileService;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document wherePaid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereSigned($value)
  * @property-read mixed $amount_humanize
+ * @property int|null $transaction_id
+ * @property-read \App\Models\Transaction|null $transaction
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereTransactionId($value)
  */
 class Document extends Model
 {

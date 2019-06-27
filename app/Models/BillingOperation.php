@@ -27,6 +27,8 @@ use MoneyAmount;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingOperation whereTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingOperation whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property int $balance
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BillingOperation whereBalance($value)
  */
 class BillingOperation extends Model
 {

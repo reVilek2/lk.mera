@@ -83,7 +83,7 @@
                 box: 'document-action-box'+this.item.id,
                 modalConfirm: 'document-action-confirm'+this.item.id,
                 modalCreditFail: 'document-action-credit-fail'+this.item.id,
-                paid_url: '/documents/'+this.item.id+'/paid',
+                paid_url: '/finances/payment',
                 statusSigned: this.signed,
                 statusPaid: this.paid,
                 isUploadingForm:false,

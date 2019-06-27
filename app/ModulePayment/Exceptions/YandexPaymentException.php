@@ -14,7 +14,7 @@ class YandexPaymentException extends Exception
 
     public static function invalid_request(string $message)
     {
-        return new static("Не удалось произвести оплату. Поробуйте оплатить другим способом.");
+        return new static("Не удалось произвести оплату. Поробуйте оплатить онлайн.");
     }
     public static function invalid_credentials(string $message)
     {

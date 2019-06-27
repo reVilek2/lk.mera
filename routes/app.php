@@ -37,7 +37,6 @@ Route::middleware(['role:admin|manager'])->group(function () {
 // Only manager or admin or client
 Route::middleware(['role:admin|manager|client'])->group(function () {
     Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFile')->name('documents.files');
-    Route::get('/documents/{document}/paid', 'DocumentController@documentPaid')->name('documents.paid');
     Route::post('/documents/{document}/set-signed', 'DocumentController@setSigned')->name('documents.set.signed');
     Route::post('/documents/{document}/set-paid', 'DocumentController@setPaid')->name('documents.set.paid');
 });
@@ -65,6 +64,14 @@ Route::get('/notification/mark-as-read',function() {
         return response()->json(['error' => 'User not authorized.'], 200);
     }
     Auth::user()->unreadNotificationMessages->markAsRead();
+
+    return response()->json(['status' => 'success'], 200);
+});
+Route::get('/service-text-notification/mark-as-read',function() {
+    if (!Auth::user()) {
+        return response()->json(['error' => 'User not authorized.'], 200);
+    }
+    Auth::user()->unreadServiceTextNotificationMessages->markAsRead();
 
     return response()->json(['status' => 'success'], 200);
 });

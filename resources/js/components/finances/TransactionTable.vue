@@ -34,9 +34,10 @@
                         <td><span :class="getOperationNameClass(item.operation)">{{item.operation_name}}</span></td>
                         <td><span class="history-pay-amount">{{amountHumanize(item.operation, item.amount)}}</span></td>
                         <td>{{item.comment}}</td>
+                        <td>{{balanceHumanize(item.balance)}}</td>
                     </tr>
                     <tr v-if="item_count === 0" class="odd empty-row">
-                        <td colspan="4" align="center">
+                        <td colspan="5" align="center">
                             <span v-if="filter">Не найдено ни одной оплаты</span>
                             <span v-if="!filter">
                                 <span v-if="currUser.is_admin || currUser.is_manager">Нет ни одной оплаты</span>
@@ -92,13 +93,14 @@
         data() {
             let sortOrders = {};
             let excludeSortOrders = {
-
+                balance: true
             };
             let columns = [
                 {width: 'auto', label: 'Дата', name: 'created_at' },
                 {width: 'auto', label: 'Операция', name: 'operation' },
                 {width: 'auto', label: 'Сумма', name: 'amount' },
                 {width: 'auto', label: 'Комментарий', name: 'comment' },
+                {width: 'auto', label: 'Баланс', name: 'balance' },
             ];
 
             columns.forEach((column) => {
@@ -143,6 +145,9 @@
         methods: {
             amountHumanize(item, amount){
                 return item === 'outgoing' ? '-' + amountToHumanize(amount) : '+' + amountToHumanize(amount);
+            },
+            balanceHumanize(balance){
+                return amountToHumanize(balance);
             },
             paginateCallback(pageNum){
                 this.getItems(this.collection_url+'?page='+pageNum)

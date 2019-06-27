@@ -5,6 +5,7 @@ namespace App\Models;
 use App\ModulePayment\Models\PaymentCard;
 use App\Notifications\MessageSentNotification;
 use App\Notifications\ResetPasswordNotification;
+use App\Notifications\ServiceTextNotification;
 use App\Services\MoneyAmountManager;
 use DB;
 use Exception;
@@ -91,6 +92,9 @@ use Str;
  * @property-read mixed $is_manager
  * @property-read mixed $is_user
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\ModulePayment\Models\PaymentCard[] $paymentCards
+ * @property-read mixed $created_at_diff
+ * @property-read mixed $total_payable
+ * @property-read mixed $total_payable_humanize
  */
 class User extends Authenticatable implements HasMedia
 {
@@ -587,5 +591,14 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->notifications()->with('sender')
             ->whereNull('read_at')->where('type', MessageSentNotification::class);
+    }
+
+    /**
+     * @return array
+     */
+    public function unreadServiceTextNotificationMessages()
+    {
+        return $this->notifications()->with('sender')
+            ->whereNull('read_at')->where('type', ServiceTextNotification::class);
     }
 }

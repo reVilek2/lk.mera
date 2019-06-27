@@ -23,6 +23,7 @@ class TransactionManager
                 'billing_accounts.id as account_id',
                 'billing_accounts.user_id as account_user_id',
                 'billing_operations.amount',
+                'billing_operations.balance',
                 'billing_operations.created_at',
                 'billing_operation_type.code as operation',
                 'billing_operation_type.name as operation_name',

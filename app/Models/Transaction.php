@@ -35,6 +35,13 @@ use MoneyAmount;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Transaction whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Transaction whereUserId($value)
  * @mixin \Eloquent
+ * @property int $initiator_user_id
+ * @property string $operation
+ * @property string|null $meta_data
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Transaction whereInitiatorUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Transaction whereMetaData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Transaction whereOperation($value)
+ * @property-read \App\Models\User $user
  */
 class Transaction extends Model
 {
@@ -64,6 +71,13 @@ class Transaction extends Model
         $this->attributes['meta_data'] = serialize($value);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function status()
     {
@@ -73,6 +87,14 @@ class Transaction extends Model
     public function type()
     {
         return $this->belongsTo(TransactionType::class, 'type_id');
+    }
+
+    /**
+     * @return \App\Models\User|null
+     */
+    public function getUser()
+    {
+        return $this->user()->first();
     }
 
     public function getStatusCode()

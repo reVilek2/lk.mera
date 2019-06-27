@@ -292,14 +292,4 @@ class DocumentController extends Controller
             'document' => $document
         ], 200);
     }
-
-    public function documentPaid(Request $request, Document $document)
-    {
-        Page::setTitle('Оплата документа | MeraCapital');
-        Page::setDescription('Страница оплаты документа');
-
-        return view('documents.paid', [
-            'document' => $document
-        ]);
-    }
 }

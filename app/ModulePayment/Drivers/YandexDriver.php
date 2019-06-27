@@ -2,17 +2,19 @@
 namespace App\ModulePayment\Drivers;
 
 use Alcohol\ISO4217;
-use App\Events\BalanceReplenished;
 use App\Models\TransactionStatus;
 use App\Models\TransactionType;
+use App\Models\User;
 use App\ModulePayment\Interfaces\ModelPaymentInterface;
 use App\ModulePayment\Interfaces\PaymentServiceInterface;
 use App\ModulePayment\Interfaces\PaymentTransportInterface;
-use App\ModulePayment\Models\PaymentCard;
 use App\ModulePayment\Models\YandexPayment;
+use App\Notifications\ServiceTextNotification;
 use BillingService;
 use DB;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
+use MoneyAmount;
 
 /**
  * Payment service. Pay, Check, etc
@@ -294,8 +296,13 @@ class YandexDriver implements PaymentServiceInterface
 
                             // сообщение при успешном пополнении баланса
                             session()->flash('balance-message', 'replenished');
-                            // событие для чата
-                            broadcast(new BalanceReplenished($receiver));
+                            // Уведомление
+                            /** @var User $receiver */
+                            $receiver = $transaction->getUser();
+                            $receiver->notify(new ServiceTextNotification($receiver, [
+                                'text' => 'Баланс пополнен: +'. MoneyAmount::toHumanize($amount),
+                                'created_at' => humanize_date(Carbon::now('Europe/Moscow'), 'd F, H:i'),
+                            ]));
                         } else {
 
                             info('processPayment: Ошибка при обработке уведомлений yandex, транзакция находится не в надлежашем статусе');

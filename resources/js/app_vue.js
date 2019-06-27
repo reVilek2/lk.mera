@@ -33,9 +33,10 @@ Vue.directive('scroll', {
     },
 });
 
-import ChatsList from './components/chat/ChatsList.vue';
-import NotificationMessages from './components/notification/NotificationMessages.vue';
-import UsersTable from './components/users/UsersTable.vue';
+import ChatsList from './components/chat/ChatsList';
+import NotificationMessages from './components/notification/NotificationMessages';
+import NotificationServiceMessages from './components/notification/NotificationServiceMessages';
+import UsersTable from './components/users/UsersTable';
 import UserProfileBox from './components/users/UserProfileBox';
 import DocumentsTable from './components/documents/DocumentsTable';
 import VueStoreData from './components/VueStoreData';
@@ -55,6 +56,7 @@ let app = new Vue({
         UserAccountMenu,
         ChatsList,
         NotificationMessages,
+        NotificationServiceMessages,
         UsersTable,
         UserProfileBox,
         DocumentsTable,
