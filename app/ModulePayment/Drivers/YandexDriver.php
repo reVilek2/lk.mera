@@ -9,6 +9,7 @@ use App\ModulePayment\Interfaces\ModelPaymentInterface;
 use App\ModulePayment\Interfaces\PaymentServiceInterface;
 use App\ModulePayment\Interfaces\PaymentTransportInterface;
 use App\ModulePayment\Models\YandexPayment;
+use App\ModulePayment\PaymentProvider;
 use App\Notifications\ServiceTextNotification;
 use BillingService;
 use DB;
@@ -42,6 +43,60 @@ class YandexDriver implements PaymentServiceInterface
     public function __construct($config)
     {
         $this->setConfig($config);
+    }
+
+    /**
+     * Get configuration
+     *
+     * @return array
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+    /**
+     * Set driver configuration
+     *
+     * @param array $config
+     *
+     * @return $this
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
+        return $this;
+    }
+
+    /**
+     * Get transport
+     *
+     * @return PaymentTransportInterface
+     */
+    public function getTransport()
+    {
+        return $this->transport;
+    }
+    /**
+     * Set transport
+     *
+     * @param PaymentTransportInterface $transport
+     *
+     * @return $this
+     */
+    public function setTransport(PaymentTransportInterface $transport)
+    {
+        $this->transport = $transport;
+        return $this;
+    }
+
+    /**
+     * Get name of payment service
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return PaymentProvider::PAYMENT_YANDEX;
     }
 
     /**
@@ -324,27 +379,6 @@ class YandexDriver implements PaymentServiceInterface
     }
 
     /**
-     * Get configuration
-     *
-     * @return array
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-    /**
-     * Set driver configuration
-     *
-     * @param array $config
-     *
-     * @return $this
-     */
-    public function setConfig($config)
-    {
-        $this->config = $config;
-        return $this;
-    }
-    /**
      * Parse data
      *
      * @param array $data
@@ -528,37 +562,6 @@ class YandexDriver implements PaymentServiceInterface
     public function getDateTime()
     {
         return $this->getPaymentParam('DateTime');
-    }
-    /**
-     * Get transport
-     *
-     * @return PaymentTransportInterface
-     */
-    public function getTransport()
-    {
-        return $this->transport;
-    }
-    /**
-     * Set transport
-     *
-     * @param PaymentTransportInterface $transport
-     *
-     * @return $this
-     */
-    public function setTransport(PaymentTransportInterface $transport)
-    {
-        $this->transport = $transport;
-        return $this;
-    }
-
-    /**
-     * Get name of payment service
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return 'yandex';
     }
 
     /**
