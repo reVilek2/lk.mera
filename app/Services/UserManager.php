@@ -46,7 +46,7 @@ class UserManager
         try {
             $code = $user->makePhoneActivationCode();
 
-            SmsService::send($phone, $code);
+            SmsService::send($phone, 'Код активации: '.$code);
 
             return true;
         } catch (\Exception $ex) {
