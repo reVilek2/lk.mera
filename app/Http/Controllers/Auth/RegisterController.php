@@ -49,29 +49,10 @@ class RegisterController extends Controller
         return view('auth.register');
     }
 
-    public function successRegistrationByEmail(Request $request, $email = null)
-    {
-        Page::setTitle('Sign up | MeraCapital');
-        Page::setDescription('Website registration form');
-        try {
-            $user = EmailController::getUserByEmail($email);
-            if (!$user) {
-                throw new \Exception('Email is corrupted or does not exist');
-            }
-            if ($user->hasVerifiedEmail()) {
-                throw new \Exception('Email is corrupted or does not exist');
-            }
-        } catch (\Exception $ex) {
-
-            return redirect()->route('login');
-        }
-
-        return view('auth.successRegistrationByEmail')->with(['email' => $email]);
-    }
-
     /**
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
+     * @throws \Exception
      */
     public function register(Request $request)
     {
@@ -130,9 +111,30 @@ class RegisterController extends Controller
         } else {
             // Если регистрация через телефон
             // отсылаем sms на телефон
-            // ... code
+            $this->userManager->sendActivationPhone($user);
+
             return redirect()->route('phone.confirm', $user->phone);
         }
+    }
+
+    public function successRegistrationByEmail(Request $request, $email = null)
+    {
+        Page::setTitle('Sign up | MeraCapital');
+        Page::setDescription('Website registration form');
+        try {
+            $user = EmailController::getUserByEmail($email);
+            if (!$user) {
+                throw new \Exception('Email is corrupted or does not exist');
+            }
+            if ($user->hasVerifiedEmail()) {
+                throw new \Exception('Email is corrupted or does not exist');
+            }
+        } catch (\Exception $ex) {
+
+            return redirect()->route('login');
+        }
+
+        return view('auth.successRegistrationByEmail')->with(['email' => $email]);
     }
 
     /**

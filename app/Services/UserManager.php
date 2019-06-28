@@ -4,8 +4,10 @@ namespace App\Services;
 use App\Models\User;
 use App\Notifications\EmailConfirmNotification;
 use ChatService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Mail;
+use SmsService;
+use stdClass;
 
 class UserManager
 {
@@ -17,7 +19,7 @@ class UserManager
     public function sendActivationEmail(User $user)
     {
         try {
-            $code = implode('!', [$user->id, $user->getEmailActivationCode()]);
+            $code = implode('!', [$user->id, $user->makeEmailActivationCode()]);
 
             $url = route('email.confirm', $code);
 
@@ -26,6 +28,72 @@ class UserManager
         } catch (\Exception $ex) {
             \Log::error('Ошибка при отправке Email для подтверждения почты: '.$ex->getMessage());
         }
+    }
+
+    /**
+     * Sends the activation phone to a user
+     * @param  User $user
+     * @return bool
+     * @throws \Exception
+     */
+    public function sendActivationPhone(User $user)
+    {
+        $phone = $user->phone;
+        if (!$phone || empty($phone)) {
+            throw new \Exception('Ошибка: телефонный номер на найден.');
+        }
+
+        try {
+            $code = $user->makePhoneActivationCode();
+
+            SmsService::send($phone, $code);
+
+            return true;
+        } catch (\Exception $ex) {
+            \Log::error('Ошибка при отправке Sms для подтверждения телефона: '.$ex->getMessage());
+        }
+    }
+
+    public function checkActivationCode(User $user, $code)
+    {
+        $result = new stdClass();
+        $result->status = 'success';
+
+        if ($user->phone_confirmation_code !== $code) {
+            $result->status = 'error';
+            $result->code = 'invalid_code';
+            $result->message = 'Введен неверный код.';
+            return $result;
+        }
+
+        $codeCreatedDate = clone $user->phone_confirmation_code_created_at;
+        $currentDate = Date::now();
+        if ($codeCreatedDate->modify('+'.User::PHONE_CODE_EXPIRY.' seconds') < $currentDate) {
+            $result->status = 'error';
+            $result->code = 'code_expired';
+            $result->message = 'Действие кода истекло.';
+            return $result;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param User $user
+     * @return int
+     */
+    public function getResendPhoneCodeTime(User $user)
+    {
+        if (!$user->phone_confirmation_code || !$user->phone_confirmation_code_created_at) {
+            return 0;
+        }
+        $codeCreatedDate = clone $user->phone_confirmation_code_created_at;
+        $currentDate = Date::now();
+        if ($codeCreatedDate->modify('+'.User::PHONE_CODE_EXPIRY.' seconds') < $currentDate) {
+            return 0;
+        }
+
+        return $codeCreatedDate->getTimestamp() - $currentDate->getTimestamp();
     }
 
     /**

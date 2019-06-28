@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\ModulePayment\Models\PaymentCard;
+use App\ModuleSms\Services\SmsCodeGeneratorTrait;
 use App\Notifications\MessageSentNotification;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\ServiceTextNotification;
@@ -101,6 +102,9 @@ class User extends Authenticatable implements HasMedia
     use HasRoles;
     use Notifiable;
     use HasMediaTrait;
+    use SmsCodeGeneratorTrait;
+
+    const PHONE_CODE_EXPIRY = 60*5; // 5 минут - время действия кода
 
     const AVATAR_COLLECTION_NAME = 'avatar';
 
@@ -375,12 +379,25 @@ class User extends Authenticatable implements HasMedia
      * Get an activation code for the given user.
      * @return string
      */
-    public function getEmailActivationCode()
+    public function makeEmailActivationCode()
     {
         $this->email_confirmation_code = $emailActivationCode = $this->getRandomString();
         $this->email_confirmation_code_created_at = $this->freshTimestamp();
         $this->save();
         return $emailActivationCode;
+    }
+
+    /**
+     * Get an activation code for the given user.
+     * @return string
+     * @throws Exception
+     */
+    public function makePhoneActivationCode()
+    {
+        $this->phone_confirmation_code = $phoneActivationCode = $this->getRandomCode();
+        $this->phone_confirmation_code_created_at = $this->freshTimestamp();
+        $this->save();
+        return $phoneActivationCode;
     }
 
     /**
@@ -448,6 +465,40 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * @param $code
+     * @return bool
+     * @throws Exception
+     */
+    public function attemptPhoneConfirmation($code)
+    {
+        if ($this->hasVerifiedPhone()) {
+            throw new Exception('Телефон уже активирован!');
+        }
+
+        if ($code === $this->phone_confirmation_code) {
+            $this->setPhoneConfirmation();
+            $this->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    public function setPhoneConfirmation()
+    {
+        $this->phone_confirmation_code = null;
+        $this->phone_confirmation_code_created_at = null;
+        $this->phone_verified_at = $this->freshTimestamp();
+
+        if (is_null($this->activated_at) || empty($this->activated_at)) {
+            $this->activated_at = $this->freshTimestamp();
+        }
+        if (!$this->is_activated) {
+            $this->is_activated = true;
+        }
+    }
+
+    /**
      * @param string $token
      */
     public function sendPasswordResetNotification($token)
@@ -483,6 +534,16 @@ class User extends Authenticatable implements HasMedia
     public function getRandomString($length = 42)
     {
         return Str::random($length);
+    }
+
+    /**
+     * @param int $length
+     * @return string
+     * @throws \Exception
+     */
+    public function getRandomCode($length = 6)
+    {
+        return $this->codeGenerate($length);
     }
 
     /**

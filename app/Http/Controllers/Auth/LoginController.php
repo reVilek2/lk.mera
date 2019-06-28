@@ -62,7 +62,6 @@ class LoginController extends Controller
      *
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function login(Request $request)
     {
@@ -107,7 +106,6 @@ class LoginController extends Controller
             }
         } else {
             $user = User::findByPhone($credentials['phone']);
-
             if ($user && !$user->hasVerifiedPhone()) {
 
                 return redirect()->route('phone.confirm.info', $user->phone);

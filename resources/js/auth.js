@@ -25,6 +25,18 @@ if (token) {
 }
 
 $(function () {
-
+    $('.js-resend-phone-code').on('click', function (e) {
+        e.preventDefault();
+        let _href = $(this).attr('href');
+        if(!$(this).hasClass('in-progress')) {
+            $(this).addClass('in-progress');
+            axios.post(_href).then(response => {
+                location.reload();
+            }).catch(errors => {
+                $(this).removeClass('in-progress');
+                console.log(errors);
+            });
+        }
+    })
 });
 

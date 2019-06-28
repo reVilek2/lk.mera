@@ -63,8 +63,8 @@ class EmailController extends Controller
      */
     public function emailInformation(Request $request, $email = null)
     {
-        Page::setTitle('Information About Email | MeraCapital');
-        Page::setDescription('Information About Email');
+        Page::setTitle('Информация о Email | MeraCapital');
+        Page::setDescription('Информация о Email');
         try {
             $user = self::getUserByEmail($email);
             if (!$user) {
