@@ -28,6 +28,12 @@ class DocumentController extends Controller
         $this->documentManager = $documentManager;
     }
 
+    /**
+     * Список документов
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\JsonResponse|\Illuminate\View\View
+     */
     public function index(Request $request)
     {
         Page::setTitle('Документы | MeraCapital');
@@ -70,6 +76,12 @@ class DocumentController extends Controller
         ]);
     }
 
+    /**
+     * Создание документа.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         $currUser = Auth::user();
@@ -125,6 +137,8 @@ class DocumentController extends Controller
     }
 
     /**
+     * Отображение/Скачивание файла прикрепленного к документу
+     *
      * @param Request $request
      * @param Document $document
      * @param File $file
@@ -152,6 +166,13 @@ class DocumentController extends Controller
         }
     }
 
+    /**
+     * Смена статуса документа (Только для администратора)
+     *
+     * @param Request $request
+     * @param Document $document
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function changeStatus(Request $request, Document $document)
     {
         $currUser = Auth::user();
@@ -185,7 +206,7 @@ class DocumentController extends Controller
     }
 
     /**
-     * Менеджер или админ ставит оплату вручную
+     * Оплата документа
      *
      * @param Request $request
      * @param Document $document

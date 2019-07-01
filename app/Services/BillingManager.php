@@ -279,7 +279,7 @@ class BillingManager
      *
      * @param \App\Models\Document $document
      * @param bool $is_need_status_signed
-     * @return Document|null
+     * @return \App\Models\Document|null
      * @throws \Exception
      */
     public function manualPaymentDocument(Document $document, $is_need_status_signed = false)
@@ -291,7 +291,7 @@ class BillingManager
      * @param \App\Models\Document $document
      * @param bool $is_need_status_signed
      * @param bool $is_need_deposit
-     * @return Document|null
+     * @return \App\Models\Document|null
      * @throws \Exception
      */
     public function payDocumentFromUserBalance(Document $document, $is_need_status_signed = false, $is_need_deposit = false)
