@@ -86,9 +86,11 @@
             },
             updatedUserSettings(user) {
                 this.profUser = user;
+                this.$root.$emit('profileUserEdit', user);
             },
             updatedUserPassword(user) {
                 this.profUser = user;
+                this.$root.$emit('profileUserEdit', user);
             }
         },
         created() {

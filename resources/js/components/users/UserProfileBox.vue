@@ -5,7 +5,7 @@
                 <input v-if="!isUploadingFile" type="file" accept="image/*" name="avatar" @change="onFileUpload">
                 <input v-else type="file" accept="image/*" name="avatar" disabled>
             </label>
-            <img class="profile-user-img img-responsive img-circle" :src="profUser.avatar_medium" alt="User avatar">
+            <img v-if="profUser.avatar_medium" class="profile-user-img img-responsive img-circle" :src="profUser.avatar_medium" alt="User avatar">
         </div>
         <div v-if="fileUploadErrors.length > 0" class="avatar-upload-errors">
             <div class="form-group has-error">
@@ -227,6 +227,11 @@
                     });
                 }
             },
+            profileUserEdit (user) {
+                if (parseInt(this.profUser.id) === parseInt(user.id)) {
+                    this.profUser = user;
+                }
+            }
         },
 
         created() {
@@ -238,6 +243,8 @@
             setTimeout(function(){
                 _this.loadedComponent = true;
             }, 10);
+
+            this.$root.$on('profileUserEdit', this.profileUserEdit)
         },
     }
 </script>

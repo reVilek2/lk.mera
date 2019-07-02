@@ -4,16 +4,7 @@
     <section class="sidebar">
 
         <!-- Sidebar user panel (optional) -->
-        <div class="user-panel">
-            <div class="pull-left image">
-                <img src="{{ Auth::user()->getAvatar('thumb') }}" class="img-circle js-user-avatar-thumb" alt="User Image">
-            </div>
-            <div class="pull-left info">
-                <p>{{ Auth::user()->getUserName() }}</p>
-                <!-- Status -->
-                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
-            </div>
-        </div>
+        <user-sidebar-panel></user-sidebar-panel>
 
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu" data-widget="tree">

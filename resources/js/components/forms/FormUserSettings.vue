@@ -98,6 +98,7 @@
     import InputText from '../forms/InputText';
     import InputUserPhone from '../forms/InputUserPhone';
     import InputUserEmail from '../forms/InputUserEmail';
+    import {isEmptyObject} from "../../libs/utils";
 
     export default {
         components: {
@@ -366,13 +367,13 @@
                 return valid;
             },
             checkAllowedFastConfirmPhone() {
-                if (!this.isEmptyObject(this.currUser) && !this.isEmptyObject(this.user)) {
+                if (!isEmptyObject(this.currUser) && !isEmptyObject(this.user)) {
                       return this.currUser.is_admin && !(!!this.user.phone_verified_at) && !!this.user.phone && (parseInt(this.currUser.id) !== parseInt(this.user.id));
                 }
                 return false;
             },
             checkAllowedFastConfirmEmail() {
-                if (!this.isEmptyObject(this.currUser) && !this.isEmptyObject(this.user)) {
+                if (!isEmptyObject(this.currUser) && !isEmptyObject(this.user)) {
                       return this.currUser.is_admin && !(!!this.user.email_verified_at) && !!this.user.email && (parseInt(this.currUser.id) !== parseInt(this.user.id));
                 }
                 return false;
@@ -471,17 +472,6 @@
                     }).show();
                 });
             },
-            isEmptyObject(obj) {
-                for (let i in obj) {
-                    if (obj.hasOwnProperty(i)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
         },
-        mounted(){
-
-        }
     };
 </script>

@@ -36,6 +36,7 @@
 <script>
     import { mapGetters } from 'vuex';
     import TransactionTable from './TransactionTable';
+    import {isEmptyObject} from "../../libs/utils";
     export default {
         props: {
             transactions: {
@@ -61,20 +62,10 @@
         },
         watch: {
             currUser(user) {
-                if(!this.isEmptyObject(user)) {
+                if(!isEmptyObject(user)) {
                     this.user_balance = user.balance_humanize;
                 }
             }
         },
-        methods: {
-            isEmptyObject(obj) {
-                for (let i in obj) {
-                    if (obj.hasOwnProperty(i)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
     }
 </script>

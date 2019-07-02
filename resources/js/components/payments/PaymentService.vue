@@ -42,7 +42,7 @@
     import {VMoney} from 'v-money';
     import PaymentCard from './PaymentCard';
     import PaymentBoxCard from './PaymentBoxCard';
-    import {amountToExternal, amountToReadable, amountToHumanize} from '../../libs/utils';
+    import {isEmptyObject, amountToExternal, amountToReadable, amountToHumanize} from '../../libs/utils';
 
     export default {
         props: {
@@ -78,7 +78,7 @@
         },
         watch: {
             currUser(user) {
-                if (!this.isEmptyObject(user)) {
+                if (!isEmptyObject(user)) {
                     this.user_balance = user.balance_humanize;
                     this.user_total_payable = user.total_payable_humanize;
                     this.user_total_for_pay = this.countTotalForPay(user.balance, user.total_payable);
@@ -95,14 +95,6 @@
             },
             closedAllItem() {
                 this.itemCardActive = false;
-            },
-            isEmptyObject(obj) {
-                for (let i in obj) {
-                    if (obj.hasOwnProperty(i)) {
-                        return false;
-                    }
-                }
-                return true;
             },
             countTotalForPay(balance, total_payable) {
                 let external_total_payable = amountToExternal(total_payable);

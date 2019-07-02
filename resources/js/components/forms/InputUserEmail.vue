@@ -25,7 +25,7 @@
         </div>
         <div v-if="!is_allowed_fast_confirm && !is_email_verified" class="input-confirm-form-email" :ref="inputConfirmForm">
             <div class="input-confirm-form-email__item">
-                <p class="text-green">На указанный вами email отправлено письмо с кодом авктивации. Перейдите по ссылке из email для активации.<br> Если этого письма нет во «Входящих», пожалуйста, проверьте «Спам».</p>
+                <p class="text-green">На указанный вами email отправлено письмо с кодом авктивации. Перейдите по ссылке из email для активации.<br> Если этого письма нет во «Входящих», пожалуйста, проверьте «Спам».<br> При наличии нескольких писем, используйте то которое пришло последним.</p>
                 <span v-if="preloader" class="preloader preloader-sm"></span>
                 <span class="form-resend-link" :class="{'active': resend_code}" style="cursor: pointer" @click="resendCode">Отправить код повторно.</span>
             </div>

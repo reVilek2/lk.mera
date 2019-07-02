@@ -38,6 +38,7 @@
 <script>
     import ChatContainer from './ChatContainer';
     import ChatListName from './ChatListName';
+    import {isEmptyObject} from "../../libs/utils";
     export default {
         props: {
             chats: {
@@ -172,12 +173,7 @@
             },
 
             isEmptyObject(obj) {
-                for (let i in obj) {
-                    if (obj.hasOwnProperty(i)) {
-                        return false;
-                    }
-                }
-                return true;
+                return isEmptyObject(obj);
             }
         }
     }

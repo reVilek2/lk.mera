@@ -81,7 +81,17 @@ function number_format(number, decimals, dec_point, separator ) {
     return s.join(dec);
 }
 
+function isEmptyObject(obj) {
+    for (let i in obj) {
+        if (obj.hasOwnProperty(i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export {
+    isEmptyObject,
     amountToExternal,
     amountToReadable,
     amountToHumanize,

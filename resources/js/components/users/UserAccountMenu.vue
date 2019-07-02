@@ -3,14 +3,14 @@
         <!-- Menu Toggle Button -->
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <!-- The user image in the navbar-->
-            <img :src="user_avatar_small" class="user-image js-user-avatar-thumb" alt="User Image">
+            <img v-if="user_avatar_small" :src="user_avatar_small" class="user-image js-user-avatar-thumb" alt="User Image">
             <!-- hidden-xs hides the username on small devices so only the image appears. -->
             <span class="hidden-xs">{{user_name}}</span>
         </a>
         <ul class="dropdown-menu">
             <!-- The user image in the menu -->
             <li class="user-header">
-                <img :src="user_avatar_medium" class="img-circle js-user-avatar-small" alt="User Image">
+                <img v-if="user_avatar_medium" :src="user_avatar_medium" class="img-circle js-user-avatar-small" alt="User Image">
 
                 <p>
                     {{user_name}} - {{user_role}}
@@ -59,6 +59,7 @@
 </template>
 <script>
     import { mapGetters } from 'vuex';
+    import {isEmptyObject} from "../../libs/utils";
     export default {
         data: function() {
             return {
@@ -84,7 +85,7 @@
         },
         watch: {
             currUser(user) {
-                if(!this.isEmptyObject(user)) {
+                if(!isEmptyObject(user)) {
                     this.user_balance = user.balance_humanize;
                     this.user_total_payable = user.total_payable_humanize;
                     this.user_avatar_small = user.avatar_small;
@@ -97,20 +98,10 @@
                 }
             },
             currManager(manager) {
-                if(!this.isEmptyObject(manager)) {
+                if(!isEmptyObject(manager)) {
                     this.manager_name = manager.name;
                 }
             }
         },
-        methods: {
-            isEmptyObject(obj) {
-                for (let i in obj) {
-                    if (obj.hasOwnProperty(i)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
     }
 </script>
