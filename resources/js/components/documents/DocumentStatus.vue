@@ -152,6 +152,7 @@
         },
         methods: {
             dropdownMenuEvent(e){
+                console.log(e);
                 e.stopPropagation();
             },
             setSignedAndPaid(val) {

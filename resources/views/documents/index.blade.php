@@ -24,20 +24,9 @@
                 <div class="box-header">
                     <h3 class="box-title">Таблица документов</h3>
                 </div>
-                <div class="box-body">
-                    <documents-table :documents="{{$documents}}"
-                                     :documents_count="{{$documents_count}}"
-                                     :managers="{{$managers}}"></documents-table>
-                    {{--@if ($documents_count === 0 && !Auth::user()->hasRole('admin|manager'))--}}
-                        {{--<div class="callout callout-info">--}}
-                            {{--<h4>I am an info callout!</h4>--}}
-
-                            {{--<p>У вас нет ни одного документа</p>--}}
-                        {{--</div>--}}
-                    {{--@else--}}
-                        {{----}}
-                    {{--@endif--}}
-                </div>
+                <documents-table :documents="{{$documents}}"
+                                 :documents_count="{{$documents_count}}"
+                                 :managers="{{$managers}}"></documents-table>
             </div>
         </div>
     </div>

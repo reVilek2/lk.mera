@@ -1,110 +1,121 @@
 <template>
-    <div class="documents-table-wrapper dataTables_wrapper dt-bootstrap">
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="dataTables_filter">
-                    <label>
-                        Поиск:
-                        <input class="form-control input-sm" type="text" v-model="tableData.search" placeholder="Введите фразу"
-                               @input="getItems()" :disabled="item_count === 0 && !filter">
-                    </label>
-                </div>
-                <div class="dataTables_length">
-                    <label>
-                        Показывать по:
-                        <select v-model="tableData.length" @change="getItems()" class="form-control input-sm" :disabled="item_count === 0 && !filter">
-                            <option v-for="(records, index) in perPage" :key="index" :value="records">{{records}}</option>
-                        </select>
-                    </label>
+    <div class="box-body">
+        <div class="documents-table-wrapper dataTables_wrapper dt-bootstrap">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action dataTables_action__mobile">
+                        <button class="btn btn-success" @click="showModal">Добавить</button>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-6">
-                <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action">
-                    <button class="btn btn-success" @click="showModal">Добавить</button>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="dataTables_filter">
+                        <label>
+                            Поиск:
+                            <input class="form-control input-sm" type="text" v-model="tableData.search" placeholder="Введите фразу"
+                                   @input="getItems()" :disabled="item_count === 0 && !filter">
+                        </label>
+                    </div>
+                    <div class="dataTables_length">
+                        <label>
+                            Показывать по:
+                            <select v-model="tableData.length" @change="getItems()" class="form-control input-sm" :disabled="item_count === 0 && !filter">
+                                <option v-for="(records, index) in perPage" :key="index" :value="records">{{records}}</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action dataTables_action__desktop">
+                        <button class="btn btn-success" @click="showModal">Добавить</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <datatable :columns="columns"
-                           :sortKey="sortKey"
-                           :sortOrders="sortOrders"
-                           :excludeSortOrders="excludeSortOrders"
-                           @sort="sortBy">
-                    <tbody>
-                    <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
-                        <td>{{item.id}}</td>
-                        <td>{{item.created_at_humanize}}</td>
-                        <td><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
-                        <td>{{item.name}}</td>
-                        <td>
-                            <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
-                                <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
-                                    {{file.origin_name}}
-                                </a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a :href="'/documents/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
-                                    <li><a :href="'/documents/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                        <td>
-                            <document-status :signed="item.signed"
-                                             :paid="item.paid"
-                                             :item="item"
-                                             :key="item.id"
-                                             @updateDocument="updateStatus"></document-status>
-                        </td>
-                        <td>{{item.amount_humanize}}</td>
-                        <td><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
-                        <td>
-                            <document-action :signed="item.signed"
-                                             :paid="item.paid"
-                                             :item="item"
-                                             :key="item.id"
-                                             @updateDocument="updateStatus"></document-action>
-                        </td>
-                    </tr>
-                    <tr v-if="item_count === 0" class="odd empty-row">
-                        <td colspan="9" align="center">
-                            <span v-if="filter">Не найдено ни одного документа</span>
-                            <span v-if="!filter">
-                                <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного документа</span>
-                                <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного документа</span>
-                            </span>
-                        </td>
-                    </tr>
-                    </tbody>
-                </datatable>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-5">
-                <filter-info :pagination="pagination" :item_count="item_count"></filter-info>
-            </div>
-            <div class="col-sm-7">
-                <div class="dataTables_paginate paging_simple_numbers">
-                    <paginate v-show="pagination.lastPage > 1"
-                              v-model="pagination.currentPage"
-                              :page-count="pagination.lastPage"
-                              :page-range="3"
-                              :margin-pages="1"
-                              :click-handler="paginateCallback"
-                              :prev-text="'Назад'"
-                              :next-text="'Вперед'"
-                              :container-class="'pagination'"
-                              :page-class="'page-item'">
-                    </paginate>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <datatable :columns="columns"
+                                   :sortKey="sortKey"
+                                   :sortOrders="sortOrders"
+                                   :excludeSortOrders="excludeSortOrders"
+                                   @sort="sortBy">
+                            <tbody>
+                            <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
+                                <td>{{item.id}}</td>
+                                <td>{{item.created_at_humanize}}</td>
+                                <td><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
+                                <td>{{item.name}}</td>
+                                <td>
+                                    <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
+                                        <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                            <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
+                                            {{file.origin_name}}
+                                        </a>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a :href="'/documents/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
+                                            <li><a :href="'/documents/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>
+                                    <document-status :signed="item.signed"
+                                                     :paid="item.paid"
+                                                     :item="item"
+                                                     :key="item.id"
+                                                     @updateDocument="updateStatus"></document-status>
+                                </td>
+                                <td>{{item.amount_humanize}}</td>
+                                <td><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
+                                <td>
+                                    <document-action :signed="item.signed"
+                                                     :paid="item.paid"
+                                                     :item="item"
+                                                     :key="item.id"
+                                                     @updateDocument="updateStatus"></document-action>
+                                </td>
+                            </tr>
+                            <tr v-if="item_count === 0" class="odd empty-row">
+                                <td colspan="9" align="center">
+                                    <span v-if="filter">Не найдено ни одного документа</span>
+                                    <span v-if="!filter">
+                                        <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного документа</span>
+                                        <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного документа</span>
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </datatable>
+                    </div>
                 </div>
             </div>
-        </div>
-        <form-document-create :managers="managers"
-                              :ref="'formDocumentCreate'"
-                              :clear-form="clearForm"
-                              @createdDocument="createdDocumentEvent"
-                              @formCleared="clearFormDone"></form-document-create>
+            <div class="row">
+                <div class="col-sm-5">
+                    <filter-info :pagination="pagination" :item_count="item_count"></filter-info>
+                </div>
+                <div class="col-sm-7">
+                    <div class="dataTables_paginate paging_simple_numbers">
+                        <paginate v-show="pagination.lastPage > 1"
+                                  v-model="pagination.currentPage"
+                                  :page-count="pagination.lastPage"
+                                  :page-range="3"
+                                  :margin-pages="1"
+                                  :click-handler="paginateCallback"
+                                  :prev-text="'Назад'"
+                                  :next-text="'Вперед'"
+                                  :container-class="'pagination'"
+                                  :page-class="'page-item'">
+                        </paginate>
+                    </div>
+                </div>
+            </div>
+            <form-document-create :managers="managers"
+                                  :ref="'formDocumentCreate'"
+                                  :clear-form="clearForm"
+                                  @createdDocument="createdDocumentEvent"
+                                  @formCleared="clearFormDone"></form-document-create>
 
+        </div>
     </div>
 </template>
 <script>
