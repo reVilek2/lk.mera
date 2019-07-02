@@ -73,7 +73,8 @@
                 <label class="col-sm-2 control-label">Email</label>
 
                 <div class="col-sm-10">
-                    <vue-input-user-email :is_email="!!user.email"
+                    <vue-input-user-email :curr_email="user.email"
+                                          :is_email="!!user.email"
                                           :is_email_verified="!!user.email_verified_at"
                                           :is_allowed_fast_confirm="isAllowedFastConfirmEmail"
                                           :name="'email'"

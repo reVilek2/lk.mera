@@ -56,7 +56,24 @@
     cursor: pointer;
   }
 }
+.input-confirm-form-email {
+  display: none;
+  .form-resend-link {
+    &.active {
+      display: inline-block;
+    }
+    display: none;
+    text-decoration: none;
+    line-height: 16px;
+    font-size: 14px;
+    color: $blue;
 
+    &:hover {
+      text-decoration: none;
+      color: $blue;
+    }
+  }
+}
 .input-confirm-form {
   display: none;
   &__item {

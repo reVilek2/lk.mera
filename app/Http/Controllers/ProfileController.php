@@ -81,34 +81,57 @@ class ProfileController extends Controller
         if ($validation->passes()) {
             $email_changed = false;
             $phone_changed = false;
-
-            $user->first_name = $request->first_name;
-            $user->second_name = $request->second_name;
-            $user->last_name = $request->last_name;
+            $newEmail = null;
+            $newPhone = null;
 
             if ($request->has('email') && $request->email) {
-                if ($user->email !== trim($request->email)) {
-                    $user->email = trim($request->email);
-                    $user->email_verified_at = null;
-                    $user->email_confirmation_code = null;
-                    $user->email_confirmation_code_created_at = null;
-                    $email_changed = true;
+                $newEmail = trim($request->email);
+                if ($user->email !== $newEmail && !User::isUniqueEmail($newEmail)) {
+                    return response()->json([
+                        'status'=>'error',
+                        'errors' => ['email' => ['Данный email уже используется']]
+                    ], 200);
                 }
             }
             if ($request->has('phone') && $request->phone) {
                 $phoneNormalizer = new PhoneNormalizer();
-                $phoneNormalized = $phoneNormalizer->normalize($request->phone);
-                if ($phoneNormalized) {
-                    $phoneNormalized = '+' . $phoneNormalized;
+                $newPhone = $phoneNormalizer->normalize(trim($request->phone));
+                if ($newPhone) {
+                    $newPhone = '+' . $newPhone;
                 }
-                if ($user->phone !== $phoneNormalized) {
-                    $user->phone = $request->phone;
-                    $user->phone_verified_at = null;
-                    $user->phone_confirmation_code = null;
-                    $user->phone_confirmation_code_created_at = null;
-                    $phone_changed = true;
+                if ($user->phone !== $newPhone && !User::isUniquePhone($newPhone)) {
+                    return response()->json([
+                        'status'=>'error',
+                        'errors' => ['phone' => ['Данный телефон уже используется']]
+                    ], 200);
                 }
             }
+            if ($request->has('first_name')) {
+                $user->first_name = $request->first_name;
+            }
+            if ($request->has('second_name')) {
+                $user->second_name = $request->second_name;
+            }
+            if ($request->has('last_name')) {
+                $user->last_name = $request->last_name;
+            }
+
+            if ($newEmail && $user->email !== $newEmail) {
+                $user->email = $newEmail;
+                $user->email_verified_at = null;
+                $user->email_confirmation_code = null;
+                $user->email_confirmation_code_created_at = null;
+                $email_changed = true;
+            }
+
+            if ($newPhone && $user->phone !== $newPhone) {
+                $user->phone = $newPhone;
+                $user->phone_verified_at = null;
+                $user->phone_confirmation_code = null;
+                $user->phone_confirmation_code_created_at = null;
+                $phone_changed = true;
+            }
+
             $user->save();
 
             return response()->json([

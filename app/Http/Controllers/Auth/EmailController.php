@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\AuthManager;
 use App\Services\Page;
 
+use App\Services\UserManager;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -17,10 +18,15 @@ class EmailController extends Controller
      * @var AuthManager
      */
     private $authManager;
+    /**
+     * @var UserManager
+     */
+    private $userManager;
 
-    public function __construct(AuthManager $authManager)
+    public function __construct(AuthManager $authManager, UserManager $userManager)
     {
         $this->authManager = $authManager;
+        $this->userManager = $userManager;
     }
 
     /**
@@ -146,5 +152,47 @@ class EmailController extends Controller
         }
 
         return User::findByEmail($email);
+    }
+
+    /**
+     * Повторная отправка кода активации email
+     *
+     * @param Request $request
+     * @param null $phone
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function codeResend(Request $request, $phone = null)
+    {
+        try {
+            $user = self::getUserByEmail($phone);
+            if (!$user) {
+                return response()->json([
+                    'status'=>'exception',
+                    'message' => 'Email поврежден или не существует в системе!'
+                ], 200);
+            }
+            if ($user->hasVerifiedEmail()) {
+                return response()->json([
+                    'status'=>'exception',
+                    'message' => 'Email уже подтвержден.'
+                ], 200);
+            }
+
+            $this->userManager->sendActivationEmail($user);
+
+            return response()->json([
+                'status'=>'success',
+            ], 200);
+
+        } catch (\Exception $ex) {
+            $message = 'На сервере произошла ошибка. Пожалуйста, обратитесь к администратору системы.';
+            if (config('app.debug')) {
+                $message = $ex->getMessage();
+            }
+            return response()->json([
+                'status'=>'exception',
+                'message' => $message
+            ], 200);
+        }
     }
 }

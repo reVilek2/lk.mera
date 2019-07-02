@@ -10,6 +10,7 @@ Route::post('/register', 'Auth\RegisterController@register')->name('register');
 // Email Routes...
 Route::get('/email/confirm/{token}', 'Auth\EmailController@emailConfirm')->name('email.confirm');
 Route::get('/email/confirm-info/{email}', 'Auth\EmailController@emailInformation')->name('email.confirm.info');
+Route::post('/email/code-resend/{phone}', 'Auth\EmailController@codeResend')->name('email.code.resend');
 // Phone Routes...
 Route::get('/phone/confirm-info/{phone}', 'Auth\PhoneController@phoneInformation')->name('phone.confirm.info');
 Route::get('/phone/confirm/{phone}', 'Auth\PhoneController@phoneConfirmForm')->name('phone.confirm');
