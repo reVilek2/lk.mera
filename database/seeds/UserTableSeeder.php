@@ -160,7 +160,7 @@ class UserTableSeeder extends Seeder
                 'phone' => null,
                 'first_name' => 'Антон',
                 'last_name' => 'Окрема',
-                'password' => '3999210',
+                'password' => 'secret',
                 'role' => ['admin', 'manager'],
             ],
             [
