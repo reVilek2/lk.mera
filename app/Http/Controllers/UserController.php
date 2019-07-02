@@ -76,6 +76,7 @@ class UserController extends Controller
         }
 
         return view('users.index', [
+            'users_count' => $users->count(),
             'users' => $users->toJson()
         ]);
     }

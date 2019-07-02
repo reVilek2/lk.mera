@@ -2,6 +2,10 @@
     <div class="payment-cards__box">
         <div class="payment-cards__icon">
             <span class="icon-card">&nbsp;</span>
+            <div class="payment-cards__action-mobile">
+                <button v-if="!disable_btn" type="button" class="btn btn-success" @click="submit">Оплатить в один клик</button>
+                <button v-else type="button" class="btn btn-success" disabled>Оплатить в один клик</button>
+            </div>
         </div>
         <div class="payment-cards__item">
             <div class="payment-cards__item-title">Карта: {{card.pan}}</div>

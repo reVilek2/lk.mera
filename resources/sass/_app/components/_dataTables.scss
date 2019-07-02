@@ -1,16 +1,44 @@
+.table-striped>tbody>tr.even {
+  background-color: $white;
+}
+.table-striped>tbody>tr.odd {
+  background-color: #f9f9f9;
+}
+.empty-row {
+  td {
+    padding: 20px !important;
+    vertical-align: middle !important;
+    font-weight: 600;
+    font-size: 16px;
+  }
+}
+div.dataTables_wrapper div.dataTables_length,
+div.dataTables_wrapper div.dataTables_filter {
+  display: inline-block;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+div.dataTables_wrapper div.dataTables_length select {
+  margin-left: 0.5em;
+  width: 94px;
+}
+div.dataTables_wrapper div.dataTables_length label,
+div.dataTables_wrapper div.dataTables_filter label{
+  vertical-align: middle;
+}
+div.dataTables_wrapper div.dataTables_length select,
+div.dataTables_wrapper div.dataTables_filter input{
+  vertical-align: baseline;
+}
+div.dataTables_wrapper div.dataTables_action{
+  margin-bottom: 5px;
+}
+
 .documents-table-wrapper {
   .dataTables {
-    &_length,
-    &_filter{
-      display: inline-block;
-      margin-right: 5px;
-      margin-bottom: 5px;
-    }
     &_action {
-      margin-bottom: 5px;
       &__mobile {
         display: block;
-        margin-bottom: 15px;
       }
       &__desktop {
         display: none;
@@ -30,35 +58,33 @@
     }
   }
 }
-.table-striped>tbody>tr.even {
-  background-color: $white;
-}
-.table-striped>tbody>tr.odd {
-  background-color: #f9f9f9;
-}
-.empty-row {
-  td {
-    padding: 20px !important;
-    vertical-align: middle !important;
-    font-weight: 600;
-    font-size: 16px;
-  }
-}
 .document_action,
 .document_status {
   .dropdown-backdrop {
     display: none !important;
   }
 }
-div.dataTables_wrapper div.dataTables_length select {
-  margin-left: 0.5em;
-  width: 94px;
+
+div.documents-table-wrapper.dataTables_wrapper div.dataTables_filter{
+  float: none;
 }
+div.documents-table-wrapper.dataTables_wrapper div.dataTables_action{
+  margin-bottom: 15px;
+}
+
 @media (min-width: 768px) {
+  div.documents-table-wrapper.dataTables_wrapper div.dataTables_action{
+    margin-bottom: 5px;
+  }
+  div.dataTables_wrapper div.dataTables_filter{
+    float: right;
+  }
+  div.dataTables_wrapper div.dataTables_action{
+    float: right;
+  }
   .documents-table-wrapper {
     .dataTables {
       &_action {
-        text-align: right;
         &__mobile {
           display: none;
         }

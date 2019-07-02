@@ -4,7 +4,7 @@ Route::get('/', function (){
         return redirect()->route('documents');
     }
     return redirect()->route('login');
-});
+})->name('home');
 // profile
 Route::get('/profile', 'ProfileController@index')->name('profile');
 Route::post('/profile/{user}', 'ProfileController@update')->name('profile.user.update');

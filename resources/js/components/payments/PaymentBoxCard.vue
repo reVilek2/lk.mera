@@ -3,6 +3,12 @@
         <div class="payment-boxes__header">
             <div class="payment-boxes__header-icon">
                 <span class="icon-cards">&nbsp;</span>
+                <div class="payment-boxes__header-action-mobile">
+                    <div class="payment-boxes__header-action-close">
+                        <button type="button" class="btn btn-box-tool" @click="closed"><i class="fa fa-times"></i></button>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm payment-boxes__header-action-open" @click="opened"><i class="fa fa-arrow-right"></i></button>
+                </div>
             </div>
             <div class="payment-boxes__header-item">
                 <div class="payment-boxes__header-item-title">

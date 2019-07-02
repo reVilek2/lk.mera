@@ -24,9 +24,7 @@
                 <div class="box-header">
                     <h3 class="box-title">Таблица пользователей</h3>
                 </div>
-                <div class="box-body">
-                    <users-table :users="{{$users}}"></users-table>
-                </div>
+                <users-table :users="{{$users}}" :users_count="{{$users_count}}"></users-table>
             </div>
         </div>
     </div>

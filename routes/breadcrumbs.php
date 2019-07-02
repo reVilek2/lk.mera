@@ -2,12 +2,12 @@
 try {
     // home
     Breadcrumbs::for('home', function ($trail) {
-        $trail->push('Главная', route('profile'), ['fa' => 'fa-dashboard']);
+        $trail->push('Главная', route('home'), ['fa' => 'fa-dashboard']);
     });
     // profile
     Breadcrumbs::for('profile', function ($trail) {
         $trail->parent('home');
-        $trail->push('Профиль', route('profile'), ['fa' => 'fa-user']);
+        $trail->push('Профиль', route('home'), ['fa' => 'fa-user']);
     });
     // users
     Breadcrumbs::for('users', function ($trail) {
