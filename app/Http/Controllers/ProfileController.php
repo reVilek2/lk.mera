@@ -60,63 +60,70 @@ class ProfileController extends Controller
      *
      * @param  Request $request
      * @param  User $user
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
     public function update(Request $request, User $user)
     {
-        if (Auth::user()->id !== $user->id) {
-            return redirect()->back()
-                ->with('status', 'error')
-                ->with('statusMessage', $this->messages['forbiddenEdit']);
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin') && $currUser->id !== $user->id) {
+            abort(403);
         }
-        $this->validate($request, [
+        $validation = Validator::make($request->all(), [
             'email'    => 'nullable|between:6,255|email',
             'phone'    => ['nullable', new PhoneNumber('Поле phone имеет ошибочный формат.')],
             'first_name' => 'nullable|string',
             'second_name' => 'nullable|string',
             'last_name' => 'nullable|string',
         ]);
-        $email_changed = false;
-        $phone_changed = false;
+        $errors = $validation->errors();
+        $errors = json_decode($errors);
+        if ($validation->passes()) {
+            $email_changed = false;
+            $phone_changed = false;
 
-        $user->first_name = $request->first_name;
-        $user->second_name = $request->second_name;
-        $user->last_name = $request->last_name;
+            $user->first_name = $request->first_name;
+            $user->second_name = $request->second_name;
+            $user->last_name = $request->last_name;
 
-        if ($request->has('email') && $request->email) {
-            if ($user->email !== trim($request->email)) {
-                $user->email = trim($request->email);
-                $user->email_verified_at = null;
-                $email_changed = true;
+            if ($request->has('email') && $request->email) {
+                if ($user->email !== trim($request->email)) {
+                    $user->email = trim($request->email);
+                    $user->email_verified_at = null;
+                    $user->email_confirmation_code = null;
+                    $user->email_confirmation_code_created_at = null;
+                    $email_changed = true;
+                }
             }
-        }
-        if ($request->has('phone') && $request->phone) {
-            $phoneNormalizer = new PhoneNormalizer();
-            $phoneNormalized = $phoneNormalizer->normalize($request->phone);
-            if ($phoneNormalized) {
-                $phoneNormalized = '+'.$phoneNormalized;
+            if ($request->has('phone') && $request->phone) {
+                $phoneNormalizer = new PhoneNormalizer();
+                $phoneNormalized = $phoneNormalizer->normalize($request->phone);
+                if ($phoneNormalized) {
+                    $phoneNormalized = '+' . $phoneNormalized;
+                }
+                if ($user->phone !== $phoneNormalized) {
+                    $user->phone = $request->phone;
+                    $user->phone_verified_at = null;
+                    $user->phone_confirmation_code = null;
+                    $user->phone_confirmation_code_created_at = null;
+                    $phone_changed = true;
+                }
             }
-            if ($user->phone !== $phoneNormalized) {
-                $user->phone = $request->phone;
-                $user->phone_verified_at = null;
-                $phone_changed = true;
-            }
-        }
-        $user->save();
+            $user->save();
 
-        if ($email_changed) {
-            // если изменился email то
-            // отсылаем на почту письмо для подтверждения
-            $this->userManager->sendActivationEmail($user);
-        }
+            return response()->json([
+                'status'=>'success',
+                'user' => $user->fresh(),
+                'phone_changed' => $phone_changed,
+                'email_changed' => $email_changed,
+            ], 200);
 
-        return redirect()
-            ->route('profile')
-            ->with('status', 'success')
-            ->with('statusMessage', $this->messages['successUpdate'])
-            ->with('email_changed', $email_changed)
-            ->with('phone_changed', $phone_changed);
+        } else {
+            return response()->json([
+                'status'=>'error',
+                'errors' => $errors
+            ], 200);
+        }
     }
 
     /**
@@ -180,32 +187,102 @@ class ProfileController extends Controller
      */
     public function updatePassword(Request $request, User $user)
     {
-        if (Auth::user()->id !== $user->id) {
-            return redirect()->back()
-                ->with('status', 'error')
-                ->with('statusMessage', $this->messages['forbiddenEdit']);
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin') && $currUser->id !== $user->id) {
+            abort(403);
         }
+
+        $new_password = trim($request->password);
+        $confirm_new_password = trim($request->password_confirmation);
+
         $old_password = trim($request->old_password);
-        if (!$old_password || empty($old_password) || !Hash::check($old_password, $user->password)) {
+        if (!$currUser->hasRole('admin')) { // если админ то без старого пароля
+            if (!$old_password || empty($old_password) || !Hash::check($old_password, $user->password)) {
 
-            return back()->withErrors(['old_password' => 'Текущий пароль указан неверно'])->with('active_tab', 'password');
+                return response()->json([
+                    'status' => 'error',
+                    'errors' => ['old_password' => ['Текущий пароль указан неверно']]
+                ], 200);
+            }
         }
 
-        $validation = Validator::make(['password' => $request->password, 'password_confirmation' => $request->password_confirmation], [
+        $validation = Validator::make(['password' => $new_password, 'password_confirmation' => $confirm_new_password], [
             'password' => 'required:create|between:6,50|confirmed',
             'password_confirmation' => 'required_with:password|between:6,50'
         ]);
-        if ($validation->fails()) {
+        $errors = $validation->errors();
+        $errors = json_decode($errors);
+        if ($validation->passes()) {
 
-            return back()->withErrors($validation)->with('active_tab', 'password');
+            $user->password = Hash::make(trim($new_password));
+            $user->save();
+
+            return response()->json([
+                'status'=>'success',
+                'user' => $user->fresh()
+            ], 200);
+
+        } else {
+            return response()->json([
+                'status'=>'error',
+                'errors' => $errors
+            ], 200);
         }
+    }
 
-        $user->password = Hash::make(trim($request->password));
+    /**
+     * Быстрое подтверждение телефона
+     *
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function fastConfirmPhone(Request $request, User $user)
+    {
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin')) {
+            abort(403);
+        }
+        if ($user->hasVerifiedPhone()) {
+            return response()->json([
+                'status'=>'exception',
+                'message' => 'Телефон уже подтвержден!'
+            ], 200);
+        }
+        $user->setPhoneConfirmation();
         $user->save();
 
-        return redirect()
-            ->route('profile')
-            ->with('status', 'success')
-            ->with('statusMessage', $this->messages['successPasswordUpdate']);
+        return response()->json([
+            'status'=>'success',
+            'user' => $user->fresh()
+        ], 200);
+    }
+
+    /**
+     * Быстрое подтверждение почты
+     *
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function fastConfirmEmail(Request $request, User $user)
+    {
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin')) {
+            abort(403);
+        }
+        if ($user->hasVerifiedEmail()) {
+            return response()->json([
+                'status'=>'exception',
+                'message' => 'Email уже подтвержден!'
+            ], 200);
+        }
+        $user->setEmailConfirmation();
+        $user->save();
+
+        return response()->json([
+            'status'=>'success',
+            'user' => $user->fresh()
+        ], 200);
     }
 }

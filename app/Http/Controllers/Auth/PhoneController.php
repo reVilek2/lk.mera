@@ -60,24 +60,61 @@ class PhoneController extends Controller
             'code'=> 'required|regex:/^\d+$/',
         ]);
         if ($validation->fails()) {
-            return back()->withErrors($validation)->withInput();
+            $errors = $validation->errors();
+            $errors = json_decode($errors);
+            if($request->ajax()){
+                return response()->json([
+                    'status'=>'error',
+                    'errors' => $errors
+                ], 200);
+            } else {
+                return back()->withErrors($validation)->withInput();
+            }
         }
         try {
             $user = self::getUserByPhone($phone);
             if (!$user) {
-                return view('auth.phone.errors')->withErrors(['Телефон поврежден или не существует в системе!']);
+                if ($request->ajax()){
+                    return response()->json([
+                        'status'=>'exception',
+                        'message' => 'Телефон поврежден или не существует в системе!'
+                    ], 200);
+                } else {
+                    return view('auth.phone.errors')->withErrors(['Телефон поврежден или не существует в системе!']);
+                }
             }
             if ($user->hasVerifiedPhone()) {
-                return view('auth.phone.confirmed')->with(['phone' => $user->phone]);
+                if ($request->ajax()){
+                    return response()->json([
+                        'status'=>'exception',
+                        'message' => 'Телефон уже подтвержден.'
+                    ], 200);
+                } else {
+                    return view('auth.phone.confirmed')->with(['phone' => $user->phone]);
+                }
             }
 
             $result = $this->userManager->checkActivationCode($user, $code);
             if ($result->status !== 'success') {
-                return back()->withErrors(['code' => $result->message]);
+                if ($request->ajax()){
+                    return response()->json([
+                        'status'=>'error',
+                        'errors' => ['code' => [$result->message]]
+                    ], 200);
+                } else {
+                    return back()->withErrors(['code' => $result->message]);
+                }
             }
 
             $user->attemptPhoneConfirmation($code);
-            return redirect()->route('phone.confirm.info', $user->phone);
+            if ($request->ajax()){
+                return response()->json([
+                    'status'=>'success',
+                    'user' => $user->fresh()
+                ], 200);
+            } else {
+                return redirect()->route('phone.confirm.info', $user->phone);
+            }
 
         } catch (\Exception $ex) {
 
@@ -85,7 +122,14 @@ class PhoneController extends Controller
             if (config('app.debug')) {
                 $message = $ex->getMessage();
             }
-            return view('auth.phone.errors')->withErrors([$message]);
+            if ($request->ajax()){
+                return response()->json([
+                    'status'=>'exception',
+                    'message' => $message
+                ], 200);
+            } else {
+                return view('auth.phone.errors')->withErrors([$message]);
+            }
         }
     }
 
@@ -109,13 +153,15 @@ class PhoneController extends Controller
             $resend_phone_code_time = $this->userManager->getResendPhoneCodeTime($user);
             if ($resend_phone_code_time !== 0) {
                 return response()->json([
-                    'status'=>'exception',
-                    'message' => 'Действие предыдущего кода еще не истекло.'
+                    'status'=>'success',
+                    'resend_phone_code_time' => $resend_phone_code_time
                 ], 200);
             }
             $this->userManager->sendActivationPhone($user);
+            $resend_phone_code_time = $this->userManager->getResendPhoneCodeTime($user->fresh());
             return response()->json([
-                'status'=>'success'
+                'status'=>'success',
+                'resend_phone_code_time' => $resend_phone_code_time
             ], 200);
 
         } catch (\Exception $ex) {

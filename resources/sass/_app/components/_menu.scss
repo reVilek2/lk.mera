@@ -18,3 +18,8 @@
 .navbar-nav > .user-menu > .dropdown-menu {
   width: 290px;
 }
+
+.nav-tabs-custom .input-group-btn:last-child>.btn,
+.nav-tabs-custom .input-group-btn:last-child>.btn-group {
+  z-index: auto;
+}

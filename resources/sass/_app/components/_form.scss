@@ -56,3 +56,46 @@
     cursor: pointer;
   }
 }
+
+.input-confirm-form {
+  display: none;
+  &__item {
+    width: 277px;
+  }
+  .form-resend-link {
+    &.active {
+      display: inline-block;
+    }
+    display: none;
+    text-decoration: none;
+    margin-top: 15px;
+    line-height: 16px;
+    font-size: 14px;
+    color: $blue;
+
+    &:hover {
+      text-decoration: none;
+      color: $blue;
+    }
+  }
+  .help-block {
+    margin-bottom: 0;
+  }
+  .preloader{
+    margin-top: 15px;
+  }
+}
+.form-horizontal .input-confirm-form  .control-label {
+  margin-bottom: 5px;
+}
+.preloader {
+  display: inline-block;
+  background: transparent url("../images/preloader.gif") no-repeat center center / contain;
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+  &-sm {
+    width: 17px;
+    height: 17px;
+  }
+}

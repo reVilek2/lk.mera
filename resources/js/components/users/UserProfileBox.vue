@@ -235,7 +235,6 @@
 
         mounted() {
             let _this = this;
-            // прослушивание скролла
             setTimeout(function(){
                 _this.loadedComponent = true;
             }, 10);

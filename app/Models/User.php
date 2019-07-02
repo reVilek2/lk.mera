@@ -161,12 +161,12 @@ class User extends Authenticatable implements HasMedia
      *
      * @var array
      */
-    protected $hidden = ['password', 'reset_password_code', 'email_confirmation_code', 'phone_confirmation_code', 'phone_verified_at', 'email_verified_at', 'email_confirmation_code_created_at', 'activated_at', 'remember_token', 'api_token', 'phone_confirmation_code_created_at', 'media', 'roles'];
+    protected $hidden = ['password', 'reset_password_code', 'email_confirmation_code', 'phone_confirmation_code', 'email_confirmation_code_created_at', 'activated_at', 'remember_token', 'api_token', 'phone_confirmation_code_created_at', 'media', 'roles'];
 
     /**
      * @var array The attributes that aren't mass assignable.
      */
-    protected $guarded = ['id', 'reset_password_code', 'email_confirmation_code', 'phone_confirmation_code', 'email_verified_at', 'phone_verified_at', 'activated_at', 'is_activated', 'email_confirmation_code_created_at', 'phone_confirmation_code_created_at', 'reset_password_code_created_at'];
+    protected $guarded = ['id', 'reset_password_code', 'email_confirmation_code', 'phone_confirmation_code', 'activated_at', 'is_activated', 'email_confirmation_code_created_at', 'phone_confirmation_code_created_at', 'reset_password_code_created_at'];
 
     protected $dates = [
         'email_verified_at',

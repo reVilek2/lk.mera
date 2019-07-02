@@ -7,9 +7,9 @@ Route::get('/', function (){
 });
 // profile
 Route::get('/profile', 'ProfileController@index')->name('profile');
-Route::put('/profile/{user}', 'ProfileController@update')->name('profile.user.update');
+Route::post('/profile/{user}', 'ProfileController@update')->name('profile.user.update');
 Route::post('/profile/{user}/avatar', 'ProfileController@updateAvatar')->name('profile.avatar.update');
-Route::put('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
+Route::post('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
 // documents
 Route::get('/documents', 'DocumentController@index')->name('documents');
 // finances
@@ -23,6 +23,8 @@ Route::get('/finances/check-payment', 'PaymentController@checkPayment')->name('p
 Route::middleware(['role:admin'])->group(function () {
     Route::post('/documents/{document}/change-status', 'DocumentController@changeStatus')->name('documents.change.status');
     Route::post('/users/{user}/change-balance', 'UserController@changeBalance')->name('change.balance');
+    Route::post('/profile/fast-confirm-phone/{user}', 'ProfileController@fastConfirmPhone')->name('profile.fast.confirm.phone');
+    Route::post('/profile/fast-confirm-email/{user}', 'ProfileController@fastConfirmEmail')->name('profile.fast.confirm.email');
 });
 
 // Only manager or admin
