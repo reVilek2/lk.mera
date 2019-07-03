@@ -106,30 +106,32 @@ class ProfileController extends Controller
                     ], 200);
                 }
             }
-            if ($request->has('first_name')) {
-                $user->first_name = $request->first_name;
-            }
-            if ($request->has('second_name')) {
-                $user->second_name = $request->second_name;
-            }
-            if ($request->has('last_name')) {
-                $user->last_name = $request->last_name;
+
+            if (!$newEmail && !$newPhone) {
+                return response()->json([
+                    'status'=>'exception',
+                    'message' => 'В системе обязательно должен быть email или телефон, иначе аккаунтом нельзя будет пользоваться.'
+                ], 200);
             }
 
-            if ($newEmail && $user->email !== $newEmail) {
+            $user->first_name = $request->has('first_name') ? $request->first_name : null;
+            $user->second_name = $request->has('second_name') ? $request->second_name : null;
+            $user->last_name = $request->has('last_name') ? $request->last_name : null;
+
+            if ($user->email !== $newEmail) {
                 $user->email = $newEmail;
                 $user->email_verified_at = null;
                 $user->email_confirmation_code = null;
                 $user->email_confirmation_code_created_at = null;
-                $email_changed = true;
+                $email_changed = $newEmail ? true : false;
             }
 
-            if ($newPhone && $user->phone !== $newPhone) {
+            if ($user->phone !== $newPhone) {
                 $user->phone = $newPhone;
                 $user->phone_verified_at = null;
                 $user->phone_confirmation_code = null;
                 $user->phone_confirmation_code_created_at = null;
-                $phone_changed = true;
+                $phone_changed = $newPhone ? true : false;
             }
 
             $user->save();

@@ -562,6 +562,12 @@ class User extends Authenticatable implements HasMedia
         if (!$name ) {
             $name = $this->phone_verified_at ? $this->phone : null;
         }
+        if (!$name ) {
+            $name = $this->email ?? null;
+        }
+        if (!$name ) {
+            $name = $this->phone ?? null;
+        }
 
         return $name ?? 'Пользователь';
     }

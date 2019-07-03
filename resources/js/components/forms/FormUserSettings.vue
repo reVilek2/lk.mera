@@ -293,6 +293,16 @@
                                 this.emailValidate.show = true;
                             }
                         }
+                        if (response.data.status === 'exception') {
+                            new Noty({
+                                type: 'error',
+                                text: response.data.message,
+                                layout: 'topRight',
+                                timeout: 5000,
+                                progressBar: true,
+                                theme: 'metroui',
+                            }).show();
+                        }
                         this.resetForm();
                         this.isUploadingForm = false;
                     }).catch(errors => {
