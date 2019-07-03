@@ -1,3 +1,18 @@
 .hidden {
   display: none;
 }
+.preloader {
+  display: inline-block;
+  background: transparent url("../images/preloader.gif") no-repeat center center / contain;
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+  &-sm {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+#resend-link .preloader{
+  margin-top: 15px;
+}

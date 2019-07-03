@@ -91,6 +91,23 @@
                 </div>
             </div>
         </div>
+        <modal :name="modalAlert"
+               classes="v-modal v-modal-alert"
+               :min-width="200"
+               :min-height="200"
+               :width="'90%'"
+               :height="'auto'"
+               :max-width="400"
+               :adaptive="true"
+               :scrollable="true">
+            <div class="alert alert-dismissible" :class="modalAlertClass">
+                <button type="button" class="close" @click="hideModalAlert">×</button>
+                <h4><i class="icon fa fa-ban"></i> Ошибка!</h4>
+                <p>
+                    {{modalAlertText}}
+                </p>
+            </div>
+        </modal>
     </div>
 </template>
 <script>
@@ -98,7 +115,7 @@
     import InputText from '../forms/InputText';
     import InputUserPhone from '../forms/InputUserPhone';
     import InputUserEmail from '../forms/InputUserEmail';
-    import {isEmptyObject} from "../../libs/utils";
+    import {isEmptyObject, emailTest} from "../../libs/utils";
 
     export default {
         components: {
@@ -154,6 +171,10 @@
                 isAllowedFastConfirmEmail: this.checkAllowedFastConfirmEmail(),
                 email_changed: false,
                 phone_changed: false,
+
+                modalAlert: 'modal-alert-user-setting'+this.user.id,
+                modalAlertText: 'Технические неполадки.',
+                modalAlertClass: 'alert-danger',
             }
         },
         watch: {
@@ -167,21 +188,42 @@
             },
         },
         computed: {
+            removed_all_credentials: function () {
+                return !this.emailValue && !this.phoneValue
+            },
             // смешиваем результат mapGetters с внешним объектом computed
             ...mapGetters({
                 currUser: 'getCurrentUser'
             })
         },
         methods: {
+            showModalAlertError (message) {
+                if (message) {
+                    this.modalAlertText = message;
+                }
+                this.modalAlertClass = 'alert-danger';
+                this.showModalAlert();
+            },
+            showModalAlert () {
+                this.$modal.show(this.modalAlert);
+            },
+            hideModalAlert () {
+                this.$modal.hide(this.modalAlert);
+            },
+
             beforeOnSubmit() {
-                this.formValid = this.validate();
-                if (this.formValid) {
-                    this.onSubmit();
+                if (this.removed_all_credentials) {
+                    this.showModalAlertError('В системе обязательно должен быть email или телефон, иначе аккаунтом нельзя будет пользоваться.');
+                } else {
+                    this.formValid = this.validate();
+                    if (this.formValid) {
+                        this.onSubmit();
+                    }
                 }
             },
 
             onSubmit() {
-                if (this.formValid && !this.isUploadingForm) {
+                if (this.formValid && !this.isUploadingForm && !this.removed_all_credentials) {
 
                     this.isUploadingForm = true;
                     const formData = new FormData();
@@ -355,12 +397,11 @@
             validateEmail() {
                 let valid = true;
                 this.setDefaultValidateEmail();
-
-                if (!this.emailValue ||
-                    this.emailValue.length === 0) {
+                if (this.emailValue &&
+                    !emailTest(this.emailValue)) {
                     valid = false;
                     this.emailValidate.valid = false;
-                    this.emailValidate.message = 'Введите ваш email';
+                    this.emailValidate.message = 'Неправильный формат email';
                     this.emailValidate.show = true;
                 }
 

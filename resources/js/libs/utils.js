@@ -90,7 +90,13 @@ function isEmptyObject(obj) {
     return true;
 }
 
+function emailTest(email) {
+    const emailRegExp = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+    return email ? emailRegExp.test(email) : false;
+}
+
 export {
+    emailTest,
     isEmptyObject,
     amountToExternal,
     amountToReadable,

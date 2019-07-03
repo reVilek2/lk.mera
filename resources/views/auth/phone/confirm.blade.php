@@ -2,17 +2,28 @@
 
 @section('content')
     <div class="shadow-box">
-        <div class="shadow-box__title">Подтверждение телефона</div>
+        <div class="shadow-box__title">{{$information ? 'Телефон не подтвержден' : 'Подтверждение телефона'}}</div>
         <div class="shadow-box__content">
-            <div class="success-block">
-                <div class="success-block__item">
-                    Sms с кодом активации отправлен на телефон: <span class="success-block__email">{{ $phone }}</span>
-                    <br>
+            @if ($information)
+                <div class="error-block">
+                    <div class="error-block__item">
+                        Ожидается подтверждение что вы являетесь владельцем телефона: {{ $phone }}
+                    </div>
+                    <div class="error-block__footer">
+                        Если по какой-то причине вы не получили Sms активации, нажмите "Отправить код повторно".
+                    </div>
                 </div>
-                <div class="success-block__footer">
-                    Если по какой-то причине вы не получили Sms активации, <a href="#">свяжитесь с нами</a>, и мы сделаем все возможное что бы помочь вам.
+            @else
+                <div class="success-block">
+                    <div class="success-block__item">
+                        Sms с кодом активации отправлен на телефон: <span class="success-block__email">{{ $phone }}</span>
+                        <br>
+                    </div>
+                    <div class="success-block__footer">
+                        Если по какой-то причине вы не получили Sms активации, нажмите "Отправить код повторно".
+                    </div>
                 </div>
-            </div>
+            @endif
             @if ($errors->has('phone_confirm_form'))
                 <div class="error-block">
                     <div class="error-block__item">

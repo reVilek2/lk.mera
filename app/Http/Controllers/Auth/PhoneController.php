@@ -49,6 +49,7 @@ class PhoneController extends Controller
 
         return view('auth.phone.confirm')->with([
             'phone' => $phone,
+            'information' => false,
             'resend_phone_code_time' => $resend_phone_code_time
         ]);
     }
@@ -188,7 +189,12 @@ class PhoneController extends Controller
             if ($user->hasVerifiedPhone()) {
                 return view('auth.phone.confirmed')->with(['phone' => $phone]);
             }else{
-                return view('auth.phone.notConfirmed')->with(['phone' => $phone]);
+                $resend_phone_code_time = $this->userManager->getResendPhoneCodeTime($user);
+                return view('auth.phone.confirm')->with([
+                    'phone' => $phone,
+                    'information' => true,
+                    'resend_phone_code_time' => $resend_phone_code_time
+                ]);
             }
         } catch (\Exception $ex) {
             $message = 'На сервере произошла ошибка. Пожалуйста, обратитесь к администратору системы.';

@@ -11,7 +11,15 @@
             <div class="error-block__footer">
                 Перейдите по ссылке из email для активации аккаунта. <br><br>
                 Если этого письма нет во «Входящих», пожалуйста, проверьте «Спам». <br><br>
-                Если по какой-то причине вы не получили письмо активации, <a href="#">свяжитесь с нами</a>, и мы сделаем все возможное что бы помочь вам.
+                При наличии нескольких писем, используйте то которое пришло последним.
+            </div>
+            <div id="resend-link">
+                <a href="{{route('email.code.resend', $email)}}" class="form-resend-link js-resend-email-code">
+                    Отправить код повторно.
+                </a>
+                <div class="preloader preloader-sm js-preloader" style="display: none"></div>
+                <div class="invalid-feedback"></div>
+                <div class="valid-feedback"></div>
             </div>
         </div>
     </div>

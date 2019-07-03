@@ -27,16 +27,52 @@ if (token) {
 $(function () {
     $('.js-resend-phone-code').on('click', function (e) {
         e.preventDefault();
-        let _href = $(this).attr('href');
-        if(!$(this).hasClass('in-progress')) {
-            $(this).addClass('in-progress');
+        let _this = $(this);
+        let _href = _this.attr('href');
+        if(!_this.hasClass('in-progress')) {
+            _this.addClass('in-progress');
             axios.post(_href).then(response => {
+                _this.removeClass('in-progress');
                 location.reload();
             }).catch(errors => {
-                $(this).removeClass('in-progress');
+                _this.removeClass('in-progress');
                 console.log(errors);
             });
         }
-    })
+    });
+    $('.js-resend-email-code').on('click', function (e) {
+        e.preventDefault();
+        let _this = $(this);
+        let container = _this.parent('#resend-link');
+        let invalid_feedback = container.find('.invalid-feedback');
+        let valid_feedback = container.find('.valid-feedback');
+        let preloader = container.find('.js-preloader');
+
+        if(!_this.hasClass('in-progress')) {
+
+            invalid_feedback.removeClass('d-block').html('');
+            valid_feedback.removeClass('d-block').html('');
+            _this.hide();
+            _this.addClass('in-progress');
+            preloader.show();
+
+            axios.post(_this.attr('href')).then(response => {
+                _this.show();
+                _this.removeClass('in-progress');
+                preloader.hide();
+                if (response.data.status === 'success') {
+                    valid_feedback.addClass('d-block').html('Письмо отправлено.');
+                }
+                if (response.data.status === 'exception') {
+                    invalid_feedback.addClass('d-block').html(response.data.message);
+                }
+            }).catch(errors => {
+                _this.show();
+                _this.removeClass('in-progress');
+                preloader.hide();
+                console.log(errors);
+            });
+        }
+    });
 });
 

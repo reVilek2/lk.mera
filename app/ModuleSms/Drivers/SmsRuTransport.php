@@ -9,6 +9,7 @@ class SmsRuTransport implements SmsTransportInterface
     private $api_id;
     private $protocol = 'https';
     private $domain = 'sms.ru';
+    private $sender = 'MeraCapital';
     private $count_repeat = 5; //количество попыток достучаться до сервера если он не доступен
     private $test; //1 - Имитирует отправку сообщения для тестирования ваших программ на правильность обработки ответов сервера. (по умолчанию 0)
 
@@ -39,6 +40,7 @@ class SmsRuTransport implements SmsTransportInterface
         $post = new stdClass();
         $post->to = $phone;
         $post->msg = $message;
+        $post->from = $this->sender;
 
         $url = $this->protocol . '://' . $this->domain . '/sms/send';
         $post->test = $this->test;
