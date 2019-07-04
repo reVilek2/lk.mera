@@ -33,7 +33,6 @@ Vue.directive('scroll', {
     },
 });
 
-import ChatsList from './components/chat/ChatsList';
 import NotificationMessages from './components/notification/NotificationMessages';
 import NotificationServiceMessages from './components/notification/NotificationServiceMessages';
 import UsersTable from './components/users/UsersTable';
@@ -46,6 +45,7 @@ import UserAccountMenu from './components/users/UserAccountMenu';
 import UserSidebarPanel from './components/users/UserSidebarPanel';
 import PaymentService from './components/payments/PaymentService';
 import FinanceService from './components/finances/FinanceService';
+import Chat from './components/chat/Chat';
 
 Vue.config.devtools = process.env.NODE_ENV === 'development';
 
@@ -57,7 +57,7 @@ let app = new Vue({
         UserBalanceMenu,
         UserAccountMenu,
         UserSidebarPanel,
-        ChatsList,
+        Chat,
         NotificationMessages,
         NotificationServiceMessages,
         UsersTable,

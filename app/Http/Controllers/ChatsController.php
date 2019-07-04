@@ -78,32 +78,43 @@ class ChatsController extends Controller
         $rules = [
             'message-data'=>'required'
         ];
+        try {
+            $validation = Validator::make(['message-data' => $request->{'message-data'}], $rules);
+            if (!$validation->fails()) {
 
-        $validation = Validator::make(['message-data' => $request->{'message-data'}], $rules);
-        if (!$validation->fails()) {
-            $body = $request->input('message-data');
-            $sender = Auth::user();
-            $message = $this->chatManager->makeMessage($body, $chat, $sender);
+                $body = $request->input('message-data');
+                $sender = Auth::user();
+                $message = $this->chatManager->makeMessage($body, $chat, $sender);
 
-            foreach ($chat->users()->get() as $receiver) {
-                if ((int) $receiver->id !== (int) $sender->id) {
-                    // событие для чата
-                    broadcast(new MessageSent($chat, $message, $sender, $receiver));
-                    // уведомляем участников чата
-                    /** @var User $receiver */
-                    $receiver->notify(new MessageSentNotification($chat, $message, $sender, $receiver));
+                foreach ($chat->users()->get() as $receiver) {
+                    if ((int)$receiver->id !== (int)$sender->id) {
+                        // событие для чата
+                        broadcast(new MessageSent($chat, $message, $sender, $receiver));
+                        // уведомляем участников чата
+                        /** @var User $receiver */
+                        $receiver->notify(new MessageSentNotification($chat, $message, $sender, $receiver));
+                    }
                 }
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $message
+                ], 200);
+
+            } else {
+                return response()->json([
+                    'status' => 'exception',
+                    'message' => 'Сообщение не проходит валидацию'
+                ], 200);
             }
-
+        } catch (\Exception $ex) {
+            $message = 'На сервере произошла ошибка. Пожалуйста, обратитесь к администратору системы.';
+            if (config('app.debug')) {
+                $message = $ex->getMessage();
+            }
             return response()->json([
-                'status'=>'success',
+                'status'=>'exception',
                 'message' => $message
-            ], 200);
-
-        } else {
-            return response()->json([
-                'status'=>'error',
-                'message' => []
             ], 200);
         }
     }

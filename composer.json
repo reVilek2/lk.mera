@@ -13,6 +13,7 @@
         "davejamesmiller/laravel-breadcrumbs": "5.x",
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "^4.0",
+        "jenssegers/agent": "^2.6",
         "jenssegers/date": "^3.5",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
@@ -51,7 +52,8 @@
         ],
         "files": [
             "app/Helpers/CustomHelpers.php",
-            "app/Helpers/DateHelpers.php"
+            "app/Helpers/DateHelpers.php",
+            "app/Helpers/MobileDetectHelpers.php"
         ]
     },
     "autoload-dev": {
