@@ -329,6 +329,11 @@ class User extends Authenticatable implements HasMedia
         return $this->clients()->get();
     }
 
+    public function getPaymentCardDefault()
+    {
+        return $this->paymentCards()->whereCardDefault(true)->first();
+    }
+
     /**
      * @param $email
      * @return bool

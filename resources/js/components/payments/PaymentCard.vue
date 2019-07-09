@@ -9,7 +9,14 @@
         </div>
         <div class="payment-cards__item">
             <div class="payment-cards__item-title">Карта: {{card.pan}}</div>
-            <div class="payment-cards__item-text">{{totalPayable}}</div>
+            <div class="payment-cards__item-text">
+                {{totalPayable}}
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="card_default" :value="card.id" v-model="card_selected" @change="changeDefaultCard($event)" > Использовать по умолчанию
+                    </label>
+                </div>
+            </div>
         </div>
         <div class="payment-cards__action">
             <button v-if="!disable_btn" type="button" class="btn btn-success" @click="submit">Оплатить в один клик</button>
@@ -51,10 +58,14 @@
     </div>
 </template>
 <script>
-    import {amountToRaw} from "../../libs/utils";
+    import {amountToRaw, isEmptyObject} from "../../libs/utils";
     export default {
         props: {
             card: {
+                type: Object,
+                default: () => {}
+            },
+            cardDefault: {
                 type: Object,
                 default: () => {}
             },
@@ -71,6 +82,7 @@
                 payment_check_url: '/finances/check-payment',
                 amount: this.totalPayable,
                 isUploadingForm:false,
+                card_selected: this.checkCardSelected(this.cardDefault),
             }
         },
         computed: {
@@ -84,9 +96,19 @@
         watch: {
             totalPayable(val) {
                 this.amount = val;
-            }
+            },
+            cardDefault(cardDefault) {
+                this.card_selected = this.checkCardSelected(cardDefault);
+            },
         },
         methods: {
+            checkCardSelected(cardDefault){
+                return !isEmptyObject(cardDefault) && cardDefault.id === this.card.id ? cardDefault.id : null;
+            },
+            changeDefaultCard(event) {
+                event.preventDefault();
+                this.$emit('newCardDefaultSelected', event.target.value);
+            },
             showModalAlertError (message) {
                 if (message) {
                     this.modalAlertText = message;

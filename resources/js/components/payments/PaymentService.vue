@@ -19,7 +19,9 @@
                         <payment-card v-for="card in cards"
                                       :key="card.id"
                                       :card="card"
-                                      :total-payable="user_total_for_pay"></payment-card>
+                                      :cardDefault="cardDefault"
+                                      :total-payable="user_total_for_pay"
+                                      @newCardDefaultSelected="newCardDefaultSelected"></payment-card>
                     </div>
                 </div>
                 <div class="payment-boxes-wrapper">
@@ -59,7 +61,8 @@
                 user_total_payable: '0 руб.',
                 user_balance: '0 руб.',
                 user_total_for_pay: '0 руб.',
-                user_total_payable2: 0,
+                cardDefault: this.getCardDefault(this.paymentCards),
+                setCardDefaultUrl: '/finances/payment/set-card-default',
                 money: {
                     decimal: '.',
                     thousands: ' ',
@@ -86,6 +89,47 @@
             }
         },
         methods: {
+            newCardDefaultSelected(id) {
+                this.setNewCardDefault(id);
+            },
+            setNewCardDefault(id) {
+                axios.post(this.setCardDefaultUrl, { card_id: id }).then(response => {
+                    if (response.data.status === 'success') {
+                        this.cards = response.data.paymentCards;
+                        this.cardDefault = this.getCardDefault(this.cards)
+                    }
+                    if (response.data.status === 'exception') {
+                        new Noty({
+                            type: 'error',
+                            text: response.data.message,
+                            layout: 'topRight',
+                            timeout: 5000,
+                            progressBar: true,
+                            theme: 'metroui',
+                        }).show();
+                    }
+                }).catch(errors => {
+                    console.log(errors);
+                    new Noty({
+                        type: 'error',
+                        text: 'Произошла ошибка.',
+                        layout: 'topRight',
+                        timeout: 5000,
+                        progressBar: true,
+                        theme: 'metroui',
+                    }).show();
+                });
+            },
+            getCardDefault(cards) {
+                let cardDefault = null;
+                cards.forEach(el => {
+                    if (el.card_default === 1) {
+                        cardDefault = el;
+                    }
+                });
+
+                return cardDefault;
+            },
             itemCardChangeActive(active) {
                 if (active) {
                     this.closedAllItem();

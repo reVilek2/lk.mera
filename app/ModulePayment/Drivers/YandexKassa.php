@@ -71,7 +71,6 @@ class YandexKassa implements PaymentTransportInterface
             $response = $this->getClient()->createPayment($this->prepareParams($params), $idempotencyKey);
         }
         catch (\Exception $exception) {
-
             throw YandexPaymentException::parse($exception);
         }
         return $response;

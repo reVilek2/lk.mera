@@ -18,6 +18,7 @@ Route::get('/finances/payment', 'PaymentController@index')->name('payment');
 Route::post('/finances/payment', 'PaymentController@create')->name('payment.create');
 Route::post('/finances/payment/pay-fast', 'PaymentController@payFast')->name('payment.payFast');
 Route::get('/finances/check-payment', 'PaymentController@checkPayment')->name('payment.check');
+Route::post('/finances/payment/set-card-default', 'PaymentController@setCardDefault')->name('finances.setCardDefault');
 
 // Only admin
 Route::middleware(['role:admin'])->group(function () {

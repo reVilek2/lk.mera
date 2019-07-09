@@ -219,4 +219,43 @@ class PaymentController extends Controller
             ], 200);
         }
     }
+
+    public function setCardDefault(Request $request)
+    {
+        Page::setTitle('Установка карты по умолчанию | MeraCapital');
+        Page::setDescription('Установка карты по умолчанию');
+
+        $currUser = Auth::user();
+        if (!$currUser) {
+            abort(403);
+        }
+
+        $card_id = $request->input('card_id');
+        $paymentCard = PaymentCard::whereId($card_id)->where('user_id', $currUser->id)->first();
+        $allUserCards = $currUser->paymentCards()->get();
+
+        if (!$paymentCard) {
+            return response()->json([
+                'status'=>'exception',
+                'message' => 'Карта не найдена.'
+            ], 200);
+        }
+        try {
+            foreach ($allUserCards as $userCard) {
+                $userCard->card_default = $userCard->id === $paymentCard->id;
+                $userCard->save();
+            }
+
+            return response()->json([
+                'status'=>'success',
+                'paymentCards' => $currUser->paymentCards()->get(),
+            ], 200);
+        }
+        catch (\Exception $e) {
+            return response()->json([
+                'status'=>'exception',
+                'message' => $e->getMessage()
+            ], 200);
+        }
+    }
 }

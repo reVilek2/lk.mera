@@ -11,6 +11,7 @@ use App\ModulePayment\Interfaces\PaymentTransportInterface;
 use App\ModulePayment\Models\YandexPayment;
 use App\ModulePayment\PaymentProvider;
 use App\Notifications\ServiceTextNotification;
+use App\Services\PhoneNormalizer;
 use BillingService;
 use DB;
 use Illuminate\Support\Arr;
@@ -124,6 +125,14 @@ class YandexDriver implements PaymentServiceInterface
         }
         $amount = number_format($amount, 2, '.', '');
         $paymentType = $this->getPaymentMethod($paymentType);
+
+
+        $user = \Auth::user();
+        $contact = null;
+        $email = $user->email ?? null;
+        $phone = $user->phone ? (new PhoneNormalizer())->normalize($user->phone) : null;
+        $contact = $email ?? $phone;
+
         $save_payment_method = $metadata['save_card'] ?? false;
         $idempotencyKey = $metadata['idempotency_key'] ?? null;
         $params = [
@@ -143,6 +152,20 @@ class YandexDriver implements PaymentServiceInterface
             'description'         => $description,
             'capture'             => true, //двух этапное списание (false - это включено)
         ];
+
+        if ($contact) {
+            $items[] = new YandexReceiptItem(
+                'Пополнение баланса',
+                1,
+                $amount,
+                YandexReceiptItem::TAX_NO_VAT,
+                $currency,
+                YandexReceiptItem::PAYMENT_SUBJECT_PAYMENT,
+                YandexReceiptItem::PAYMENT_MODE_FULL_PAYMENT
+            );
+            $receipt = new YandexReceipt($contact, $items);
+            $params['receipt'] = $receipt->toArray();
+        }
 
         $params = array_merge($params, $extraParams);
         return $this->getTransport()->createPayment($params, $idempotencyKey);
@@ -319,7 +342,9 @@ class YandexDriver implements PaymentServiceInterface
                             $pan = $this->getPan();
                             $cardType = $this->getParam('payment_method.cardType', null);
                             if ($this->getParam('payment_method.saved', false)) {// если нужно сохранить карту
-                                (new \App\ModulePayment\Models\PaymentCard)->saveCard($payment->getUser(), [
+                                $user = $payment->getUser();
+                                $card_default = $user->getPaymentCardDefault() ? false : true;
+                                (new \App\ModulePayment\Models\PaymentCard)->saveCard($user, [
                                     'card_id' => $this->getPaymentMethodId(),
                                     'year' => $this->getParam('payment_method.expiryYear', null),
                                     'month' => $this->getParam('payment_method.expiryMonth', null),
@@ -327,7 +352,7 @@ class YandexDriver implements PaymentServiceInterface
                                     'first' => $this->getParam('payment_method.first6', null),
                                     'last' => $this->getParam('payment_method.last4', null),
                                     'pan' => $pan,
-                                    'card_default' => false,
+                                    'card_default' => $card_default,
                                 ]);
                             }
 
