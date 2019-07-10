@@ -9,7 +9,9 @@
                     <div class="payment-balance-info__text">На оплату: {{user_total_payable}}</div>
                 </div>
                 <div class="payment-amount-total">
-                    <div class="payment-amount-total__text">Итого к оплате:</div> <input type="text" class="form-control payment-amount-total__input" v-model.lazy="user_total_for_pay" v-money="money">
+                    <div v-if="!this.document" class="payment-amount-total__text">Итого к оплате:</div>
+                    <div v-else class="payment-amount-total__text">К оплате по документу:</div>
+                    <input type="text" class="form-control payment-amount-total__input" v-model.lazy="user_total_for_pay" v-money="money">
                 </div>
                 <div v-if="cards.length" class="payment-card-wrapper">
                     <h2 class="page-header">
@@ -21,6 +23,7 @@
                                       :card="card"
                                       :cardDefault="cardDefault"
                                       :total-payable="user_total_for_pay"
+                                      :document="document"
                                       @newCardDefaultSelected="newCardDefaultSelected"></payment-card>
                     </div>
                 </div>
@@ -32,6 +35,7 @@
                         <payment-box-card :active="itemCardActive"
                                           :total-payable="user_total_for_pay"
                                           :money-param="money"
+                                          :document="document"
                                           @itemCardChangeActive="itemCardChangeActive"></payment-box-card>
                     </div>
                 </div>
@@ -51,6 +55,10 @@
             paymentCards: {
                 type: Array,
                 default: () => []
+            },
+            document: {
+                type: Object,
+                default: () => null
             },
         },
         components: { paymentCard: PaymentCard, paymentBoxCard: PaymentBoxCard },
@@ -84,7 +92,7 @@
                 if (!isEmptyObject(user)) {
                     this.user_balance = user.balance_humanize;
                     this.user_total_payable = user.total_payable_humanize;
-                    this.user_total_for_pay = this.countTotalForPay(user.balance, user.total_payable);
+                    this.user_total_for_pay = !this.document ? this.countTotalForPay(user.balance, user.total_payable) : this.countTotalForPay(user.balance, this.document.amount);
                 }
             }
         },
@@ -144,9 +152,9 @@
                 let external_total_payable = amountToExternal(total_payable);
                 let external_balance = amountToExternal(balance);
                 if (external_total_payable > external_balance) {
-                    let amount_external = amountToReadable(external_total_payable - external_balance);
-                    this.moneyParams(amount_external);
-                    return amountToHumanize(amount_external);
+                    let amount_readable = amountToReadable(external_total_payable - external_balance);
+                    this.moneyParams(amount_readable);
+                    return amountToHumanize(amount_readable);
                 }
                 this.moneyParams(0);
                 return 0

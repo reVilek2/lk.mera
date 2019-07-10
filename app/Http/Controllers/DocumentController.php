@@ -240,14 +240,14 @@ class DocumentController extends Controller
 
         try {
             if ($is_client) {
-                if (!BillingService::checkAmountOnBalance($document->client, (int) $document->amount)) {
+                if ($missingAmount = BillingService::calculateMissingAmount($document->client, (int) $document->amount)) {
 
                     return response()->json([
-                        'status'=>'error',
-                        'errors' => ['credit-fail']
+                        'status'=>'missingAmount',
+                        'missingAmount' => $missingAmount
                     ], 200);
                 }
-                // меняем статус документу
+
                 BillingService::payDocumentFromUserBalance($document, $signed);
             }
             else {

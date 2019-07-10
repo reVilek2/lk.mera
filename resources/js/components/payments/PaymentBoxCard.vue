@@ -84,6 +84,10 @@
             totalPayable: {
                 type: String|Number,
             },
+            document: {
+                type: Object,
+                default: () => null
+            },
         },
         data() {
             return {
@@ -141,7 +145,14 @@
             submit() {
                 if (this.raw_amount > 0 && !this.isUploadingForm) {
                     this.isUploadingForm = true;
-                    axios.post(this.payment_url, {payment_type:this.payment_type, save_card:this.save_card, amount: this.raw_amount}).then(response => {
+                    const formData = {};
+                    formData.payment_type = this.payment_type;
+                    formData.save_card = this.save_card;
+                    formData.amount = this.raw_amount;
+                    if (this.document) {
+                        formData.document = this.document.id;
+                    }
+                    axios.post(this.payment_url, formData).then(response => {
                         this.isUploadingForm = false;
                         if (response.data.status === 'success') {
                             this.redirectToPaid(response.data.pay_link);

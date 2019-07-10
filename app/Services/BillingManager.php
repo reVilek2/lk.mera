@@ -25,9 +25,10 @@ class BillingManager
      * @param int $amount
      * @param string $type
      * @param string $comment
+     * @param array $metaData
      * @return mixed
      */
-    public function makeTransaction(User $user, int $amount, string $type, string $comment = null)
+    public function makeTransaction(User $user, int $amount, string $type, string $comment = null, array $metaData = [])
     {
         $transactionType = $this->getTransactionTypeByCode($type);
         $transactionStatus = $this->getTransactionStatusByCode(TransactionStatus::WAITING);
@@ -38,10 +39,9 @@ class BillingManager
         $sender_acc = $this->getOrCreateAccountByCode($user, $accountTypes['sender']);
 
         $user_balance = $user->balance;
-        $meta_data = [
-            'balance' => MoneyAmount::toHumanize($user_balance),
-            'balance_external' => MoneyAmount::toExternal($user_balance)
-        ];
+        $meta_data = $metaData;
+        $meta_data['balance'] = MoneyAmount::toHumanize($user_balance);
+        $meta_data['balance_external'] = MoneyAmount::toExternal($user_balance);
 
         $transaction = Transaction::create([
             'initiator_user_id' => Auth::user()->id,
@@ -233,6 +233,27 @@ class BillingManager
     }
 
     /**
+     * Получение недостающей суммы
+     *
+     * @param User $user
+     * @param int $amount
+     * @return bool
+     */
+    public function calculateMissingAmount(User $user, int $amount)
+    {
+        $user = $user->fresh();
+        $accountBalance = $user->accountBalance()->first();
+        $balance = $accountBalance ? $accountBalance->balance : 0;
+        $externalBalance = MoneyAmount::toExternal($balance);
+        $externalAmount = MoneyAmount::toExternal($amount);
+        $missingAmount = 0;
+        if ($externalBalance < $externalAmount) {
+            $missingAmount = MoneyAmount::toReadable($externalAmount - $externalBalance);
+        }
+        return $missingAmount;
+    }
+
+    /**
      * @param string $code
      * @return mixed
      */
@@ -300,7 +321,7 @@ class BillingManager
             throw DocumentException::issetDocumentTransaction();
         }
 
-        $currUser = Auth::user();
+        $currUser = Auth::user() ?? $document->client;
         $client = $document->client;
         $signed = $document->signed;
         if ($is_need_status_signed) {

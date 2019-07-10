@@ -157,13 +157,15 @@ class PaymentService implements PaymentServiceInterface
     public function makePaymentTransaction($amount,
                                            $paymentType = self::PAYMENT_TYPE_CARD,
                                            $description = '',
-                                           $idempotencyKey)
+                                           $idempotencyKey,
+                                           $metadata = [])
     {
         return $this->getCurrentDriver()->makePaymentTransaction(
             $amount,
             $paymentType,
             $description,
-            $idempotencyKey);
+            $idempotencyKey,
+            $metadata);
     }
 
     public function updatePaymentTransaction($payment, $paymentData)

@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
+use App\Models\Transaction;
+use App\Models\TransactionStatus;
 use App\ModulePayment\Interfaces\ModelPaymentInterface;
 use App\ModulePayment\Interfaces\PaymentServiceInterface;
 use App\ModulePayment\Models\PaymentCard;
 use App\Services\Page;
 use Auth;
+use BillingService;
 use Illuminate\Http\Request;
 use PayService;
 use Validator;
@@ -19,8 +23,15 @@ class PaymentController extends Controller
         Page::setDescription('Пополнение баланса');
         $user = Auth::user();
         $payment_cards = $user->paymentCards()->get();
+        $document = null;
+        if ($request->has('document')) {
+            $document = Document::whereId((int) $request->input('document'))->whereClientId($user->id)->first();
+        }
 
-        return view('payments.index', ['payment_cards' => $payment_cards]);
+        return view('payments.index', [
+            'payment_cards' => $payment_cards,
+            'document' => $document,
+        ]);
     }
 
     /**
@@ -34,9 +45,14 @@ class PaymentController extends Controller
         Page::setTitle('Оплата услуг | MeraCapital');
         Page::setDescription('Пополнение баланса');
 
+        $user = Auth::user();
         $amount = $request->input('amount');
         $paymentType = $request->input('payment_type');
         $saveCard = $request->input('save_card');
+        $document = null;
+        if ($request->has('document')) {
+            $document = Document::whereId((int) $request->input('document'))->whereClientId($user->id)->first();
+        }
 
         $validation = Validator::make([
             'save_card'=> $saveCard,
@@ -61,23 +77,28 @@ class PaymentController extends Controller
             try {
                 $idempotency_key = PayService::uniqid();
                 $description = 'Пополнение баланса через "Yandex Kassa"';
+                $metadata = [];
+                if ($document) {
+                    $metadata['document'] = $document->id;
+                }
                 /** @var ModelPaymentInterface $payment */
                 $payment = PayService::makePaymentTransaction( // создаем транзакции
                     $amount,
                     $paymentType,
                     $description,
-                    $idempotency_key
+                    $idempotency_key,
+                    $metadata
                 );
+
+                $metadata['idempotency_key'] = $idempotency_key;
+                $metadata['save_card'] = $saveCard;
 
                 $paymentData = PayService::regularPayment(
                     $amount,
                     $paymentType,
                     $description,
                     $successReturnUrl = route('payment.check').'?pay_key='.$idempotency_key,
-                    $metadata = [
-                        'idempotency_key'=> $idempotency_key,
-                        'save_card' => $saveCard
-                    ],
+                    $metadata,
                     $extraParams = []
                 );
 
@@ -121,6 +142,26 @@ class PaymentController extends Controller
             $payment = PayService::getPaymentByUniqueKey($pay_key);
             if ($payment && $payment->status === ModelPaymentInterface::STATUS_PENDING) {
                 $payment = PayService::checkPayment($payment);
+            }
+            if ($payment && $payment->status === ModelPaymentInterface::STATUS_SUCCEEDED) {
+                /** @var Transaction $transaction */
+                $transaction = $payment->getTransaction();
+                if ($transaction && $transaction->getStatusCode() === TransactionStatus::SUCCESS) {
+                    /** @var array $metaData */
+                    $metaData = $transaction->meta_data;
+                    if (array_key_exists('document', $metaData)) {
+                        $document = Document::whereId((int) $metaData['document'])->first();
+                        if ($document && !$document->getTransaction()) { // если еще нет транзакции
+                            if (BillingService::checkAmountOnBalance($document->client, (int) $document->amount)) {
+                                try {
+                                    BillingService::payDocumentFromUserBalance($document, $signed = true);
+                                } catch (\Exception $e) {
+                                    info('checkPayment: '.$e->getMessage());
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if ($request->ajax()){

@@ -76,10 +76,10 @@ class PaymentCard extends Model
         'pan' => null,
         'first' => null,
         'last' => null,
-        'card_default' => false,
     ])
     {
         $card = $this;
+        $cardDefault = $user->getPaymentCardDefault();
 
         if ($metaData['card_id'] && !empty($metaData['card_id'])) {
             if ($issetCardById = PaymentCard::whereCardId($metaData['card_id'])->first()) { // если существует карта с такимиже уникальным ключом то обновляем ее
@@ -98,8 +98,13 @@ class PaymentCard extends Model
             $card->pan = $metaData['pan'];
             $card->first = $metaData['first'];
             $card->last = $metaData['last'];
-            $card->card_default = $metaData['card_default'];
             $card->user_id = $user->id;
+
+            if (!$cardDefault) {
+                $card->card_default = true;
+            } else {
+                $card->card_default = $cardDefault->id === $card->id;
+            }
 
             $card->save();
         }

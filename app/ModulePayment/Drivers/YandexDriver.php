@@ -204,13 +204,15 @@ class YandexDriver implements PaymentServiceInterface
      * @param string $paymentType
      * @param string $description
      * @param $idempotencyKey
+     * @param array $metadata
      * @return mixed
      * @throws \Exception
      */
     public function makePaymentTransaction($amount,
                                            $paymentType = self::PAYMENT_TYPE_CARD,
                                            $description = '',
-                                           $idempotencyKey)
+                                           $idempotencyKey,
+                                           $metadata = [])
     {
         // Старт транзакции!
         DB::beginTransaction();
@@ -225,7 +227,8 @@ class YandexDriver implements PaymentServiceInterface
                 \Auth::user(),
                 (int) $amount,
                 TransactionType::YANDEX_IN,
-                $comment
+                $comment,
+                $metadata
             );
 
             $yandexPayment = YandexPayment::create([
@@ -342,8 +345,8 @@ class YandexDriver implements PaymentServiceInterface
                             $pan = $this->getPan();
                             $cardType = $this->getParam('payment_method.cardType', null);
                             if ($this->getParam('payment_method.saved', false)) {// если нужно сохранить карту
+                                /** @var User $user */
                                 $user = $payment->getUser();
-                                $card_default = $user->getPaymentCardDefault() ? false : true;
                                 (new \App\ModulePayment\Models\PaymentCard)->saveCard($user, [
                                     'card_id' => $this->getPaymentMethodId(),
                                     'year' => $this->getParam('payment_method.expiryYear', null),
@@ -352,7 +355,6 @@ class YandexDriver implements PaymentServiceInterface
                                     'first' => $this->getParam('payment_method.first6', null),
                                     'last' => $this->getParam('payment_method.last4', null),
                                     'pan' => $pan,
-                                    'card_default' => $card_default,
                                 ]);
                             }
 

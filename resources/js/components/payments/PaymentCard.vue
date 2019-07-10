@@ -72,6 +72,10 @@
             totalPayable: {
                 type: String|Number,
             },
+            document: {
+                type: Object,
+                default: () => null
+            },
         },
         data() {
             return {

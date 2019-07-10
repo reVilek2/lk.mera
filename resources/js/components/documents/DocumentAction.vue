@@ -90,6 +90,7 @@
                 is_active_item:true,
                 action: ()=> {},
                 action_signed: true,
+                missingAmount: 0,
             }
         },
         watch: {
@@ -190,7 +191,8 @@
                                 }
                             }
                         }
-                        if (response.data.status === 'error' && response.data.errors[0] === 'credit-fail') {
+                        if (response.data.status === 'missingAmount') {
+                            this.missingAmount = response.data.missingAmount;
                             this.showModalCreditFail();
                         }
                         // выполнить функцию после ajax
@@ -203,7 +205,7 @@
             },
 
             redirectToPaid () {
-                window.location.href = this.paid_url;
+                window.location.href = this.missingAmount > 0 ? this.paid_url+'?document='+this.item.id : this.paid_url;
             },
 
             setNewChange (signed, paid) {
