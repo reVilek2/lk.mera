@@ -1,13 +1,14 @@
 <template>
     <div :id="container" class="document_action" v-show="isNeedShow">
         <div :id="container_item" class="btn-group" v-show="is_active_item">
-            <button type="button" class="btn btn-info" @click="beforeOnSubmit(btnText.action, btnText.action_signed)">{{btnText.value}}</button>
-            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            <span v-if="isUploadingForm" class="preloader preloader-sm"></span>
+            <button type="button" class="btn btn-info btn-block" :disabled="isUploadingForm" @click="beforeOnSubmit(btnText.action, btnText.action_code)">{{btnText.value}}</button>
+            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" :disabled="isUploadingForm">
                 <span class="caret"></span>
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
             <ul v-if="btnList.length > 0" :id="box" class="dropdown-menu" role="menu">
-                <li v-for="(list, index) in btnList" :key="index"><a href="#" @click="beforeOnSubmit(list.action, btnText.action_signed)">{{list.value}}</a></li>
+                <li v-for="(list, index) in btnList" :key="index"><a href="#" @click="beforeOnSubmit(list.action, list.action_code)">{{list.value}}</a></li>
             </ul>
         </div>
         <modal :name="modalConfirm"
@@ -26,7 +27,7 @@
                 <h4 class="v-modal-title">Предупреждение</h4>
             </div>
             <div class="v-modal-body">
-                Вы уверены, что хотите <span v-if="action_signed">подписать</span><span v-else>оплатить</span> документ? Отменить <span v-if="action_signed">подписание</span><span v-else>оплату</span> будет невозможно.
+                <span>{{action_message}}</span>
             </div>
             <div class="v-modal-footer">
                 <button type="button" class="btn btn-default pull-right" @click="hideModalConfirmAndReset">Нет</button>
@@ -49,11 +50,28 @@
                 <h4 class="v-modal-title">Предупреждение</h4>
             </div>
             <div class="v-modal-body">
-                Не достаточно средств для оплаты документа. Перейти на страницу оплаты?
+                Недостаточно средств на балансе и не выбрана карта для быстрой оплаты. Перейти на страницу ручной оплаты?
             </div>
             <div class="v-modal-footer">
                 <button type="button" class="btn btn-default pull-right" @click="hideModalCreditFail">Нет</button>
                 <button type="button" class="btn btn-success" @click="redirectToPaid" style="margin-right: 10px">Да</button>
+            </div>
+        </modal>
+        <modal :name="modalAlert"
+               classes="v-modal v-modal-alert"
+               :min-width="200"
+               :min-height="200"
+               :width="'90%'"
+               :height="'auto'"
+               :max-width="400"
+               :adaptive="true"
+               :scrollable="true">
+            <div class="alert alert-dismissible" :class="modalAlertClass">
+                <button type="button" class="close" @click="hideModalAlert">×</button>
+                <h4><i class="icon fa fa-ban"></i> Ошибка!</h4>
+                <p>
+                    {{modalAlertText}}
+                </p>
             </div>
         </modal>
     </div>
@@ -61,6 +79,8 @@
 
 <script>
     import { mapGetters } from 'vuex';
+    import {isEmptyObject} from '../../libs/utils';
+
     export default {
         props: {
             item: {
@@ -84,13 +104,19 @@
                 modalConfirm: 'document-action-confirm'+this.item.id,
                 modalCreditFail: 'document-action-credit-fail'+this.item.id,
                 paid_url: '/finances/payment',
+                paid_fast_url: '/finances/payment/pay-fast',
+                check_pay_fast_url: '/finances/check-payment',
                 statusSigned: this.signed,
                 statusPaid: this.paid,
                 isUploadingForm:false,
                 is_active_item:true,
                 action: ()=> {},
-                action_signed: true,
+                action_message: '',
                 missingAmount: 0,
+                paymentCardDefault: {},
+                modalAlert: 'modal-alert-document'+this.item.id,
+                modalAlertText: 'Технические неполадки.',
+                modalAlertClass: 'alert-danger',
             }
         },
         watch: {
@@ -107,51 +133,51 @@
             btnText: function () {
                 if (this.currUser.is_admin || this.currUser.is_client) {
                     if (!this.statusSigned && !this.statusPaid) {
-                        return {action: this.actionSignedAndPaid, action_signed: true ,value: 'Подписать и оплатить'};
+                        return {action: this.actionSignedAndPaid, action_code: 'signed_and_paid', value: 'Подписать и оплатить'};
                     }
                     if (!this.statusPaid) {
-                        return {action: this.actionPaid, action_signed: false ,value: 'Оплатить'};
+                        return {action: this.actionPaid, action_code: 'paid' , value: 'Оплатить'};
                     }
                     if (!this.statusSigned) {
-                        return {action: this.actionSigned, action_signed: true ,value: 'Подписать'};
+                        return {action: this.actionSigned, action_code: 'signed' ,value: 'Подписать'};
                     }
                 }
 
                 if (this.currUser.is_manager) {
-                    return {action: this.actionPaid, action_signed: false, value: 'Оплатить'};
+                    return {action: this.actionPaid, action_code: 'paid', value: 'Оплатить'};
                 }
 
-                return {action: () => {}, action_signed: true, value: ''};
+                return {action: () => {}, action_code: '', value: ''};
             },
             btnList: function () {
                 if (this.currUser.is_admin) {
                     let btnList = [];
                     if (!this.statusSigned && !this.statusPaid) {
-                        btnList.push({action: this.actionSignedAndPaid, action_signed: true ,value: 'Подписать и оплатить'});
+                        btnList.push({action: this.actionSignedAndPaid, action_code: 'signed_and_paid' ,value: 'Подписать и оплатить'});
                     }
                     if (!this.statusPaid) {
-                        btnList.push({action: this.actionPaid, action_signed: false ,value: 'Оплатить'});
+                        btnList.push({action: this.actionPaid, action_code: 'paid' ,value: 'Оплатить'});
                     }
                     if (!this.statusSigned) {
-                        btnList.push({action: this.actionSigned, action_signed: true ,value: 'Подписать'});
+                        btnList.push({action: this.actionSigned, action_code: 'signed' ,value: 'Подписать'});
                     }
                     return btnList;
                 }
                 if (this.currUser.is_client) {
                     let btnList = [];
                     if (!this.statusSigned && !this.statusPaid) {
-                        btnList.push({action: this.actionSignedAndPaid, action_signed: true ,value: 'Подписать и оплатить'});
+                        btnList.push({action: this.actionSignedAndPaid, action_code: 'signed_and_paid' ,value: 'Подписать и оплатить'});
                     }
                     if (this.statusSigned && !this.statusPaid) {
-                        btnList.push({action: this.actionPaid, action_signed: false ,value: 'Оплатить'});
+                        btnList.push({action: this.actionPaid, action_code: 'paid' ,value: 'Оплатить'});
                     }
                     if (!this.statusSigned) {
-                        btnList.push({action: this.actionSigned, action_signed: true ,value: 'Подписать'});
+                        btnList.push({action: this.actionSigned, action_code: 'signed' ,value: 'Подписать'});
                     }
                     return btnList;
                 }
                 if (this.currUser.is_manager) {
-                    return [{action: this.actionPaid, action_signed: false ,value: 'Оплатить'}];
+                    return [{action: this.actionPaid, action_code: 'paid' ,value: 'Оплатить'}];
                 }
                 return [];
             },
@@ -161,29 +187,39 @@
             })
         },
         methods: {
+            // экшены по нажатию на кнопку
             actionSignedAndPaid() {
-                if (this.currUser.is_admin || this.currUser.is_client) {
+                if (this.currUser.is_admin) {
                     let data = {signed:1, paid: 1};
                     let url = '/documents/'+this.item.id+'/set-paid';
                     this.submitForm(url, data);
+                } else if (this.currUser.is_client) {
+                    console.log('actionSignedAndPaid: client');
+                    this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1}, this.actionPaid);
                 }
             },
             actionPaid() {
-                this.resetChanges();
+                console.log('actionPaid');
                 this.submitForm('/documents/'+this.item.id+'/set-paid', {paid:1});
             },
             actionSigned() {
-                this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1});
+                if (this.currUser.is_admin || this.currUser.is_client) {
+                    console.log('actionSigned');
+                    this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1});
+                }
             },
+            // end
 
             submitForm(url, data, callback = () => {}) {
                 this.resetChanges();
                 if (!this.isUploadingForm) {
                     this.isUploadingForm = true;
                     axios.post(url, data).then(response => {
+                        console.log(response.data);
                         this.isUploadingForm = false;
+
                         if (response.data.status === 'success') {
-                            this.setNewChange(response.data.document.signed, response.data.document.paid);
+                            this.setNewChange(response.data.document.signed ? 1 : 0, response.data.document.paid ? 1 : 0);
                             // обновляем currentUser в storage
                             if (response.data.hasOwnProperty('client')) {
                                 if (parseInt(response.data.client.id) === parseInt(this.currUser.id)) {
@@ -193,15 +229,103 @@
                         }
                         if (response.data.status === 'missingAmount') {
                             this.missingAmount = response.data.missingAmount;
-                            this.showModalCreditFail();
+                            this.paymentCardDefault = response.data.paymentCardDefault ? response.data.paymentCardDefault : {};
+
+                            this.stepMissingAmount();
                         }
                         // выполнить функцию после ajax
                         callback();
+
                     }).catch(errors => {
                         console.log(errors);
                         this.isUploadingForm = false;
                     });
                 }
+            },
+
+            stepMissingAmount() {
+                if (this.missingAmount > 0) {
+                    if (!isEmptyObject(this.paymentCardDefault)) {
+                        this.payFastDocument(this.paymentCardDefault.card_id);
+                    } else {
+                        this.showModalCreditFail();
+                    }
+                }
+            },
+
+            payFastDocument(card_id) {
+                if (!this.isUploadingForm) {
+                    this.isUploadingForm = true;
+
+                    axios.post(this.paid_fast_url, {card_id: card_id, amount: this.missingAmount, document: this.item.id }).then(response => {
+                        if (response.data.status === 'success') {
+                            this.checkPayFastDocument(response.data.pay_key);
+                        }
+                        if (response.data.status === 'error') {
+                            if (response.data.errors.hasOwnProperty('amount')) {
+                                this.showModalAlertWarning(response.data.errors.amount[0]);
+                            }
+                            this.isUploadingForm = false;
+                        }
+                        if (response.data.status === 'exception') {
+                            this.showModalAlertError(response.data.message);
+                            this.isUploadingForm = false;
+                        }
+                    }).catch(errors => {
+                        console.log(errors);
+                        new Noty({
+                            type: 'error',
+                            text: 'Произошла ошибка.',
+                            layout: 'topRight',
+                            timeout: 5000,
+                            progressBar: true,
+                            theme: 'metroui',
+                        }).show();
+                        this.isUploadingForm = false;
+                    });
+                }
+            },
+
+            checkPayFastDocument(pay_key) {
+                axios.get(this.check_pay_fast_url+'?pay_key='+pay_key).then(response => {
+                    this.isUploadingForm = false;
+                    if (response.data.status === 'success') {
+                        if (response.data.document && response.data.document_transaction_status === 'success') {
+                            this.setNewChange(response.data.document.signed ? 1 : 0, response.data.document.paid ? 1 : 0);
+                            // обновляем currentUser в storage
+                            if (response.data.hasOwnProperty('client') && response.data.client) {
+                                if (parseInt(response.data.client.id) === parseInt(this.currUser.id)) {
+                                    this.$store.dispatch('setCurrentUser', response.data.client);
+                                }
+                            }
+
+                            new Noty({
+                                type: 'success',
+                                text: 'Документ оплачен.',
+                                layout: 'topRight',
+                                timeout: 5000,
+                                progressBar: true,
+                                theme: 'metroui',
+                            }).show();
+                        }
+                    }
+
+                    if (response.data.status === 'exception') {
+                        this.showModalAlertError(response.data.message);
+                        this.isUploadingForm = false;
+                    }
+                }).catch(errors => {
+                    console.log(errors);
+                    new Noty({
+                        type: 'error',
+                        text: 'Произошла ошибка.',
+                        layout: 'topRight',
+                        timeout: 5000,
+                        progressBar: true,
+                        theme: 'metroui',
+                    }).show();
+                    this.isUploadingForm = false;
+                });
             },
 
             redirectToPaid () {
@@ -231,7 +355,7 @@
             },
             resetChanges() {
                 this.action = () => {};
-                this.action_signed = true;
+                this.action_message = '';
             },
             showModalConfirm () {
                 this.$modal.show(this.modalConfirm);
@@ -249,14 +373,36 @@
                 this.hideModalConfirm();
                 this.resetChanges();
             },
-            beforeOnSubmit(action, action_signed) {
-                this.action = action;
-                if (!action_signed && this.currUser.is_client) {
-                    window.location = this.paid_url;
-                } else {
-                    this.action_signed = action_signed;
-                    this.showModalConfirm();
+            showModalAlertError (message) {
+                if (message) {
+                    this.modalAlertText = message;
                 }
+                this.modalAlertClass = 'alert-danger';
+                this.showModalAlert();
+            },
+            showModalAlertWarning (message) {
+                if (message) {
+                    this.modalAlertText = message;
+                }
+                this.modalAlertClass = 'alert-warning';
+                this.showModalAlert();
+            },
+            showModalAlert () {
+                this.$modal.show(this.modalAlert);
+            },
+            hideModalAlert () {
+                this.$modal.hide(this.modalAlert);
+            },
+            beforeOnSubmit(action, action_code) {
+                this.action = action;
+                if (action_code === 'signed_and_paid') {
+                    this.action_message = 'Вы уверены, что хотите подписать и оплатить документ? Отменить подписание и оплату будет невозможно.';
+                } else if (action_code === 'signed') {
+                    this.action_message = 'Вы уверены, что хотите подписать документ? Отменить подписание будет невозможно.';
+                } else if (action_code === 'paid') {
+                    this.action_message = 'Вы уверены, что хотите оплатить документ? Отменить оплату будет невозможно.';
+                }
+                this.showModalConfirm();
             },
             onSuccessConfirm () {
                 this.action();
@@ -266,5 +412,6 @@
         created() {
             this.checkActiveItem();
         }
+        //Вы уверены, что хотите <span v-if="action_signed">подписать</span><span v-else>оплатить</span> документ? Отменить <span v-if="action_signed">подписание</span><span v-else>оплату</span> будет невозможно.
     }
 </script>

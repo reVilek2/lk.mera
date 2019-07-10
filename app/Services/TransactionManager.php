@@ -50,7 +50,7 @@ class TransactionManager
         if (array_key_exists('sort', $params) && array_key_exists('dir', $params) && array_key_exists($params['sort'], $orderColumns)) {
             $sort = $params['sort'];
             $dir = $params['dir'];
-            $query->orderBy($sort, $dir);
+            $query->orderBy('id', $dir)->orderBy($sort, $dir);
         } else {
             $query->orderBy('id', 'desc')->orderBy('created_at', 'desc');
         }

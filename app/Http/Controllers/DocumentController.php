@@ -236,19 +236,22 @@ class DocumentController extends Controller
         }
 
         $is_client = $currUser->id === $document->client->id;
-        $signed = $request->has('signed') && ($currUser->hasRole('admin') || $is_client) ? true : false;
+        $signed = $request->has('signed') && $currUser->hasRole('admin') ? true : false;
 
         try {
             if ($is_client) {
-                if ($missingAmount = BillingService::calculateMissingAmount($document->client, (int) $document->amount)) {
-
+                /** @var User $client */
+                $client = $document->client;
+                if ($missingAmount = BillingService::calculateMissingAmount($client, (int) $document->amount)) {
+                    $paymentCardDefault = $client->getPaymentCardDefault();
                     return response()->json([
                         'status'=>'missingAmount',
-                        'missingAmount' => $missingAmount
+                        'missingAmount' => $missingAmount,
+                        'paymentCardDefault' => $paymentCardDefault
                     ], 200);
                 }
 
-                BillingService::payDocumentFromUserBalance($document, $signed);
+                BillingService::payDocumentFromUserBalance($document);
             }
             else {
 
@@ -280,7 +283,7 @@ class DocumentController extends Controller
     {
         $currUser = Auth::user();
         $document = Document::whereId($document->id)->with('client')->with('manager')->first();
-        if (!$currUser->hasRole('admin') && $currUser->id !== $document->manager->id && $currUser->id !== $document->client->id) {
+        if (!$currUser->hasRole('admin') && $currUser->id !== $document->client->id) {
             abort(403);
         }
 
@@ -294,11 +297,12 @@ class DocumentController extends Controller
         if ($document->signed) {
             return response()->json([
                 'status'=>'success',
-                'document' => $document
+                'document' => $document,
+                'client' => $document->client
             ], 200);
         }
 
-        $signed = (int) $request->input('signed');
+        $signed = $request->has('signed') ? 1 : 0;
         $paid = $document->paid;
 
         $document->signed = $signed;
@@ -311,7 +315,8 @@ class DocumentController extends Controller
 
         return response()->json([
             'status'=>'success',
-            'document' => $document
+            'document' => $document,
+            'client' => $document->client
         ], 200);
     }
 }

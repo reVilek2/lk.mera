@@ -202,7 +202,7 @@ class BillingManager
     /**
      * Получаем счет по типу счета или создаем новый счет с указанным типом
      *
-     * @param User $user
+     * @param \App\Models\User $user
      * @param string $code
      * @return mixed
      */
@@ -220,7 +220,7 @@ class BillingManager
     /**
      * Проверка что сумма достаточная на
      *
-     * @param User $user
+     * @param \App\Models\User $user
      * @param int $amount
      * @return bool
      */
@@ -236,7 +236,7 @@ class BillingManager
     /**
      * Получение недостающей суммы
      *
-     * @param User $user
+     * @param \App\Models\User $user
      * @param int $amount
      * @return bool
      */
@@ -491,8 +491,7 @@ class BillingManager
                 if ($document && !$document->getTransaction()) { // если еще нет транзакции
                     if ($this->checkAmountOnBalance($document->client, (int) $document->amount)) {
                         try {
-                            sleep(1);// приостанавливаю выполнение для добавления к дате 1 сек. и коректного отображении в истории платежей
-                            return $this->payDocumentFromUserBalance($document, $signed = true);
+                            return $this->payDocumentFromUserBalance($document);
                         } catch (\Exception $e) {
                             info('checkPayment: '.$e->getMessage());
                         }

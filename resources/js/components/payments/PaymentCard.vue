@@ -150,7 +150,6 @@
                             this.showModalAlertError(response.data.message);
                         }
                     }).catch(errors => {
-                        console.log('tyt');
                         console.log(errors);
                         new Noty({
                             type: 'error',
