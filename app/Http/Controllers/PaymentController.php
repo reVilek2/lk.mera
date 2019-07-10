@@ -138,29 +138,14 @@ class PaymentController extends Controller
 
         $pay_key = $request->input('pay_key', null);
         if ($pay_key) {
+            $document = null;
             /** @var ModelPaymentInterface $payment */
             $payment = PayService::getPaymentByUniqueKey($pay_key);
             if ($payment && $payment->status === ModelPaymentInterface::STATUS_PENDING) {
                 $payment = PayService::checkPayment($payment);
-            }
-            if ($payment && $payment->status === ModelPaymentInterface::STATUS_SUCCEEDED) {
-                /** @var Transaction $transaction */
-                $transaction = $payment->getTransaction();
-                if ($transaction && $transaction->getStatusCode() === TransactionStatus::SUCCESS) {
-                    /** @var array $metaData */
-                    $metaData = $transaction->meta_data;
-                    if (array_key_exists('document', $metaData)) {
-                        $document = Document::whereId((int) $metaData['document'])->first();
-                        if ($document && !$document->getTransaction()) { // если еще нет транзакции
-                            if (BillingService::checkAmountOnBalance($document->client, (int) $document->amount)) {
-                                try {
-                                    BillingService::payDocumentFromUserBalance($document, $signed = true);
-                                } catch (\Exception $e) {
-                                    info('checkPayment: '.$e->getMessage());
-                                }
-                            }
-                        }
-                    }
+                if ($payment->status === ModelPaymentInterface::STATUS_SUCCEEDED) {
+                    // проверяем нужно ли оплачивать документ
+                    $document = BillingService::checkAndPayDocumentIfRequiredByTransaction($payment->getTransaction());
                 }
             }
 

@@ -299,6 +299,40 @@ class YandexDriver implements PaymentServiceInterface
     }
 
     /**
+     * Обработка уведомлений
+     * @param $request
+     * @return bool
+     * @throws \Exception
+     */
+    public function processNotificationRequest($request)
+    {
+        try {
+            $this->setPaymentData($request ?? []);
+            $payment_id = $this->getPaymentId();
+            if ($payment_id && !empty($payment_id)) {
+                $payment = YandexPayment::wherePaymentId($payment_id)->first();
+                if (!$payment) {
+                    throw new \Exception('Не найден платеж в системе.');
+                }
+                $payment = $this->processPayment($payment, $request);
+                if ($payment->status === ModelPaymentInterface::STATUS_SUCCEEDED) {
+                    // проверяем нужно ли оплачивать документ
+                    BillingService::checkAndPayDocumentIfRequiredByTransaction($payment->getTransaction());
+                }
+            } else {
+
+                throw new \Exception('Ошибка при обработке уведомлений yandex, идентификатор платежа пустой.');
+            }
+        } catch (\Exception $e) {
+
+            info('yandex notify process: '.$e->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @param $payment
      * @return null|ModelPaymentInterface
      * @throws \Exception
@@ -419,35 +453,6 @@ class YandexDriver implements PaymentServiceInterface
         return $this;
     }
 
-    /**
-     * Обработка уведомлений
-     * @param $request
-     * @return bool
-     * @throws \Exception
-     */
-    public function processNotificationRequest($request)
-    {
-        try {
-            $this->setPaymentData($request ?? []);
-            $payment_id = $this->getPaymentId();
-            if ($payment_id && !empty($payment_id)) {
-                $payment = YandexPayment::wherePaymentId($payment_id)->first();
-                if (!$payment) {
-                    throw new \Exception('Не найден платеж в системе.');
-                }
-                $this->processPayment($payment, $request);
-            } else {
-
-                throw new \Exception('Ошибка при обработке уведомлений yandex, идентификатор платежа пустой.');
-            }
-        } catch (\Exception $e) {
-
-            info('yandex notify process: '.$e->getMessage());
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * @param $errorCode

@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use App\Models\TransactionStatus;
 use App\Models\TransactionType;
 use App\Models\User;
+use App\ModulePayment\Interfaces\ModelPaymentInterface;
 use Auth;
 use DB;
 use MoneyAmount;
@@ -474,5 +475,32 @@ class BillingManager
             TransactionType::SERVICE_IN => Transaction::OUTGOING,
             TransactionType::SERVICE_OUT => Transaction::INCOMING,
         ];
+    }
+
+    /**
+     * @param \App\Models\Transaction $transaction
+     * @return \App\Models\Document|null
+     */
+    public function checkAndPayDocumentIfRequiredByTransaction(Transaction $transaction)
+    {
+        if ($transaction && $transaction->getStatusCode() === TransactionStatus::SUCCESS) {
+            /** @var array $metaData */
+            $metaData = $transaction->meta_data;
+            if (array_key_exists('document', $metaData)) {
+                $document = Document::whereId((int) $metaData['document'])->first();
+                if ($document && !$document->getTransaction()) { // если еще нет транзакции
+                    if ($this->checkAmountOnBalance($document->client, (int) $document->amount)) {
+                        try {
+                            sleep(1);// приостанавливаю выполнение для добавления к дате 1 сек. и коректного отображении в истории платежей
+                            return $this->payDocumentFromUserBalance($document, $signed = true);
+                        } catch (\Exception $e) {
+                            info('checkPayment: '.$e->getMessage());
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }
