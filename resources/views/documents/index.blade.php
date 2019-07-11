@@ -2,13 +2,13 @@
 
 @section('title')
     @include('components/title', [
-        'title'=>'Документы',
+        'title'=>'Отчеты',
         'description'=>''
      ])
 @endsection
 
 @section('breadcrumbs')
-    {{ Breadcrumbs::render('documents') }}
+    {{ Breadcrumbs::render('reports') }}
 @endsection
 
 @section('content')
@@ -21,9 +21,6 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">Таблица документов</h3>
-                </div>
                 <documents-table :documents="{{$documents}}"
                                  :documents_count="{{$documents_count}}"
                                  :managers="{{$managers}}"></documents-table>

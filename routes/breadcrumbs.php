@@ -18,9 +18,9 @@ try {
         $trail->parent('users');
         $trail->push('Пользователь', '', ['fa' => 'fa-user']);
     });
-    Breadcrumbs::for('documents', function ($trail) {
+    Breadcrumbs::for('reports', function ($trail) {
         $trail->parent('home');
-        $trail->push('Документы', '', ['fa' => 'fa-file-pdf-o']);
+        $trail->push('Отчеты', '', ['fa' => 'fa-file-pdf-o']);
     });
     Breadcrumbs::for('finances', function ($trail) {
         $trail->parent('home');

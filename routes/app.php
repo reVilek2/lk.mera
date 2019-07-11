@@ -1,7 +1,7 @@
 <?php
 Route::get('/', function (){
     if (Auth::check()) {
-        return redirect()->route('documents');
+        return redirect()->route('reports');
     }
     return redirect()->route('login');
 })->name('home');
@@ -11,7 +11,7 @@ Route::post('/profile/{user}', 'ProfileController@update')->name('profile.user.u
 Route::post('/profile/{user}/avatar', 'ProfileController@updateAvatar')->name('profile.avatar.update');
 Route::post('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
 // documents
-Route::get('/documents', 'DocumentController@index')->name('documents');
+Route::get('/reports', 'DocumentController@index')->name('reports');
 // finances
 Route::get('/finances', 'FinanceController@index')->name('finances');
 Route::get('/finances/payment', 'PaymentController@index')->name('payment');
@@ -35,7 +35,7 @@ Route::middleware(['role:admin|manager'])->group(function () {
     Route::get('/users/{user}', 'UserController@show')->name('users.show');
     Route::post('/users/{user}/attach-manager', 'UserController@attachManager')->name('attach.manager');
 
-    Route::post('/documents', 'DocumentController@create')->name('documents.create');
+    Route::post('/reports', 'DocumentController@create')->name('documents.create');
 });
 
 // Only manager or admin or client

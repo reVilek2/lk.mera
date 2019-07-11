@@ -77,10 +77,10 @@
                                 </tr>
                                 <tr v-if="item_count === 0" class="odd empty-row">
                                     <td colspan="9" align="center">
-                                        <span v-if="filter">Не найдено ни одного документа</span>
+                                        <span v-if="filter">Не найдено ни одного отчета</span>
                                         <span v-if="!filter">
-                                            <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного документа</span>
-                                            <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного документа</span>
+                                            <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного отчета</span>
+                                            <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного отчета</span>
                                         </span>
                                     </td>
                                 </tr>
@@ -193,7 +193,7 @@
                     from: '',
                     to: ''
                 },
-                collection_url: '/documents',
+                collection_url: '/reports',
             }
         },
         computed: {

@@ -13,7 +13,7 @@
                 <button type="button" class="close" @click="hideModal">
                     <span aria-hidden="true">×</span>
                 </button>
-                <h4 class="v-modal-title">Добавление документа</h4>
+                <h4 class="v-modal-title">Добавление отчета</h4>
             </div>
             <div class="v-modal-body">
 
@@ -49,11 +49,11 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">Название документа</label>
+                        <label class="col-sm-4 control-label">Название отчета</label>
 
                         <div class="col-sm-8">
                             <vue-input-text :name="'document'"
-                                          :placeholder="'Введите название документа'"
+                                          :placeholder="'Введите название отчета'"
                                           v-model="documentValue"
                                           :validate="documentValidate"
                                           @focus="setDefaultValidateDocument($event)"></vue-input-text>
@@ -71,11 +71,11 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">Документ</label>
+                        <label class="col-sm-4 control-label">Файл</label>
 
                         <div class="col-sm-8">
                             <vue-input-file :name="'file'"
-                                            :placeholder="'Выберите документ'"
+                                            :placeholder="'Выберите файл'"
                                             v-model="fileValue"
                                             :validate="fileValidate"
                                             @focus="setDefaultValidateFile($event)"></vue-input-file>
@@ -104,7 +104,7 @@
                 <h4 class="v-modal-title">Предупреждение</h4>
             </div>
             <div class="v-modal-body">
-                После отправки удалить документ из личного кабинет клиента сможет только администратор. Отправляем?
+                После отправки удалить отчет из личного кабинет клиента сможет только администратор. Отправляем?
             </div>
             <div class="v-modal-footer">
                 <button type="button" class="btn btn-default pull-right" @click="hideModalConfirm">Нет</button>
@@ -320,7 +320,7 @@
                     formData.append('name', this.documentValue);
                     formData.append('file', this.fileValue, this.fileValue.name);
 
-                    axios.post('/documents', formData).then(response => {
+                    axios.post('/reports', formData).then(response => {
                         if (response.data.status === 'success') {
                             if (response.data.hasOwnProperty('document')) {
                                 this.$emit('createdDocument', response.data.document);
@@ -425,7 +425,7 @@
                     this.documentValue.length === 0) {
                     valid = false;
                     this.documentValidate.valid = false;
-                    this.documentValidate.message = 'Введите название документа';
+                    this.documentValidate.message = 'Введите название отчета';
                     this.documentValidate.show = true;
                 }
 
@@ -461,7 +461,7 @@
                     this.fileValue.length === 0) {
                     valid = false;
                     this.fileValidate.valid = false;
-                    this.fileValidate.message = 'Выберите документ';
+                    this.fileValidate.message = 'Выберите файл';
                     this.fileValidate.show = true;
                 }
 

@@ -32,7 +32,7 @@ class ResetPasswordController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/documents';
+    protected $redirectTo = '/reports';
 
     /**
      * Create a new controller instance.
