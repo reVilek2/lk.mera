@@ -19,6 +19,7 @@ Route::post('/finances/payment', 'PaymentController@create')->name('payment.crea
 Route::post('/finances/payment/pay-fast', 'PaymentController@payFast')->name('payment.payFast');
 Route::get('/finances/check-payment', 'PaymentController@checkPayment')->name('payment.check');
 Route::post('/finances/payment/set-card-default', 'PaymentController@setCardDefault')->name('finances.setCardDefault');
+Route::post('/finances/payment/remove-payment-pending', 'PaymentController@removePaymentPending')->name('finances.removePaymentPending');
 
 // Only admin
 Route::middleware(['role:admin'])->group(function () {

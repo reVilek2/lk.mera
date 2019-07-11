@@ -12,6 +12,7 @@ use App\Services\Page;
 use Auth;
 use BillingService;
 use Illuminate\Http\Request;
+use MoneyAmount;
 use PayService;
 use Validator;
 
@@ -79,7 +80,13 @@ class PaymentController extends Controller
                 $description = 'Пополнение баланса через "Yandex Kassa"';
                 $metadata = [];
                 if ($document) {
-                    $metadata['document'] = $document->id;
+                    $missingAmount = BillingService::calculateMissingAmount($document->client, (int) $document->amount);
+                    $externalMissingAmount = MoneyAmount::toExternal($missingAmount);
+                    $externalAmount = MoneyAmount::toExternal($amount);
+                    // прикрепляем документ если оплата не меньше чем нужно для оплаты документа
+                    if ($externalAmount >= $externalMissingAmount) {
+                        $metadata['document'] = $document->id;
+                    }
                 }
                 /** @var ModelPaymentInterface $payment */
                 $payment = PayService::makePaymentTransaction( // создаем транзакции
@@ -205,22 +212,31 @@ class PaymentController extends Controller
 
         $errors = $validation->errors();
         $errors = json_decode($errors);
+
+
         if ($validation->passes()) {
             $paymentCard = PaymentCard::whereCardId($card_id)->where('user_id', $currUser->id)->first();
+            $idempotency_key = PayService::uniqid();
 
             if (!$paymentCard) {
                 return response()->json([
                     'status'=>'exception',
-                    'message' => 'Карта не найдена.'
+                    'message' => 'Карта не найдена.',
+                    'pay_key' => $idempotency_key,
                 ], 200);
             }
 
             try {
-                $idempotency_key = PayService::uniqid();
                 $description = 'Пополнение баланса через "Yandex Kassa"';
                 $metadata = [];
-                if ($document) {
-                    $metadata['document'] = $document->id;
+                if ($document && !$document->getTransaction()) {
+                    $missingAmount = BillingService::calculateMissingAmount($document->client, (int) $document->amount);
+                    $externalMissingAmount = MoneyAmount::toExternal($missingAmount);
+                    $externalAmount = MoneyAmount::toExternal($amount);
+                    // прикрепляем документ если оплата не меньше чем нужно для оплаты документа
+                    if ($externalAmount >= $externalMissingAmount) {
+                        $metadata['document'] = $document->id;
+                    }
                 }
                 /** @var ModelPaymentInterface $payment */
                 $payment = PayService::makePaymentTransaction( // создаем транзакции
@@ -252,7 +268,8 @@ class PaymentController extends Controller
             catch (\Exception $e) {
                 return response()->json([
                     'status'=>'exception',
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
+                    'pay_key' => $idempotency_key,
                 ], 200);
             }
         } else {
@@ -299,6 +316,31 @@ class PaymentController extends Controller
                 'status'=>'exception',
                 'message' => $e->getMessage()
             ], 200);
+        }
+    }
+
+    public function removePaymentPending(Request $request)
+    {
+        Page::setTitle('Удаление платежа в статусе Pending | MeraCapital');
+        Page::setDescription('Удаление платежа в статусе Pending');
+
+        $pay_key = $request->input('pay_key', null);
+        if ($pay_key) {
+            /** @var ModelPaymentInterface $payment */
+            $payment = PayService::getPaymentByUniqueKey($pay_key);
+            $transaction = $payment ? $payment->getTransaction() : null;
+            if (!$payment || !$transaction || ($payment && $payment->status !== ModelPaymentInterface::STATUS_PENDING) || ($transaction && $transaction->getStatusCode() !== TransactionStatus::WAITING) ) {
+                abort(403);
+            }
+
+            $transaction->delete();
+            $payment->delete();
+
+            return response()->json([
+                'status'=>'success',
+            ], 200);
+        } else {
+            abort(404);
         }
     }
 }

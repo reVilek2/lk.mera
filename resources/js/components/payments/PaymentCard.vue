@@ -84,6 +84,7 @@
                 modalAlertClass: 'alert-danger',
                 payment_url: '/finances/payment/pay-fast',
                 payment_check_url: '/finances/check-payment',
+                remove_payment_pending_url: '/finances/payment/remove-payment-pending',
                 amount: this.totalPayable,
                 isUploadingForm:false,
                 card_selected: this.checkCardSelected(this.cardDefault),
@@ -136,7 +137,13 @@
             submit () {
                 if (this.raw_amount > 0 && !this.isUploadingForm) {
                     this.isUploadingForm = true;
-                    axios.post(this.payment_url, { card_id: this.card.card_id, amount: this.raw_amount }).then(response => {
+                    const formData = {};
+                    formData.card_id = this.card.card_id;
+                    formData.amount = this.raw_amount;
+                    if (this.document) {
+                        formData.document = this.document.id;
+                    }
+                    axios.post(this.payment_url, formData).then(response => {
                         this.isUploadingForm = false;
                         if (response.data.status === 'success') {
                             this.redirectToCheckPaid(response.data.pay_key)
@@ -147,7 +154,11 @@
                             }
                         }
                         if (response.data.status === 'exception') {
-                            this.showModalAlertError(response.data.message);
+                            if (response.data.hasOwnProperty('pay_key')) {
+                                // удаляем не нужную платежку
+                                this.removePaymentPending(response.data.pay_key);
+                            }
+                            this.showModalAlertError('Платёж не прошёл возможно недостаточно средств на счету или превышен суточный лимит карты. Попробуйте повторить попытку позже или воспользуйтесь формой "Оплатить онлайн".');
                         }
                     }).catch(errors => {
                         console.log(errors);
@@ -162,6 +173,13 @@
                         this.isUploadingForm = false;
                     });
                 }
+            },
+            removePaymentPending(pay_key) {
+                axios.post(this.remove_payment_pending_url, {pay_key: pay_key}).then(response => {
+                    console.log(response.data);
+                }).catch(errors => {
+                    console.log(errors);
+                });
             },
             redirectToCheckPaid(pay_key) {
                 if (this.payment_check_url+'?pay_key='+pay_key) {

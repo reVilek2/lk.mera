@@ -35,57 +35,57 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="table-responsive">
-                        <datatable :columns="columns"
-                                   :sortKey="sortKey"
-                                   :sortOrders="sortOrders"
-                                   :excludeSortOrders="excludeSortOrders"
-                                   @sort="sortBy">
-                            <tbody>
-                            <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
-                                <td>{{item.id}}</td>
-                                <td>{{item.created_at_humanize}}</td>
-                                <td><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
-                                <td>{{item.name}}</td>
-                                <td>
-                                    <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
-                                        <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                            <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
-                                            {{file.origin_name}}
-                                        </a>
-                                        <ul class="dropdown-menu" role="menu">
-                                            <li><a :href="'/documents/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
-                                            <li><a :href="'/documents/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                                <td>
-                                    <document-status :signed="item.signed"
-                                                     :paid="item.paid"
-                                                     :item="item"
-                                                     :key="item.id"
-                                                     @updateDocument="updateStatus"></document-status>
-                                </td>
-                                <td>{{item.amount_humanize}}</td>
-                                <td><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
-                                <td>
-                                    <document-action :signed="item.signed"
-                                                     :paid="item.paid"
-                                                     :item="item"
-                                                     :key="item.id"
-                                                     @updateDocument="updateStatus"></document-action>
-                                </td>
-                            </tr>
-                            <tr v-if="item_count === 0" class="odd empty-row">
-                                <td colspan="9" align="center">
-                                    <span v-if="filter">Не найдено ни одного документа</span>
-                                    <span v-if="!filter">
-                                        <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного документа</span>
-                                        <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного документа</span>
-                                    </span>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </datatable>
+                            <datatable :columns="columns"
+                                       :sortKey="sortKey"
+                                       :sortOrders="sortOrders"
+                                       :excludeSortOrders="excludeSortOrders"
+                                       @sort="sortBy">
+                                <tbody>
+                                <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
+                                    <td>{{item.id}}</td>
+                                    <td>{{item.created_at_humanize}}</td>
+                                    <td><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
+                                    <td>{{item.name}}</td>
+                                    <td>
+                                        <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
+                                            <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
+                                                {{file.origin_name}}
+                                            </a>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a :href="'/documents/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
+                                                <li><a :href="'/documents/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <document-status :signed="item.signed"
+                                                         :paid="item.paid"
+                                                         :item="item"
+                                                         :key="item.id"
+                                                         @updateDocument="updateStatus"></document-status>
+                                    </td>
+                                    <td>{{item.amount_humanize}}</td>
+                                    <td><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
+                                    <td>
+                                        <document-action :signed="item.signed"
+                                                         :paid="item.paid"
+                                                         :item="item"
+                                                         :key="item.id"
+                                                         @updateDocument="updateStatus"></document-action>
+                                    </td>
+                                </tr>
+                                <tr v-if="item_count === 0" class="odd empty-row">
+                                    <td colspan="9" align="center">
+                                        <span v-if="filter">Не найдено ни одного документа</span>
+                                        <span v-if="!filter">
+                                            <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного документа</span>
+                                            <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного документа</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </datatable>
                     </div>
                 </div>
             </div>

@@ -50,7 +50,7 @@
                 <h4 class="v-modal-title">Предупреждение</h4>
             </div>
             <div class="v-modal-body">
-                Недостаточно средств на балансе и не выбрана карта для быстрой оплаты. Перейти на страницу ручной оплаты?
+                {{credit_fail_message}}
             </div>
             <div class="v-modal-footer">
                 <button type="button" class="btn btn-default pull-right" @click="hideModalCreditFail">Нет</button>
@@ -103,9 +103,11 @@
                 box: 'document-action-box'+this.item.id,
                 modalConfirm: 'document-action-confirm'+this.item.id,
                 modalCreditFail: 'document-action-credit-fail'+this.item.id,
+                credit_fail_message: '',
                 paid_url: '/finances/payment',
                 paid_fast_url: '/finances/payment/pay-fast',
                 check_pay_fast_url: '/finances/check-payment',
+                remove_payment_pending_url: '/finances/payment/remove-payment-pending',
                 statusSigned: this.signed,
                 statusPaid: this.paid,
                 isUploadingForm:false,
@@ -248,7 +250,7 @@
                     if (!isEmptyObject(this.paymentCardDefault)) {
                         this.payFastDocument(this.paymentCardDefault.card_id);
                     } else {
-                        this.showModalCreditFail();
+                        this.showModalCreditFail('Недостаточно средств на балансе и не выбрана карта для быстрой оплаты. Перейти на страницу ручной оплаты?');
                     }
                 }
             },
@@ -268,7 +270,11 @@
                             this.isUploadingForm = false;
                         }
                         if (response.data.status === 'exception') {
-                            this.showModalAlertError(response.data.message);
+                            if (response.data.hasOwnProperty('pay_key')) {
+                                // удаляем не нужную платежку
+                                this.removePaymentPending(response.data.pay_key);
+                            }
+                            this.showModalCreditFail('Платёж не прошёл возможно недостаточно средств на счету или превышен суточный лимит карты. Перейти на страницу ручной оплаты?');
                             this.isUploadingForm = false;
                         }
                     }).catch(errors => {
@@ -328,6 +334,14 @@
                 });
             },
 
+            removePaymentPending(pay_key) {
+                axios.post(this.remove_payment_pending_url, {pay_key: pay_key}).then(response => {
+                    console.log(response.data);
+                }).catch(errors => {
+                    console.log(errors);
+                });
+            },
+
             redirectToPaid () {
                 window.location.href = this.missingAmount > 0 ? this.paid_url+'?document='+this.item.id : this.paid_url;
             },
@@ -363,7 +377,8 @@
             hideModalConfirm () {
                 this.$modal.hide(this.modalConfirm);
             },
-            showModalCreditFail () {
+            showModalCreditFail (message) {
+                this.credit_fail_message = message;
                 this.$modal.show(this.modalCreditFail);
             },
             hideModalCreditFail () {

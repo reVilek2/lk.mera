@@ -166,6 +166,9 @@ class UserController extends Controller
                     'message' => 'Недостаточно средств для выполнения операции!'
                 ], 200);
             }
+            if (!$comment) {
+                $comment = $transaction_type === TransactionType::MANUAL_OUT ? 'Ручное списание с баланса':'Ручное пополнение баланса';
+            }
             // транзакция на оплату
             $transaction = BillingService::makeTransaction($user, (int) $amount, $transaction_type, $comment);
             $transaction->setStatus(TransactionStatus::PENDING);// переключаем статус для исполнения
