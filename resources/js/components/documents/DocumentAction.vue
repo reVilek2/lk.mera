@@ -2,12 +2,12 @@
     <div :id="container" class="document_action" v-show="isNeedShow">
         <div :id="container_item" class="btn-group" v-show="is_active_item">
             <span v-if="isUploadingForm" class="preloader preloader-sm"></span>
-            <button type="button" class="btn btn-info btn-block" :disabled="isUploadingForm" @click="beforeOnSubmit(btnText.action, btnText.action_code)">{{btnText.value}}</button>
+            <button type="button" class="btn btn-info btn-block" :disabled="isUploadingForm" @click="beforeOnSubmit(btnText.action, btnText.action_code)"><span v-html="btnText.value"></span></button>
             <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" :disabled="isUploadingForm">
                 <span class="caret"></span>
                 <span class="sr-only">Toggle Dropdown</span>
             </button>
-            <ul v-if="btnList.length > 0" :id="box" class="dropdown-menu" role="menu">
+            <ul v-if="btnList.length > 0" :id="box" class="dropdown-menu dropdown-menu-right" role="menu">
                 <li v-for="(list, index) in btnList" :key="index"><a href="#" @click="beforeOnSubmit(list.action, list.action_code)">{{list.value}}</a></li>
             </ul>
         </div>
@@ -135,7 +135,7 @@
             btnText: function () {
                 if (this.currUser.is_admin || this.currUser.is_client) {
                     if (!this.statusSigned && !this.statusPaid) {
-                        return {action: this.actionSignedAndPaid, action_code: 'signed_and_paid', value: 'Подписать и оплатить'};
+                        return {action: this.actionSignedAndPaid, action_code: 'signed_and_paid', value: 'Подписать и&nbsp;оплатить'};
                     }
                     if (!this.statusPaid) {
                         return {action: this.actionPaid, action_code: 'paid' , value: 'Оплатить'};

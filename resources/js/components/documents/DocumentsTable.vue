@@ -9,7 +9,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-10">
                     <div class="dataTables_filter">
                         <label>
                             Поиск:
@@ -26,7 +26,7 @@
                         </label>
                     </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-2">
                     <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action dataTables_action__desktop">
                         <button class="btn btn-success" @click="showModal">Добавить</button>
                     </div>
@@ -34,59 +34,59 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="table-responsive">
-                            <datatable :columns="columns"
-                                       :sortKey="sortKey"
-                                       :sortOrders="sortOrders"
-                                       :excludeSortOrders="excludeSortOrders"
-                                       @sort="sortBy">
-                                <tbody>
-                                <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
-                                    <td>{{item.id}}</td>
-                                    <td>{{item.created_at_humanize}}</td>
-                                    <td><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
-                                    <td>{{item.name}}</td>
-                                    <td>
-                                        <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
-                                            <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                                <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
-                                                {{file.origin_name}}
-                                            </a>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li><a :href="'/documents/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
-                                                <li><a :href="'/documents/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <document-status :signed="item.signed"
-                                                         :paid="item.paid"
-                                                         :item="item"
-                                                         :key="item.id"
-                                                         @updateDocument="updateStatus"></document-status>
-                                    </td>
-                                    <td>{{item.amount_humanize}}</td>
-                                    <td><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
-                                    <td>
-                                        <document-action :signed="item.signed"
-                                                         :paid="item.paid"
-                                                         :item="item"
-                                                         :key="item.id"
-                                                         @updateDocument="updateStatus"></document-action>
-                                    </td>
-                                </tr>
-                                <tr v-if="item_count === 0" class="odd empty-row">
-                                    <td colspan="9" align="center">
-                                        <span v-if="filter">Не найдено ни одного отчета</span>
-                                        <span v-if="!filter">
-                                            <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного отчета</span>
-                                            <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного отчета</span>
-                                        </span>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </datatable>
-                    </div>
+                    <datatable :columns="columns"
+                               :sortKey="sortKey"
+                               :sortOrders="sortOrders"
+                               :excludeSortOrders="excludeSortOrders"
+                               @sort="sortBy">
+                        <tbody>
+                        <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
+                            <td class="created_at">{{item.created_at_humanize}}</td>
+                            <td class="client_full_name"><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
+                            <td class="name">{{item.name}}</td>
+                            <td class="file">
+                                <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
+                                    <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
+                                        {{file.origin_name}}
+                                    </a>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a :href="'/documents/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
+                                        <li><a :href="'/documents/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td class="status">
+                                <document-status :signed="item.signed"
+                                                 :paid="item.paid"
+                                                 :item="item"
+                                                 :key="item.id"
+                                                 @updateDocument="updateStatus"></document-status>
+                            </td>
+                            <td class="amount">
+                                {{item.amount_humanize}}
+                            </td>
+                            <td class="manager_full_name"><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
+                            <td class="action">
+                                <document-action :signed="item.signed"
+                                                 :paid="item.paid"
+                                                 :item="item"
+                                                 :key="'0'+item.id"
+                                                 :key-id="'0'+item.id"
+                                                 @updateDocument="updateStatus"></document-action>
+                            </td>
+                        </tr>
+                        <tr v-if="item_count === 0" class="odd empty-row">
+                            <td colspan="8" align="center">
+                                <span v-if="filter">Не найдено ни одного отчета</span>
+                                <span v-if="!filter">
+                                    <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного отчета</span>
+                                    <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного отчета</span>
+                                </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </datatable>
                 </div>
             </div>
             <div class="row">
@@ -151,7 +151,6 @@
                 file: true,
             };
             let columns = [
-                {width: '25px', label: 'ID', name: 'id' },
                 {width: 'auto', label: 'Дата', name: 'created_at' },
                 {width: 'auto', label: 'ФИО', name: 'client_full_name' },
                 {width: 'auto', label: 'Название', name: 'name' },
@@ -159,7 +158,7 @@
                 {width: 'auto', label: 'Статус', name: 'status' },
                 {width: 'auto', label: 'Сумма', name: 'amount' },
                 {width: 'auto', label: 'От кого', name: 'manager_full_name' },
-                {width: '190px', label: 'Действия', name: 'action' },
+                {width: '50px', label: 'Действия', name: 'action' },
             ];
 
             columns.forEach((column) => {
