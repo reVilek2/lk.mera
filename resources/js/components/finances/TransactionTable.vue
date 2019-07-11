@@ -23,31 +23,29 @@
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <div class="table-responsive">
-                    <datatable :columns="columns"
-                               :sortKey="sortKey"
-                               :sortOrders="sortOrders"
-                               :excludeSortOrders="excludeSortOrders"
-                               @sort="sortBy">
-                        <tbody>
-                        <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
-                            <td>{{item.created_at}}</td>
-                            <td><span :class="getOperationNameClass(item.operation)">{{item.operation_name}}</span></td>
-                            <td><span class="history-pay-amount">{{amountHumanize(item.operation, item.amount)}}</span></td>
-                            <td>{{item.comment}}</td>
-                            <td>{{balanceHumanize(item.balance)}}</td>
-                        </tr>
-                        <tr v-if="item_count === 0" class="odd empty-row">
-                            <td colspan="5" align="center">
-                                <span v-if="filter">Не найдено ни одной оплаты</span>
-                                <span v-if="!filter">
-                                    <span>Нет ни одной оплаты</span>
-                                </span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </datatable>
-                </div>
+                <datatable :columns="columns"
+                       :sortKey="sortKey"
+                       :sortOrders="sortOrders"
+                       :excludeSortOrders="excludeSortOrders"
+                       @sort="sortBy">
+                    <tbody>
+                    <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
+                        <td class="created_at">{{item.created_at}}</td>
+                        <td class="operation"><span :class="getOperationNameClass(item.operation)">{{item.operation_name}}</span></td>
+                        <td class="amount"><span class="history-pay-amount">{{amountHumanize(item.operation, item.amount)}}</span></td>
+                        <td class="comment">{{item.comment}}</td>
+                        <td class="balance">{{balanceHumanize(item.balance)}}</td>
+                    </tr>
+                    <tr v-if="item_count === 0" class="odd empty-row">
+                        <td colspan="5" align="center">
+                            <span v-if="filter">Не найдено ни одной оплаты</span>
+                            <span v-if="!filter">
+                                <span>Нет ни одной оплаты</span>
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </datatable>
             </div>
         </div>
         <div class="row">

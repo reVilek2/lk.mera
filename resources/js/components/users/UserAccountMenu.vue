@@ -18,7 +18,7 @@
                 </p>
             </li>
             <!-- Menu Body -->
-            <li v-if="!user_is_user || !user_is_client" class="user-body">
+            <li v-if="user_is_user || user_is_client" class="user-body">
                 <div class="row">
                     <div class="col-xs-4">
                         <a href="#">Менеджер:</a>

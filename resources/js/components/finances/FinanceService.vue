@@ -3,11 +3,11 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="finance-wrapper">
-                    <h2 class="page-header">
+                    <h2 v-if="currUser.is_user || currUser.is_client" class="page-header">
                         Остаток средств:
                     </h2>
-                    <div class="row">
-                        <div class="col-lg-3">
+                    <div v-if="currUser.is_user || currUser.is_client" class="row">
+                        <div class="col-lg-12">
                             <div class="finance-balance">
                                 <div class="finance-balance__amount">
                                     <div class="finance-balance__amount-item">
@@ -23,6 +23,7 @@
                             </div>
                         </div>
                     </div>
+
                     <h2 class="page-header">
                         <i class="fa fa-clock-o"></i> История операций:
                     </h2>

@@ -18,10 +18,10 @@
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
-                {{--@hasanyrole('user|client')--}}
+                @hasanyrole('user|client')
                 <!-- Balance Menu -->
                 <user-balance-menu></user-balance-menu>
-                {{--@endhasallroles--}}
+                @endhasallroles
                 <!-- Messages: style can be found in dropdown.less-->
                 <notification-messages :userid="{{auth()->id()}}"
                                        :notification-messages="{{auth()->user()->unreadNotificationMessages}}"
@@ -32,10 +32,6 @@
                 <notification-service-messages :notification-service-text-messages="{{auth()->user()->unreadServiceTextNotificationMessages}}"></notification-service-messages>
                 <!-- User Account Menu -->
                 <user-account-menu></user-account-menu>
-                <!-- Control Sidebar Toggle Button -->
-                {{--<li>--}}
-                    {{--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>--}}
-                {{--</li>--}}
             </ul>
         </div>
     </nav>

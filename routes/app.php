@@ -14,12 +14,6 @@ Route::post('/profile/password/{user}', 'ProfileController@updatePassword')->nam
 Route::get('/reports', 'DocumentController@index')->name('reports');
 // finances
 Route::get('/finances', 'FinanceController@index')->name('finances');
-Route::get('/finances/payment', 'PaymentController@index')->name('payment');
-Route::post('/finances/payment', 'PaymentController@create')->name('payment.create');
-Route::post('/finances/payment/pay-fast', 'PaymentController@payFast')->name('payment.payFast');
-Route::get('/finances/check-payment', 'PaymentController@checkPayment')->name('payment.check');
-Route::post('/finances/payment/set-card-default', 'PaymentController@setCardDefault')->name('finances.setCardDefault');
-Route::post('/finances/payment/remove-payment-pending', 'PaymentController@removePaymentPending')->name('finances.removePaymentPending');
 
 // Only admin
 Route::middleware(['role:admin'])->group(function () {
@@ -43,6 +37,16 @@ Route::middleware(['role:admin|manager|client'])->group(function () {
     Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFile')->name('documents.files');
     Route::post('/documents/{document}/set-signed', 'DocumentController@setSigned')->name('documents.set.signed');
     Route::post('/documents/{document}/set-paid', 'DocumentController@setPaid')->name('documents.set.paid');
+});
+
+// Only client or user
+Route::middleware(['role:client|user'])->group(function () {
+    Route::get('/finances/payment', 'PaymentController@index')->name('payment');
+    Route::post('/finances/payment', 'PaymentController@create')->name('payment.create');
+    Route::post('/finances/payment/pay-fast', 'PaymentController@payFast')->name('payment.payFast');
+    Route::get('/finances/check-payment', 'PaymentController@checkPayment')->name('payment.check');
+    Route::post('/finances/payment/set-card-default', 'PaymentController@setCardDefault')->name('finances.setCardDefault');
+    Route::post('/finances/payment/remove-payment-pending', 'PaymentController@removePaymentPending')->name('finances.removePaymentPending');
 });
 
 
