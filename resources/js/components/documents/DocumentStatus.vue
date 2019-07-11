@@ -56,7 +56,7 @@
                 <h4 class="v-modal-title">Предупреждение</h4>
             </div>
             <div class="v-modal-body">
-                Вы уверены, что хотите изменить статус документа?
+                Вы уверены, что хотите изменить статус?
             </div>
             <div class="v-modal-footer">
                 <button type="button" class="btn btn-default pull-right" @click="hideModalConfirmAndReset">Нет</button>

@@ -307,7 +307,7 @@
 
                             new Noty({
                                 type: 'success',
-                                text: 'Документ оплачен.',
+                                text: 'Оплачено.',
                                 layout: 'topRight',
                                 timeout: 5000,
                                 progressBar: true,
@@ -411,11 +411,11 @@
             beforeOnSubmit(action, action_code) {
                 this.action = action;
                 if (action_code === 'signed_and_paid') {
-                    this.action_message = 'Вы уверены, что хотите подписать и оплатить документ? Отменить подписание и оплату будет невозможно.';
+                    this.action_message = 'Вы уверены, что хотите подписать и оплатить отчет? Отменить подписание и оплату будет невозможно.';
                 } else if (action_code === 'signed') {
-                    this.action_message = 'Вы уверены, что хотите подписать документ? Отменить подписание будет невозможно.';
+                    this.action_message = 'Вы уверены, что хотите подписать отчет? Отменить подписание будет невозможно.';
                 } else if (action_code === 'paid') {
-                    this.action_message = 'Вы уверены, что хотите оплатить документ? Отменить оплату будет невозможно.';
+                    this.action_message = 'Вы уверены, что хотите оплатить отчет? Отменить оплату будет невозможно.';
                 }
                 this.showModalConfirm();
             },
@@ -427,6 +427,5 @@
         created() {
             this.checkActiveItem();
         }
-        //Вы уверены, что хотите <span v-if="action_signed">подписать</span><span v-else>оплатить</span> документ? Отменить <span v-if="action_signed">подписание</span><span v-else>оплату</span> будет невозможно.
     }
 </script>
