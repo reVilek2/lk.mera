@@ -312,7 +312,7 @@ class YandexDriver implements PaymentServiceInterface
             if ($payment_id && !empty($payment_id)) {
                 $payment = YandexPayment::wherePaymentId($payment_id)->first();
                 if (!$payment) {
-                    throw new \Exception('Не найден платеж в системе.');
+                    return false;
                 }
                 $payment = $this->processPayment($payment, $request);
                 if ($payment->status === ModelPaymentInterface::STATUS_SUCCEEDED) {

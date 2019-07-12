@@ -151,7 +151,7 @@
                         }
                         this.manager_saved_process = false;
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         this.manager_saved_process = false;
                     });
                 }
@@ -195,10 +195,9 @@
                     formData.append('avatar', this.selectedFile, this.selectedFile.name);
                     axios.post('/profile/' + this.profUser.id + '/avatar', formData, {
                         onUploadProgress: uploadEvent => {
-                            console.log('Upload progress: ' + Math.round(uploadEvent.loaded / uploadEvent.total * 100) + '%')
+                            //console.log('Upload progress: ' + Math.round(uploadEvent.loaded / uploadEvent.total * 100) + '%')
                         }
                     }).then(response => {
-                        console.log(response);
                         if (response.data.status === 'success') {
                             this.fileUploadErrors = '';
                             if (response.data.hasOwnProperty('user')) {
@@ -222,7 +221,7 @@
                         }
                         this.isUploadingFile = false;
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         this.isUploadingFile = false;
                     });
                 }

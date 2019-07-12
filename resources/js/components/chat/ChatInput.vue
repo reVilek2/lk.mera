@@ -73,7 +73,6 @@
                         }
                         this.isProcessSending = false;
                     }).catch(errors => {
-                        console.log(errors);
                         new Noty({
                             type: 'error',
                             text: 'Произошла ошибка.',

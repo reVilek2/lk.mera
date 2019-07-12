@@ -21,9 +21,6 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">Таблица пользователей</h3>
-                </div>
                 <users-table :users="{{$users}}" :users_count="{{$users_count}}"></users-table>
             </div>
         </div>

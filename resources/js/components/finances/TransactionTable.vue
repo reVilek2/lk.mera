@@ -169,7 +169,7 @@
                             }
                         })
                         .catch(errors => {
-                            console.log(errors);
+                            //console.log(errors);
                         });
                 }
             },

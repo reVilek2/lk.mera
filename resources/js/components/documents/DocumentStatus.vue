@@ -152,7 +152,7 @@
         },
         methods: {
             dropdownMenuEvent(e){
-                console.log(e);
+                //console.log(e);
                 e.stopPropagation();
             },
             setSignedAndPaid(val) {
@@ -200,7 +200,7 @@
                             this.setNewChange(response.data.document.signed, response.data.document.paid);
                         }
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         this.isUploadingForm = false;
                     });
 

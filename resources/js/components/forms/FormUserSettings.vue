@@ -306,7 +306,7 @@
                         this.resetForm();
                         this.isUploadingForm = false;
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         this.isUploadingForm = false;
                         new Noty({
                             type: 'error',
@@ -458,7 +458,7 @@
                         }).show();
                     }
                 }).catch(errors => {
-                    console.log(errors);
+                    //console.log(errors);
                     new Noty({
                         type: 'error',
                         text: 'Произошла ошибка.',
@@ -512,7 +512,7 @@
                         }).show();
                     }
                 }).catch(errors => {
-                    console.log(errors);
+                    //console.log(errors);
                     new Noty({
                         type: 'error',
                         text: 'Произошла ошибка.',

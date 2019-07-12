@@ -287,7 +287,7 @@
                             }).show();
                         }
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         new Noty({
                             type: 'error',
                             text: 'Произошла ошибка.',
@@ -355,7 +355,7 @@
                         }
                         this.phoneCodeSendProcess = false; // разрешаем отправлять форму
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         new Noty({
                             type: 'error',
                             text: 'Произошла ошибка.',

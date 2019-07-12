@@ -355,7 +355,7 @@
                         }
                         this.isUploadingForm = false;
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         this.isUploadingForm = false;
                     });
 

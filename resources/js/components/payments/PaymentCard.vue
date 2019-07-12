@@ -161,7 +161,7 @@
                             this.showModalAlertError('Платёж не прошёл возможно недостаточно средств на счету или превышен суточный лимит карты. Попробуйте повторить попытку позже или воспользуйтесь формой "Оплатить онлайн".');
                         }
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         new Noty({
                             type: 'error',
                             text: 'Произошла ошибка.',
@@ -176,9 +176,9 @@
             },
             removePaymentPending(pay_key) {
                 axios.post(this.remove_payment_pending_url, {pay_key: pay_key}).then(response => {
-                    console.log(response.data);
+                    //console.log(response.data);
                 }).catch(errors => {
-                    console.log(errors);
+                    //console.log(errors);
                 });
             },
             redirectToCheckPaid(pay_key) {

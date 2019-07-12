@@ -172,7 +172,7 @@
                             this.showModalAlertError(response.data.message);
                         }
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         new Noty({
                             type: 'error',
                             text: 'Произошла ошибка.',

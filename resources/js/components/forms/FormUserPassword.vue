@@ -146,7 +146,7 @@
                         this.isUploadingForm = false;
                         this.resetForm();
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         this.isUploadingForm = false;
                         new Noty({
                             type: 'error',

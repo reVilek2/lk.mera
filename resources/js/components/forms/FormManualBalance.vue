@@ -203,7 +203,7 @@
                         this.isUploadingForm = false;
                         this.hideModalConfirm();
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         this.isUploadingForm = false;
                         this.hideModalConfirm();
                     });

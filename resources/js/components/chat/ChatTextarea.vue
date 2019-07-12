@@ -89,16 +89,11 @@
             newlineHandle(e) {
                 if (e.keyCode === 13 && e.ctrlKey) {
                     e.preventDefault();
-                    console.log(e);
                     let p = this.getInputSelection(e.target).start;
                     let cv = $(e.target).val();
                     $(e.target).val(cv.substr(0, p) + "\r\n" + cv.substr(p));
                     this.setCaretPosition(e.target, p + 1);
                     this.val = $(e.target).val();
-                    // let caret = e.target.selectionStart;
-                    // this.val = this.value.substring(0, caret)+'\r\n'+this.value.substring(caret);
-                    // let elem
-                    // this.setCaretPosition(e.target, caret+2);
                 }
             },
             getInputSelection(el){

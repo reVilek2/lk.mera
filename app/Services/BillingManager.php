@@ -31,6 +31,8 @@ class BillingManager
      */
     public function makeTransaction(User $user, int $amount, string $type, string $comment = null, array $metaData = [])
     {
+        $initiatorUser = Auth::user() ?? $user;
+
         $transactionType = $this->getTransactionTypeByCode($type);
         $transactionStatus = $this->getTransactionStatusByCode(TransactionStatus::WAITING);
 
@@ -45,7 +47,7 @@ class BillingManager
         $meta_data['balance_external'] = MoneyAmount::toExternal($user_balance);
 
         $transaction = Transaction::create([
-            'initiator_user_id' => Auth::user()->id,
+            'initiator_user_id' => $initiatorUser->id,
             'user_id' => $user->id,
             'status_id' => $transactionStatus->id,
             'type_id' => $transactionType->id,
@@ -322,9 +324,10 @@ class BillingManager
             throw DocumentException::issetDocumentTransaction();
         }
 
-        $currUser = Auth::user() ?? $document->client;
         $client = $document->client;
         $signed = $document->signed;
+        $currUser = Auth::user() ?? $client;
+
         if ($is_need_status_signed) {
             $document->signed = 1;
             $signed = 1;
@@ -338,17 +341,6 @@ class BillingManager
         }
 
         try {
-            // меняем статус оплаты документу
-            $paid = 1;
-            $document->paid = $paid;
-            $document->save();
-            // log в историю
-            $document->history()->create([
-                'user_id' => $currUser->id,
-                'signed' => $signed,
-                'paid' => $paid,
-            ]);
-
             if ($is_need_deposit) {
                 /*
                  * транзакция на пополнение баланса
@@ -385,8 +377,20 @@ class BillingManager
 
             $document->transaction()->associate($transaction);
             $document->save();
+
+            // меняем статус оплаты документу
+            $paid = 1;
+            $document->paid = $paid;
+            $document->save();
+            // log в историю
+            $document->history()->create([
+                'user_id' => $currUser->id,
+                'signed' => $signed,
+                'paid' => $paid,
+            ]);
         }
         catch(\Exception $e) {
+
             throw $e;
         }
 

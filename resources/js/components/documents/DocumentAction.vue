@@ -196,17 +196,14 @@
                     let url = '/documents/'+this.item.id+'/set-paid';
                     this.submitForm(url, data);
                 } else if (this.currUser.is_client) {
-                    console.log('actionSignedAndPaid: client');
                     this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1}, this.actionPaid);
                 }
             },
             actionPaid() {
-                console.log('actionPaid');
                 this.submitForm('/documents/'+this.item.id+'/set-paid', {paid:1});
             },
             actionSigned() {
                 if (this.currUser.is_admin || this.currUser.is_client) {
-                    console.log('actionSigned');
                     this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1});
                 }
             },
@@ -217,7 +214,6 @@
                 if (!this.isUploadingForm) {
                     this.isUploadingForm = true;
                     axios.post(url, data).then(response => {
-                        console.log(response.data);
                         this.isUploadingForm = false;
 
                         if (response.data.status === 'success') {
@@ -239,7 +235,7 @@
                         callback();
 
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         this.isUploadingForm = false;
                     });
                 }
@@ -278,7 +274,7 @@
                             this.isUploadingForm = false;
                         }
                     }).catch(errors => {
-                        console.log(errors);
+                        //console.log(errors);
                         new Noty({
                             type: 'error',
                             text: 'Произошла ошибка.',
@@ -336,9 +332,9 @@
 
             removePaymentPending(pay_key) {
                 axios.post(this.remove_payment_pending_url, {pay_key: pay_key}).then(response => {
-                    console.log(response.data);
+                    //console.log(response.data);
                 }).catch(errors => {
-                    console.log(errors);
+                    //console.log(errors);
                 });
             },
 
