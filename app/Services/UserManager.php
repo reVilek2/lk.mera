@@ -246,15 +246,14 @@ class UserManager
                             CONCAT(COALESCE(`users`.`second_name`,\'\'),\' \', COALESCE(`users`.`last_name`,\'\'),\' \', COALESCE(`users`.`first_name`,\'\')) like \'%'. $searchValue .'%\' OR
                             CONCAT(COALESCE(`users`.`second_name`,\'\'),\' \', COALESCE(`users`.`first_name`,\'\'),\' \', COALESCE(`users`.`last_name`,\'\')) like \'%'. $searchValue .'%\' OR
                             `users`.`phone` like \'%'. $searchValue .'%\' OR
-                            `users`.`email` like \'%'. $searchValue .'%\' OR
+                            `users`.`email` like \'%'. $searchValue .'%\'
                         ');
-                    } else {
-                        $q->orWhere($searchColumn, 'like', '%' . $searchValue . '%');
+                    } elseif ($searchColumn !== 'owner') {
+                        $q->orWhere('files.'.$searchColumn, 'like', '%' . $searchValue . '%');
                     }
                 }
             });
         }
-
 
         if (array_key_exists('length', $params) && $params['length']) {
             return $query->paginate($params['length']);

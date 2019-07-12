@@ -254,7 +254,25 @@ class UserController extends Controller
             if (Storage::disk('files')->putFileAs($fileData['path'], $file, $fileData['name'])) {
 
                 $file = $currUser->addFile($fileData);
-                $file = File::whereId($file->id)->with('model');
+                $file = File::select([
+                    'files.id',
+                    'files.model_type',
+                    'files.model_id',
+                    'files.name',
+                    'files.origin_name',
+                    'files.type',
+                    'files.path',
+                    'files.size',
+                    'files.created_at',
+
+                    'users.last_name',
+                    'users.second_name',
+                    'users.first_name',
+                    'users.email',
+                    'users.phone',
+                ])->join('users', 'users.id', '=', 'files.model_id')
+                    ->where('files.id', $file->id)
+                    ->with('model')->first();
 
                 return response()->json([
                     'status'=>'success',
