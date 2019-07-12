@@ -319,6 +319,11 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(PaymentCard::class, 'user_id');
     }
 
+    public function files()
+    {
+        return $this->morphMany(File::class, 'model');
+    }
+
     public function getManager()
     {
         return $this->manager()->get()->first();
@@ -672,5 +677,16 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->notifications()->with('sender')
             ->whereNull('read_at')->where('type', ServiceTextNotification::class);
+    }
+
+    public function addFile(array $file)
+    {
+        return $this->files()->create([
+            'type' => $file['type'],
+            'origin_name' => $file['origin_name'],
+            'name' => $file['name'],
+            'path' => $file['path'],
+            'size' => $file['size'],
+        ]);
     }
 }

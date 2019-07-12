@@ -76,5 +76,12 @@ return [
             'url' => env('APP_URL'),
             'visibility' => 'private',
         ],
+
+        'files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/files'),
+            'url' => env('APP_URL'),
+            'visibility' => 'private',
+        ],
     ],
 ];

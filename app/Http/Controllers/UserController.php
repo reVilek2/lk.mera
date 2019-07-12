@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
+use App\Models\File;
 use App\Models\TransactionStatus;
 use App\Models\TransactionType;
 use App\Models\User;
@@ -9,9 +11,11 @@ use App\Services\Page;
 use App\Services\UserManager;
 use Auth;
 use BillingService;
+use FileService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Response;
+use Storage;
 use Validator;
 
 
@@ -186,6 +190,114 @@ class UserController extends Controller
                 'status'=>'error',
                 'errors' => $errors
             ], 200);
+        }
+    }
+
+    public function documentIndex(Request $request)
+    {
+        Page::setTitle('Документы пользователя | MeraCapital');
+        Page::setDescription('Страница документов пользователя');
+
+        $whiteListOrderColumns = [
+            'owner' => true,
+            'origin_name' => true,
+            'created_at' => true,
+        ];
+        $whiteListSearchColumns = [
+            'owner',
+            'origin_name',
+            'created_at',
+        ];
+        $params = [
+            'sort' => $request->has('column') ? $request->input('column') : null,
+            'dir' => $request->has('dir') && $request->input('dir') === 'asc' ? 'asc' : 'desc',
+            'search' => $request->has('column') && !empty($request->input('search')) ? $request->input('search') : null,
+            'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
+        ];
+
+        $files = $this->userManager->getUserFilesWithOrderAndPagination($whiteListOrderColumns, $whiteListSearchColumns, $params);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'files' => $files,
+                'draw' => $request->input('draw')
+            ], 200);
+        }
+
+        return view('users.documents', [
+            'files_count' => $files->count(),
+            'files' => $files->toJson()
+        ]);
+    }
+
+    public function documentCreate(Request $request)
+    {
+        $currUser = Auth::user();
+        if ($currUser->hasRole('manager|admin')) {
+            abort(403);
+        }
+        $validation = Validator::make($request->all(), [
+            'file'=> 'required|mimes:jpeg,png,jpg,pdf|max:10000',
+            'name'=> 'required|string',
+        ]);
+        $errors = $validation->errors();
+        $errors = json_decode($errors);
+        if ($validation->passes()) {
+            $file = $request->file('file');
+            $fileData = FileService::getFileData($file, '/'.$currUser->id, $request->input('name'));
+            if (Storage::disk('files')->exists($fileData['path'].'/'.$fileData['name'])) {
+                return response()->json([
+                    'status'=>'error',
+                    'errors' => ['file' => ['Файл с таким именем уже существует.']]
+                ], 200);
+            }
+            if (Storage::disk('files')->putFileAs($fileData['path'], $file, $fileData['name'])) {
+
+                $file = $currUser->addFile($fileData);
+                $file = File::whereId($file->id)->with('model');
+
+                return response()->json([
+                    'status'=>'success',
+                    'file' => $file
+                ], 200);
+
+            } else {
+                return response()->json([
+                    'status'=>'error',
+                    'errors' => ['file' => ['Ошибка при сохранении файла']]
+                ], 200);
+            }
+        } else {
+            return response()->json([
+                'status'=>'error',
+                'errors' => $errors
+            ], 200);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param File $file
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response|mixed
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function fileAction(Request $request, File $file)
+    {
+        $currUser = Auth::user();
+        $file = File::whereId($file->id)->with('model')->first();
+        if (!$currUser || $currUser->id !== $file->model->id || !Storage::disk('files')->exists(FileService::getFilePath($file))) {
+            abort(404);
+        }
+        if (!$currUser->hasRole('admin|manager') && $currUser->id !== $file->model->id) {
+            abort(403);
+        }
+
+        if (!FileService::isFileTypeDisplayable($file->type) || $request->has('download')) {
+
+            return FileService::download($file, 'files');
+
+        }else {
+            return FileService::display($file, 'files');
         }
     }
 }

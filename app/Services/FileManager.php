@@ -8,14 +8,14 @@ use Storage;
 
 class FileManager
 {
-    public function getFileData(UploadedFile $file, $baseDir = '/')
+    public function getFileData(UploadedFile $file, $baseDir = '/', $name = '')
     {
         $full_name = $file->getClientOriginalName();
         $pieces = explode(".", $full_name);
         $unique_name = $this->getUniqueFileName($full_name, $baseDir);
 
         $fileData['type'] = $file->getMimeType();
-        $fileData['origin_name'] = $full_name;
+        $fileData['origin_name'] = empty($name) ? $full_name : $name . "." . end($pieces);
         $fileData['name'] = $unique_name . "." . end($pieces);
         $fileData['path'] = $baseDir;
         $fileData['size'] = $file->getSize();
@@ -158,16 +158,6 @@ class FileManager
     public function getFilePath(File $file)
     {
         return $file->path.'/'.$file->name;
-    }
-    /**
-     * @param File $file
-     * @return bool|string
-     */
-    public function getContent(File $file)
-    {
-        $path = "./".$this->config['file-management']['main_upload_folder'].$file->getPath()."/".$file->getName();
-
-        return file_get_contents($path);
     }
 
     /**

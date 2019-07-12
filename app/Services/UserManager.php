@@ -1,8 +1,10 @@
 <?php
 namespace App\Services;
 
+use App\Models\File;
 use App\Models\User;
 use App\Notifications\EmailConfirmNotification;
+use Auth;
 use ChatService;
 use Illuminate\Support\Facades\Date;
 use Mail;
@@ -154,6 +156,105 @@ class UserManager
                 }
             });
         }
+
+        if (array_key_exists('length', $params) && $params['length']) {
+            return $query->paginate($params['length']);
+        } else {
+            return $query->get();
+        }
+    }
+
+    /**
+     * @param array $orderColumns
+     * @param array $searchColumns
+     * @param array $params
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection
+     */
+    public function getUserFilesWithOrderAndPagination(array $orderColumns = [], array $searchColumns = [], array $params = [])
+    {
+        $currUser = Auth::user();
+        $is_admin = $currUser->hasRole('admin|manager');
+
+        $query = File::select([
+            'files.id',
+            'files.model_type',
+            'files.model_id',
+            'files.name',
+            'files.origin_name',
+            'files.type',
+            'files.path',
+            'files.size',
+            'files.created_at',
+
+            'users.last_name',
+            'users.second_name',
+            'users.first_name',
+            'users.email',
+            'users.phone',
+        ])->join('users', 'users.id', '=', 'files.model_id')
+            ->whereModelType(User::class)
+            ->with('model');
+
+        if (!$is_admin) {
+            $query->whereModelId($currUser->id);
+        }
+
+        if (array_key_exists('sort', $params) && array_key_exists('dir', $params) && array_key_exists($params['sort'], $orderColumns)) {
+            $sort = $params['sort'];
+            $dir = $params['dir'];
+            if ($sort !== 'owner') {
+                $query->orderBy($sort, $dir);
+            } elseif ($is_admin) { // если админ то разрешаем сортировать
+                $query->orderByRaw('
+                    CASE
+                        WHEN (`users`.`first_name` IS NOT NULL OR `users`.`first_name` <> "")  THEN `users`.`first_name`
+                        WHEN (`users`.`second_name` IS NOT NULL OR `users`.`second_name` <> "") THEN `users`.`second_name`
+                        WHEN (`users`.`last_name` IS NOT NULL and `users`.`last_name` <> "") THEN `users`.`last_name`                        
+                        WHEN (`users`.`email` IS NOT NULL and `users`.`email` <> "") THEN `users`.`email`                        
+                        WHEN (`users`.`phone` IS NOT NULL and `users`.`phone` <> "") THEN `users`.`phone`                        
+                       ELSE 0            
+                    END
+                    '. $dir.',
+                    `users`.`first_name` '. $dir .', `users`.`second_name` '. $dir.' , `users`.`last_name` '. $dir.', `users`.`email` '. $dir.', `users`.`phone` '. $dir
+                );
+            } else {
+                $query->orderBy('id', 'desc');
+            }
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+        if (array_key_exists('search', $params) && $params['search'] && !empty($searchColumns)) {
+            $searchValue = $params['search'];
+            $query->where(function($q) use ($searchValue, $searchColumns, $is_admin) {
+                foreach ($searchColumns as $searchColumn) {
+                    if ($searchColumn === 'created_at') {
+                        $q->orWhereRaw('DATE_FORMAT(files.created_at, \'%Y-%m-%d %H:%i:%s\') like \'%' . $searchValue . '%\'');
+                    } elseif ($searchColumn === 'owner' && $is_admin) {
+                        $q->orWhereRaw('
+                            CONCAT(COALESCE(`users`.`last_name`,\'\'),\' \', COALESCE(`users`.`first_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`last_name`,\'\'),\' \', COALESCE(`users`.`second_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`last_name`,\'\'),\' \', COALESCE(`users`.`first_name`,\'\'),\' \', COALESCE(`users`.`second_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`last_name`,\'\'),\' \', COALESCE(`users`.`second_name`,\'\'),\' \', COALESCE(`users`.`first_name`,\'\')) like \'%'. $searchValue .'%\' OR
+
+                            CONCAT(COALESCE(`users`.`first_name`,\'\'),\' \', COALESCE(`users`.`last_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`first_name`,\'\'),\' \', COALESCE(`users`.`second_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`first_name`,\'\'),\' \', COALESCE(`users`.`last_name`,\'\'),\' \', COALESCE(`users`.`second_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`first_name`,\'\'),\' \', COALESCE(`users`.`second_name`,\'\'),\' \', COALESCE(`users`.`last_name`,\'\')) like \'%'. $searchValue .'%\' OR
+
+                            CONCAT(COALESCE(`users`.`second_name`,\'\'),\' \', COALESCE(`users`.`first_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`second_name`,\'\'),\' \', COALESCE(`users`.`last_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`second_name`,\'\'),\' \', COALESCE(`users`.`last_name`,\'\'),\' \', COALESCE(`users`.`first_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            CONCAT(COALESCE(`users`.`second_name`,\'\'),\' \', COALESCE(`users`.`first_name`,\'\'),\' \', COALESCE(`users`.`last_name`,\'\')) like \'%'. $searchValue .'%\' OR
+                            `users`.`phone` like \'%'. $searchValue .'%\' OR
+                            `users`.`email` like \'%'. $searchValue .'%\' OR
+                        ');
+                    } else {
+                        $q->orWhere($searchColumn, 'like', '%' . $searchValue . '%');
+                    }
+                }
+            });
+        }
+
 
         if (array_key_exists('length', $params) && $params['length']) {
             return $query->paginate($params['length']);

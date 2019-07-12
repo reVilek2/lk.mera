@@ -10,8 +10,12 @@ Route::get('/profile', 'ProfileController@index')->name('profile');
 Route::post('/profile/{user}', 'ProfileController@update')->name('profile.user.update');
 Route::post('/profile/{user}/avatar', 'ProfileController@updateAvatar')->name('profile.avatar.update');
 Route::post('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
-// documents
+// reports
 Route::get('/reports', 'DocumentController@index')->name('reports');
+// documents
+Route::get('/documents', 'UserController@documentIndex')->name('documents');
+Route::post('/documents', 'UserController@documentCreate')->name('document.create');
+Route::get('/document/{file}', 'UserController@fileAction')->name('document');
 // finances
 Route::get('/finances', 'FinanceController@index')->name('finances');
 
@@ -34,7 +38,7 @@ Route::middleware(['role:admin|manager'])->group(function () {
 
 // Only manager or admin or client
 Route::middleware(['role:admin|manager|client'])->group(function () {
-    Route::get('/documents/{document}/files/{file}', 'DocumentController@documentFile')->name('documents.files');
+    Route::get('/reports/{document}/files/{file}', 'DocumentController@documentFile')->name('reports.files');
     Route::post('/documents/{document}/set-signed', 'DocumentController@setSigned')->name('documents.set.signed');
     Route::post('/documents/{document}/set-paid', 'DocumentController@setPaid')->name('documents.set.paid');
 });

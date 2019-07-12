@@ -36,6 +36,7 @@ Vue.directive('scroll', {
 import NotificationMessages from './components/notification/NotificationMessages';
 import NotificationServiceMessages from './components/notification/NotificationServiceMessages';
 import UsersTable from './components/users/UsersTable';
+import UserFilesTable from './components/users/UserFilesTable';
 import UserProfileBox from './components/users/UserProfileBox';
 import UserProfileTabs from './components/users/UserProfileTabs';
 import DocumentsTable from './components/documents/DocumentsTable';
@@ -61,6 +62,7 @@ let app = new Vue({
         NotificationMessages,
         NotificationServiceMessages,
         UsersTable,
+        UserFilesTable,
         UserProfileBox,
         UserProfileTabs,
         DocumentsTable,

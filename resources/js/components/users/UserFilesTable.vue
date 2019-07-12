@@ -1,9 +1,9 @@
 <template>
     <div class="box-body">
-        <div class="documents-table-wrapper dataTables_wrapper dt-bootstrap">
+        <div class="files-table-wrapper dataTables_wrapper dt-bootstrap" :class="currUser.is_admin || currUser.is_manager ? 'admin': ''">
             <div class="row">
                 <div class="col-xs-12">
-                    <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action dataTables_action__mobile">
+                    <div v-if="!currUser.is_manager && !currUser.is_admin" class="dataTables_action dataTables_action__mobile">
                         <button class="btn btn-success" @click="showModal">Добавить</button>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <div class="col-sm-2">
-                    <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action dataTables_action__desktop">
+                    <div v-if="!currUser.is_manager && !currUser.is_admin" class="dataTables_action dataTables_action__desktop">
                         <button class="btn btn-success" @click="showModal">Добавить</button>
                     </div>
                 </div>
@@ -41,47 +41,27 @@
                                @sort="sortBy">
                         <tbody>
                         <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
-                            <td class="created_at">{{item.created_at_humanize}}</td>
-                            <td class="client_full_name"><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
-                            <td class="name">{{item.name}}</td>
-                            <td class="file">
-                                <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
+                            <td class="owner"><span v-show="item.model">{{item.model.name}}</span></td>
+                            <td class="origin_name">
+                                <div class="btn-group" >
                                     <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
-                                        {{file.origin_name}}
+                                        <i class="fa fa-file-pdf-o" v-show="item.type==='application/pdf'"></i>
+                                        <i class="fa fa-file-image-o" v-show="item.type==='image/png' || item.type==='image/jpeg'"></i>
+                                        {{item.origin_name}}
                                     </a>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a :href="'/reports/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
-                                        <li><a :href="'/reports/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
+                                        <li><a :href="'/document/'+item.id" target="_blank">Посмотреть</a></li>
+                                        <li><a :href="'/document/'+item.id+'?download=1'">Скачать</a></li>
                                     </ul>
                                 </div>
                             </td>
-                            <td class="status">
-                                <document-status :signed="item.signed"
-                                                 :paid="item.paid"
-                                                 :item="item"
-                                                 :key="item.id"
-                                                 @updateDocument="updateStatus"></document-status>
-                            </td>
-                            <td class="amount">
-                                {{item.amount_humanize}}
-                            </td>
-                            <td class="manager_full_name"><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
-                            <td class="action">
-                                <document-action :signed="item.signed"
-                                                 :paid="item.paid"
-                                                 :item="item"
-                                                 :key="'0'+item.id"
-                                                 :key-id="'0'+item.id"
-                                                 @updateDocument="updateStatus"></document-action>
-                            </td>
+                            <td class="created_at">{{item.created_at}}</td>
                         </tr>
                         <tr v-if="item_count === 0" class="odd empty-row">
-                            <td colspan="8" align="center">
-                                <span v-if="filter">Не найдено ни одного отчета</span>
+                            <td colspan="3" align="center">
+                                <span v-if="filter">Не найдено ни одного документа</span>
                                 <span v-if="!filter">
-                                    <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного отчета</span>
-                                    <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного отчета</span>
+                                    <span>Нет ни одного документа</span>
                                 </span>
                             </td>
                         </tr>
@@ -109,56 +89,41 @@
                     </div>
                 </div>
             </div>
-            <form-document-create :managers="managers"
-                                  :ref="'formDocumentCreate'"
-                                  :clear-form="clearForm"
-                                  @createdDocument="createdDocumentEvent"
-                                  @formCleared="clearFormDone"></form-document-create>
+            <form-user-file-create :ref="'formDocumentCreate'"
+                                   :clear-form="clearForm"
+                                   @createdFile="createdFileEvent"
+                                   @formCleared="clearFormDone"></form-user-file-create>
 
         </div>
     </div>
 </template>
 <script>
     import { mapGetters } from 'vuex';
-    import FormDocumentCreate from '../forms/FormDocumentCreate';
-    import DocumentStatus from './DocumentStatus';
-    import DocumentAction from './DocumentAction';
+    import FormUserFileCreate from '../forms/FormUserFileCreate';
     import Datatable from '../datatables/Datatable.vue';
     import FilterInfo from '../datatables/FilterInfo.vue';
     import Paginate from 'vuejs-paginate';
 
     export default {
         props: {
-            documents: {
+            files: {
                 type: Object,
                 default: () => {}
             },
-            documents_count: {
+            files_count: {
                 type: Number,
                 default: () => 0
             },
-            managers: {
-                type: Array,
-                default: () => []
-            },
         },
-        components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate, documentStatus: DocumentStatus, documentAction: DocumentAction},
+        components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, FormUserFileCreate: FormUserFileCreate},
         data() {
             let sortOrders = {};
             let excludeSortOrders = {
-                action: true,
-                status: true,
-                file: true,
             };
             let columns = [
+                {width: 'auto', label: 'Владелец', name: 'owner' },
+                {width: 'auto', label: 'Название', name: 'origin_name' },
                 {width: 'auto', label: 'Дата', name: 'created_at' },
-                {width: 'auto', label: 'ФИО', name: 'client_full_name' },
-                {width: 'auto', label: 'Название', name: 'name' },
-                {width: 'auto', label: 'Файл', name: 'file' },
-                {width: 'auto', label: 'Статус', name: 'status' },
-                {width: 'auto', label: 'Сумма', name: 'amount' },
-                {width: 'auto', label: 'От кого', name: 'manager_full_name' },
-                {width: '50px', label: 'Действия', name: 'action' },
             ];
 
             columns.forEach((column) => {
@@ -169,7 +134,7 @@
                 clearForm: false,
                 excludeSortOrders: excludeSortOrders,
                 items: [],
-                item_count: this.documents_count,
+                item_count: this.files_count,
                 filter: false,
                 columns: columns,
                 sortKey: 'deadline',
@@ -192,7 +157,7 @@
                     from: '',
                     to: ''
                 },
-                collection_url: '/reports',
+                collection_url: '/documents',
             }
         },
         computed: {
@@ -202,53 +167,44 @@
             })
         },
         methods: {
-            updateStatus(document) {
-                this.items.forEach(el => {
-                    if (parseInt(el.id) === parseInt(document.id)) {
-                        el.signed = document.signed;
-                        el.paid = document.paid;
-                    }
-                });
-            },
             paginateCallback(pageNum){
                 this.getItems(this.collection_url+'?page='+pageNum)
             },
             showModal () {
-                if (this.currUser.is_manager || this.currUser.is_admin) {
-                    this.$modal.show('document-create');
+                if (!this.currUser.is_manager && !this.currUser.is_admin) {
+                    this.$modal.show('file-create');
                 }
             },
             hideModal () {
-                if (this.currUser.is_manager || this.currUser.is_admin) {
-                    this.$modal.hide('document-create');
+                if (!this.currUser.is_manager && !this.currUser.is_admin) {
+                    this.$modal.hide('file-create');
                 }
             },
             createdSuccess () {
-                this.$modal.hide('document-create');
-                this.$modal.hide('document-create-confirm');
+                this.$modal.hide('file-create');
                 //отчистить форму создания
                 this.clearForm = true;
                 // сброс что бы отобразилась хотя бы одна строка
                 this.item_count = 1;
             },
             clearFormDone (val) {
-              this.clearForm = false;
+                this.clearForm = false;
             },
             getItems(url = this.collection_url) {
                 if (!this.init_done) {
                     this.init_done = true;
-                    this.items = this.documents.data;
-                    this.configPagination(this.documents);
+                    this.items = this.files.data;
+                    this.configPagination(this.files);
                 } else {
                     this.tableData.draw++;
                     axios.get(url, {params: this.tableData})
                         .then(response => {
                             let data = response.data;
                             if (this.tableData.draw === parseInt(data.draw)) {
-                                this.items = data.documents.data;
+                                this.items = data.files.data;
                                 this.item_count = this.items.length;
                                 this.filter = true;
-                                this.configPagination(data.documents);
+                                this.configPagination(data.files);
                             }
                         })
                         .catch(errors => {
@@ -278,9 +234,9 @@
             getIndex(array, key, value) {
                 return array.findIndex(i => i[key] === value)
             },
-            createdDocumentEvent(document) {
+            createdFileEvent(file) {
                 let newItems = [];
-                newItems.push(document);
+                newItems.push(file);
                 this.items.forEach(el => {
                     newItems.push(el);
                 });
