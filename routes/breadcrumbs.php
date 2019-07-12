@@ -10,6 +10,10 @@ try {
         $trail->push('Профиль', route('home'), ['fa' => 'fa-user']);
     });
     // users
+    Breadcrumbs::for('documents', function ($trail) {
+        $trail->parent('home');
+        $trail->push('Документы', route('users'), ['fa' => 'fa-file-pdf-o']);
+    });
     Breadcrumbs::for('users', function ($trail) {
         $trail->parent('home');
         $trail->push('Пользователи', route('users'), ['fa' => 'fa-users']);
