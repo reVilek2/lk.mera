@@ -9,3 +9,11 @@
 .main-header .logo {
   height: 51px;
 }
+@media (max-width: 767px) {
+  .main-header .logo {
+    display: none;
+  }
+  .main-sidebar {
+    padding-top: 51px;
+  }
+}

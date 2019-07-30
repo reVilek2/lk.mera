@@ -38,3 +38,19 @@
   display: inline-block;
   background: url("../../svg/card.svg") no-repeat center;
 }
+.f-link {
+  font-weight: 600;
+  color: #444444;
+
+  &:focus,
+  &:active,
+  &:hover {
+    color: #444444;
+  }
+}
+
+@media (max-width: 767px) {
+  .content-header > .breadcrumb {
+    display: none;
+  }
+}

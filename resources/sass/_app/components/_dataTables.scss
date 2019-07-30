@@ -95,6 +95,9 @@ div.dataTables_wrapper div.dataTables_action{
   td.name {
     display: none;
   }
+  .file a{
+    word-break: break-all;
+  }
 }
 .files-table-wrapper {
   .dataTable {
