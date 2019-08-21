@@ -96,6 +96,7 @@ use Str;
  * @property-read mixed $created_at_diff
  * @property-read mixed $total_payable
  * @property-read mixed $total_payable_humanize
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\File[] $files
  */
 class User extends Authenticatable implements HasMedia
 {

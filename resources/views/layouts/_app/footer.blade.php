@@ -8,3 +8,4 @@
     <!-- Default to the left -->
     {{--<strong>Copyright &copy; {{ date( 'Y' ) }} <a href="http://mera-capital.com">MeraCapital</a>.</strong> All rights reserved.--}}
 </footer>
+<modals-container/>

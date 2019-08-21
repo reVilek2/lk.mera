@@ -87,3 +87,8 @@ Route::get('/service-text-notification/mark-as-read',function() {
 
     return response()->json(['status' => 'success'], 200);
 });
+
+//Recommendations
+Route::get('/recommendations', 'RecommendationsController@index')->name('recommendations');
+Route::post('/recommendations', 'RecommendationsController@create')->name('recommendation.create');
+Route::post('/recommendations/{recommendation}/client-resolve', 'RecommendationsController@clientResolve')->name('recommendation.clientResolve');

@@ -19,7 +19,7 @@ import VueTextareaAutosize from 'vue-textarea-autosize';
 import sklonyator from './plugins/sklonyator';
 import VModal from 'vue-js-modal';
 
-Vue.use(VModal);
+Vue.use(VModal, { dynamic: true });
 Vue.use(sklonyator);
 Vue.use(VueTextareaAutosize);
 Vue.directive('scroll', {
@@ -47,6 +47,7 @@ import UserSidebarPanel from './components/users/UserSidebarPanel';
 import PaymentService from './components/payments/PaymentService';
 import FinanceService from './components/finances/FinanceService';
 import Chat from './components/chat/Chat';
+import RecommendationsList from './components/recommendations/RecommendationsList';
 
 Vue.config.devtools = process.env.NODE_ENV === 'development';
 
@@ -68,5 +69,6 @@ let app = new Vue({
         DocumentsTable,
         PaymentService,
         FinanceService,
+        RecommendationsList,
     }
 });
