@@ -34,6 +34,10 @@ try {
         $trail->parent('finances');
         $trail->push('Оплата услуг', '', ['fa' => 'fa-credit-card']);
     });
+    Breadcrumbs::for('recommendations', function ($trail) {
+        $trail->parent('home');
+        $trail->push('Рекомендации', '', ['fa' => 'fa-tasks']);
+    });
 }
 catch (\DaveJamesMiller\Breadcrumbs\Exceptions\DuplicateBreadcrumbException $e) {
     Log::error($e->getMessage());

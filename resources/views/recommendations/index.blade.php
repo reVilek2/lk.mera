@@ -8,7 +8,7 @@
 @endsection
 
 @section('breadcrumbs')
-    {{ Breadcrumbs::render('reports') }}
+    {{ Breadcrumbs::render('recommendations') }}
 @endsection
 
 @section('content')

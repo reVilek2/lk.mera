@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\RecommendationReceiver;
+use Illuminate\Notifications\Notifiable;
 
 class Recommendation extends Model
 {
+    use Notifiable;
+
     protected $table = 'recommendations';
 
     public $fillable = [

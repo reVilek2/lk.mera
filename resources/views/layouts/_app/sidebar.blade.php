@@ -15,7 +15,9 @@
             <li class="{{ set_active(['profile', 'profile/*']) }}"><a href="{{route('profile')}}"><i class="fa fa-user"></i> <span>Профиль</span></a></li>
             <li class="{{ set_active(['finances', 'finances/*']) }}"><a href="{{route('finances')}}"><i class="fa fa-money"></i> <span>Платежи</span></a></li>
             <li class="{{ set_active(['chat', 'chat/*']) }}"><a href="{{route('chat')}}"><i class="fa fa-comments"></i> <span>Чат</span></a></li>
+            @hasanyrole('manager|client')
             <li class="{{ set_active(['recommendations', 'recommendations/*']) }}"><a href="{{route('recommendations')}}"><i class="fa fa-tasks"></i> <span>Рекомендации</span></a></li>
+            @endhasallroles
             @hasanyrole('manager|admin')
                 <li class="{{ set_active(['users', 'users/*']) }}"><a href="{{route('users')}}"><i class="fa fa-users"></i> <span>Пользователи</span></a></li>
             @endhasallroles

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Validator;
 use App\Rules\ManagerClientsIds;
 use App\Services\RecommedationManager;
+use App\Services\Page;
+use App\Notifications\RecommendationAccepted;
 
 class RecommendationsController extends Controller
 {
@@ -23,6 +25,9 @@ class RecommendationsController extends Controller
 
     public function index(Request $request)
     {
+        Page::setTitle('Рекомендации | MeraCapital');
+        Page::setDescription('Страница Рекомендаций');
+
         $user = Auth::user();
         if (!$user->hasRole(['manager', 'client'])) {
             abort(403);
@@ -127,6 +132,10 @@ class RecommendationsController extends Controller
 
         $receiver->status = $status;
         $receiver->save();
+
+        if($receiver->status == RecommendationReceiver::STATUS_ACCEPTED){
+            $recommendation->notify( new RecommendationAccepted($receiver->client) );
+        }
 
         $recommendation = $recommendation::where('id', $recommendation->id)
             ->with(['receivers' => function ($query) use($currUser) {
