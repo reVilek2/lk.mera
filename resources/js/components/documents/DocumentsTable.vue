@@ -3,7 +3,7 @@
         <div class="documents-table-wrapper dataTables_wrapper dt-bootstrap">
             <div class="row">
                 <div class="col-xs-12">
-                    <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action dataTables_action__mobile">
+                    <div v-if="currUser.is_manager" class="dataTables_action dataTables_action__mobile">
                         <button class="btn btn-success" @click="showModal">Добавить</button>
                     </div>
                 </div>
@@ -41,10 +41,16 @@
                                @sort="sortBy">
                         <tbody>
                         <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
-                            <td class="created_at">{{item.created_at_humanize}}</td>
-                            <td class="client_full_name"><span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span></td>
-                            <td class="name">{{item.name}}</td>
-                            <td class="file">
+                            <td v-if="isColumnExist('created_at')" class="created_at">
+                                {{item.created_at_humanize}}
+                            </td>
+                            <td v-if="isColumnExist('client_full_name')" class="client_full_name">
+                                <span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span>
+                            </td>
+                            <td v-if="isColumnExist('name')" class="name">
+                                {{item.name}}
+                            </td>
+                            <td v-if="isColumnExist('file')" class="file">
                                 <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
                                     <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                         <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
@@ -56,24 +62,29 @@
                                     </ul>
                                 </div>
                             </td>
-                            <td class="status">
+                            <td v-if="isColumnExist('status')" class="status">
                                 <document-status :signed="item.signed"
                                                  :paid="item.paid"
                                                  :item="item"
                                                  :key="item.id"
                                                  @updateDocument="updateStatus"></document-status>
                             </td>
-                            <td class="amount">
+                            <td v-if="isColumnExist('amount')" class="amount">
                                 {{item.amount_humanize}}
                             </td>
-                            <td class="manager_full_name"><span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span></td>
-                            <td class="action">
+                            <td v-if="isColumnExist('manager_full_name')" class="manager_full_name">
+                                <span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span>
+                            </td>
+                            <td v-if="isColumnExist('action')" class="action">
                                 <document-action :signed="item.signed"
                                                  :paid="item.paid"
                                                  :item="item"
                                                  :key="'0'+item.id"
                                                  :key-id="'0'+item.id"
-                                                 @updateDocument="updateStatus"></document-action>
+                                                 @updateDocument="updateStatus"
+                                                 @deleteDocument="deleteItem"
+                                >
+                                </document-action>
                             </td>
                         </tr>
                         <tr v-if="item_count === 0" class="odd empty-row">
@@ -214,12 +225,12 @@
                 this.getItems(this.collection_url+'?page='+pageNum)
             },
             showModal () {
-                if (this.currUser.is_manager || this.currUser.is_admin) {
+                if (this.currUser.is_manager) {
                     this.$modal.show('document-create');
                 }
             },
             hideModal () {
-                if (this.currUser.is_manager || this.currUser.is_admin) {
+                if (this.currUser.is_manager) {
                     this.$modal.hide('document-create');
                 }
             },
@@ -256,6 +267,9 @@
                         });
                 }
             },
+            deleteItem() {
+                this.paginateCallback(this.pagination.currentPage);
+            },
             configPagination(data) {
                 this.pagination.lastPage = data.last_page;
                 this.pagination.currentPage = data.current_page;
@@ -287,6 +301,53 @@
                 this.items = newItems;
                 this.createdSuccess();
             },
+            isColumnExist(name) {
+                let column = this.columns.find(column => {
+                    return column.name == name
+                })
+
+                if(column){
+                    return true;
+                }
+
+                return false;
+            },
+            filterColumns() {
+                this.columns = this.columns.filter( column => {
+                    if(this.currUser.is_client){
+                        if(column.name == 'client_full_name'){
+                            return false;
+                        } else if(column.name == 'status'){
+                            return false;
+                        } else if(column.name == 'manager_full_name'){
+                            return false;
+                        } else if(column.name == 'created_at'){
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
+            }
+        },
+        watch:{
+            currUser() {
+                if(this.currUser && this.currUser.is_client){
+                    this.columns = this.columns.filter( column => {
+                        if(column.name == 'client_full_name'){
+                            return false;
+                        } else if(column.name == 'status'){
+                            return false;
+                        } else if(column.name == 'manager_full_name'){
+                            return false;
+                        } else if(column.name == 'created_at'){
+                            return false;
+                        }
+
+                        return true;
+                    });
+                }
+            }
         },
         created() {
             this.getItems();

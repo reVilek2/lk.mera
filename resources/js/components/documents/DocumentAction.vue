@@ -1,25 +1,23 @@
 <template>
-    <div :id="container" class="document_action" v-show="isNeedShow">
-        <div :id="container_item" class="btn-group" v-show="is_active_item">
+    <div class="col-xs-12">
+        <button v-if="btnText.value"
+            type="button"
+            class="btn btn-info btn-primary"
+            :disabled="!btnText.action || isUploadingForm"
+            @click="beforeOnSubmit(btnText.action, btnText.action_code)"
+        >
             <span v-if="isUploadingForm" class="preloader preloader-sm"></span>
-            <button type="button" class="btn btn-info btn-block" :disabled="isUploadingForm" @click="beforeOnSubmit(btnText.action, btnText.action_code)"><span v-html="btnText.value"></span></button>
-            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" :disabled="isUploadingForm">
-                <span class="caret"></span>
-                <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul v-if="btnList.length > 0" :id="box" class="dropdown-menu dropdown-menu-right" role="menu">
-                <li v-for="(list, index) in btnList" :key="index"><a href="#" @click="beforeOnSubmit(list.action, list.action_code)">{{list.value}}</a></li>
-            </ul>
-        </div>
+            {{btnText.value}}
+        </button>
         <modal :name="modalConfirm"
-               classes="v-modal"
-               :min-width="200"
-               :min-height="200"
-               :width="'90%'"
-               :height="'auto'"
-               :max-width="500"
-               :adaptive="true"
-               :scrollable="true">
+            classes="v-modal"
+            :min-width="200"
+            :min-height="200"
+            :width="'90%'"
+            :height="'auto'"
+            :max-width="500"
+            :adaptive="true"
+            :scrollable="true">
             <div class="v-modal-header">
                 <button type="button" class="close" @click="hideModalConfirmAndReset">
                     <span aria-hidden="true">×</span>
@@ -35,14 +33,14 @@
             </div>
         </modal>
         <modal :name="modalCreditFail"
-               classes="v-modal"
-               :min-width="200"
-               :min-height="200"
-               :width="'90%'"
-               :height="'auto'"
-               :max-width="500"
-               :adaptive="true"
-               :scrollable="true">
+            classes="v-modal"
+            :min-width="200"
+            :min-height="200"
+            :width="'90%'"
+            :height="'auto'"
+            :max-width="500"
+            :adaptive="true"
+            :scrollable="true">
             <div class="v-modal-header">
                 <button type="button" class="close" @click="hideModalCreditFail">
                     <span aria-hidden="true">×</span>
@@ -58,14 +56,14 @@
             </div>
         </modal>
         <modal :name="modalAlert"
-               classes="v-modal v-modal-alert"
-               :min-width="200"
-               :min-height="200"
-               :width="'90%'"
-               :height="'auto'"
-               :max-width="400"
-               :adaptive="true"
-               :scrollable="true">
+            classes="v-modal v-modal-alert"
+            :min-width="200"
+            :min-height="200"
+            :width="'90%'"
+            :height="'auto'"
+            :max-width="400"
+            :adaptive="true"
+            :scrollable="true">
             <div class="alert alert-dismissible" :class="modalAlertClass">
                 <button type="button" class="close" @click="hideModalAlert">×</button>
                 <h4><i class="icon fa fa-ban"></i> Ошибка!</h4>
@@ -133,54 +131,23 @@
         },
         computed: {
             btnText: function () {
-                if (this.currUser.is_admin || this.currUser.is_client) {
+                if (this.currUser.is_admin) {
                     if (!this.statusSigned && !this.statusPaid) {
-                        return {action: this.actionSignedAndPaid, action_code: 'signed_and_paid', value: 'Подписать и&nbsp;оплатить'};
-                    }
-                    if (!this.statusPaid) {
-                        return {action: this.actionPaid, action_code: 'paid' , value: 'Оплатить'};
-                    }
-                    if (!this.statusSigned) {
-                        return {action: this.actionSigned, action_code: 'signed' ,value: 'Подписать'};
+                        return {action: this.actionDelete, action_code: 'delete', value: 'Удалить'};
                     }
                 }
 
-                if (this.currUser.is_manager) {
-                    return {action: this.actionPaid, action_code: 'paid', value: 'Оплатить'};
+                if(this.currUser.is_client){
+                    if (!this.statusSigned || !this.statusPaid) {
+                        return {action: this.actionSignedAndPaid, action_code: 'signed_and_paid', value: 'Подписать и оплатить'};
+                    } else {
+                        return {action: false, action_code: false, value: 'Оплачено'};
+                    }
                 }
 
                 return {action: () => {}, action_code: '', value: ''};
             },
             btnList: function () {
-                if (this.currUser.is_admin) {
-                    let btnList = [];
-                    if (!this.statusSigned && !this.statusPaid) {
-                        btnList.push({action: this.actionSignedAndPaid, action_code: 'signed_and_paid' ,value: 'Подписать и оплатить'});
-                    }
-                    if (!this.statusPaid) {
-                        btnList.push({action: this.actionPaid, action_code: 'paid' ,value: 'Оплатить'});
-                    }
-                    if (!this.statusSigned) {
-                        btnList.push({action: this.actionSigned, action_code: 'signed' ,value: 'Подписать'});
-                    }
-                    return btnList;
-                }
-                if (this.currUser.is_client) {
-                    let btnList = [];
-                    if (!this.statusSigned && !this.statusPaid) {
-                        btnList.push({action: this.actionSignedAndPaid, action_code: 'signed_and_paid' ,value: 'Подписать и оплатить'});
-                    }
-                    if (this.statusSigned && !this.statusPaid) {
-                        btnList.push({action: this.actionPaid, action_code: 'paid' ,value: 'Оплатить'});
-                    }
-                    if (!this.statusSigned) {
-                        btnList.push({action: this.actionSigned, action_code: 'signed' ,value: 'Подписать'});
-                    }
-                    return btnList;
-                }
-                if (this.currUser.is_manager) {
-                    return [{action: this.actionPaid, action_code: 'paid' ,value: 'Оплатить'}];
-                }
                 return [];
             },
             // смешиваем результат mapGetters с внешним объектом computed
@@ -207,6 +174,11 @@
                     this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1});
                 }
             },
+            actionDelete(){
+                if (this.currUser.is_admin) {
+                    this.submitForm('/documents/'+this.item.id+'/delete', {});
+                }
+            },
             // end
 
             submitForm(url, data, callback = () => {}) {
@@ -217,13 +189,23 @@
                         this.isUploadingForm = false;
 
                         if (response.data.status === 'success') {
-                            this.setNewChange(response.data.document.signed ? 1 : 0, response.data.document.paid ? 1 : 0);
+                            if (response.data.hasOwnProperty('document')) {
+                                this.setNewChange(response.data.document.signed ? 1 : 0, response.data.document.paid ? 1 : 0);
+                            }
+
                             // обновляем currentUser в storage
                             if (response.data.hasOwnProperty('client')) {
                                 if (parseInt(response.data.client.id) === parseInt(this.currUser.id)) {
                                     this.$store.dispatch('setCurrentUser', response.data.client);
                                 }
                             }
+
+                            if (response.data.hasOwnProperty('action')) {
+                                if( response.data.action == 'delete') {
+                                    this.$emit('deleteDocument');
+                                }
+                            }
+
                         }
                         if (response.data.status === 'missingAmount') {
                             this.missingAmount = response.data.missingAmount;
@@ -412,6 +394,8 @@
                     this.action_message = 'Вы уверены, что хотите подписать отчет? Отменить подписание будет невозможно.';
                 } else if (action_code === 'paid') {
                     this.action_message = 'Вы уверены, что хотите оплатить отчет? Отменить оплату будет невозможно.';
+                } else if (action_code === 'delete') {
+                    this.action_message = 'Вы уверены, что хотите удалить отчет? Отменить удаление будет невозможно.';
                 }
                 this.showModalConfirm();
             },

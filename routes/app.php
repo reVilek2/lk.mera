@@ -22,6 +22,7 @@ Route::get('/finances', 'FinanceController@index')->name('finances');
 // Only admin
 Route::middleware(['role:admin'])->group(function () {
     Route::post('/documents/{document}/change-status', 'DocumentController@changeStatus')->name('documents.change.status');
+    Route::post('/documents/{document}/delete', 'DocumentController@delete')->name('documents.delete');
     Route::post('/users/{user}/change-balance', 'UserController@changeBalance')->name('change.balance');
     Route::post('/profile/fast-confirm-phone/{user}', 'ProfileController@fastConfirmPhone')->name('profile.fast.confirm.phone');
     Route::post('/profile/fast-confirm-email/{user}', 'ProfileController@fastConfirmEmail')->name('profile.fast.confirm.email');

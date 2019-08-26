@@ -223,7 +223,6 @@
                 });
 
                 this.managerOptions = managerOptions;
-                this.managerSelectDisabled = !this.currUser.is_admin;
             },
 
             setClientOptions () {
@@ -386,7 +385,7 @@
 
                 return valid;
             },
-            
+
             validateManager() {
                 let valid = true;
                 this.setDefaultValidateManager();

@@ -1,6 +1,6 @@
 <template>
     <div :id="container" class="document_status">
-        <div v-if="!currUser.is_admin">
+        <div v-if="true">
             <span class="label" :class="label">{{text}}</span>
         </div>
         <div v-else class="btn-group" :id="box">

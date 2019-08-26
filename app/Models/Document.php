@@ -52,6 +52,7 @@ class Document extends Model
         'amount_humanize',
         'created_at_humanize',
     ];
+
     public function getCreatedAtHumanizeAttribute()
     {
         return humanize_date($this->created_at, 'd.m.Y');
@@ -111,6 +112,10 @@ class Document extends Model
             'path' => $file['path'],
             'size' => $file['size'],
         ]);
+    }
+
+    public function deleteFiles(){
+        $this->files()->delete();
     }
 
     public static function nextAutoIncrementId()

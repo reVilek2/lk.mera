@@ -85,7 +85,7 @@ class DocumentController extends Controller
     public function create(Request $request)
     {
         $currUser = Auth::user();
-        if (!$currUser->hasRole('manager|admin')) {
+        if (!$currUser->hasRole('manager')) {
             abort(403);
         }
 
@@ -134,6 +134,32 @@ class DocumentController extends Controller
                 'errors' => $errors
             ], 200);
         }
+    }
+
+    /**
+     * Удаление документа.
+     *
+     * @param Request $request
+     * @param Document $document
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete(Request $request, Document $document)
+    {
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin')) {
+            abort(403);
+        }
+
+        if($document->signed || $document->paid){
+            abort(403);
+        }
+
+        $document->delete();
+        return response()->json([
+            'status'=>'success',
+            'action'=>'delete',
+        ], 200);
+
     }
 
     /**
@@ -273,7 +299,7 @@ class DocumentController extends Controller
     }
 
     /**
-     * Менеджер или админ или клиент ставит подпись документа
+     * Клиент ставит подпись документа
      *
      * @param Request $request
      * @param Document $document
@@ -283,7 +309,7 @@ class DocumentController extends Controller
     {
         $currUser = Auth::user();
         $document = Document::whereId($document->id)->with('client')->with('manager')->first();
-        if (!$currUser->hasRole('admin') && $currUser->id !== $document->client->id) {
+        if ($currUser->id !== $document->client->id) {
             abort(403);
         }
 

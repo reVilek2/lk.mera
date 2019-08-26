@@ -6,6 +6,10 @@ use Carbon\Carbon;
 use Config;
 use Illuminate\Support\ServiceProvider;
 use Jenssegers\Date\Date;
+use App\Models\Document;
+use App\Observers\DocumentObserver;
+use App\Models\File;
+use App\Observers\FileObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +33,8 @@ class AppServiceProvider extends ServiceProvider
         setlocale(LC_ALL, Config::get('app.lc_all'));
         Carbon::setLocale(Config::get('app.locale'));
         Date::setlocale(Config::get('app.locale'));
+
+        Document::observe(DocumentObserver::class);
+        File::observe(FileObserver::class);
     }
 }
