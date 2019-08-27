@@ -19,6 +19,7 @@ use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
 use Str;
+use App\Events\ClientVerified;
 
 /**
  * App\Models\User
@@ -455,6 +456,8 @@ class User extends Authenticatable implements HasMedia
         if ($code == $this->email_confirmation_code) {
             $this->setEmailConfirmation();
             $this->save();
+            event(new ClientVerified($this));
+
             return true;
         }
 
@@ -489,6 +492,8 @@ class User extends Authenticatable implements HasMedia
         if ($code === $this->phone_confirmation_code) {
             $this->setPhoneConfirmation();
             $this->save();
+            event(new ClientVerified($this));
+
             return true;
         }
 
