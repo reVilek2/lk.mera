@@ -39,7 +39,9 @@ class ChatsController extends Controller
         Page::setTitle('Чат | MeraCapital');
         Page::setDescription('Страница чата');
 
-        $chats = $this->chatManager->getChatList(Auth::user());
+        $user = Auth::user();
+        $user->unreadNotificationMessages->markAsRead();
+        $chats = $this->chatManager->getChatList($user);
 
         return view('chat.index', compact('chats'));
     }

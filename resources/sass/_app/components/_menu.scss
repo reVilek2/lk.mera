@@ -1,5 +1,5 @@
-.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > h4,
-.navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > p {
+.navbar-nav > .mera-messages-menu > .dropdown-menu > li .menu > li > a > h4,
+.navbar-nav > .mera-messages-menu > .dropdown-menu > li .menu > li > a > p {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -22,4 +22,22 @@
 .nav-tabs-custom .input-group-btn:last-child>.btn,
 .nav-tabs-custom .input-group-btn:last-child>.btn-group {
   z-index: auto;
+}
+
+.notification-recommendation {
+    & .notification-recommendation__sender {
+        color: #888888;
+    }
+    & .notification-recommendation__title {
+        font-size: 18px;
+    }
+}
+
+.notification-document {
+    & .notification-document__sender {
+        color: #888888;
+    }
+    & .notification-document__title {
+        font-size: 18px;
+    }
 }

@@ -16,7 +16,7 @@
             <span class="sr-only">Toggle navigation</span>
         </a>
         <!-- Navbar Right Menu -->
-        <div class="navbar-custom-menu">
+        <div class="navbar-custom-menu hidden-xs">
             <ul class="nav navbar-nav">
                 @hasanyrole('user|client')
                 <!-- Balance Menu -->
@@ -33,6 +33,18 @@
                 <!-- User Account Menu -->
                 <user-account-menu></user-account-menu>
             </ul>
+        </div>
+
+        <div class="container-fluid visible-xs">
+            <div class="row">
+                <div class="navbar-header">
+                    <div class="navbar-custom-title">
+                        <div class="navbar-custom-title__item">
+                            @if(isset($pageTitle) && !empty($pageTitle)){{ $pageTitle }}@else{{'MeraCapital'}}@endif
+                        </div>
+                    </div>
+                </div>
+            <div>
         </div>
     </nav>
 </header>

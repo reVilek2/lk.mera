@@ -21,6 +21,7 @@
             @hasanyrole('manager|admin')
                 <li class="{{ set_active(['users', 'users/*']) }}"><a href="{{route('users')}}"><i class="fa fa-users"></i> <span>Пользователи</span></a></li>
             @endhasallroles
+            <li class="visible-xs"> <a href="{{route('logout')}}"><i class="fa fa-sign-out"></i> <span>Выход</span></a></li>
         </ul>
         <!-- /.sidebar-menu -->
     </section>

@@ -7,6 +7,8 @@ use App\ModuleSms\Services\SmsCodeGeneratorTrait;
 use App\Notifications\MessageSentNotification;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\ServiceTextNotification;
+use App\Notifications\RecommendationCreated;
+use App\Notifications\DocumentCreated;
 use App\Services\MoneyAmountManager;
 use DB;
 use Exception;
@@ -683,6 +685,24 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->notifications()->with('sender')
             ->whereNull('read_at')->where('type', ServiceTextNotification::class);
+    }
+
+    /**
+     * @return array
+     */
+    public function unreadRecommendations()
+    {
+        return $this->notifications()->with('sender')
+            ->whereNull('read_at')->where('type', RecommendationCreated::class);
+    }
+
+    /**
+     * @return array
+     */
+    public function unreadDocuments()
+    {
+        return $this->notifications()->with('sender')
+            ->whereNull('read_at')->where('type', DocumentCreated::class);
     }
 
     public function addFile(array $file)

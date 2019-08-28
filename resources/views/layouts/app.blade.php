@@ -51,7 +51,7 @@ desired effect
 |---------------------------------------------------------|
 -->
 --}}
-<body class="hold-transition skin-red-light sidebar-mini">
+<body class="hold-transition skin-red-light sidebar-mini fixed">
 <div id="app" class="wrapper">
     <vue-store-data :current-user="{{json_encode(auth()->user())}}"
                     :current-manager="{{json_encode(auth()->user()->getManager())}}"

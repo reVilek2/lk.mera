@@ -7,6 +7,7 @@ use App\Models\File;
 use App\Models\User;
 use App\Services\DocumentManager;
 use App\Services\Page;
+use App\Notifications\DocumentCreated;
 use Auth;
 use BillingService;
 use FileService;
@@ -39,6 +40,8 @@ class DocumentController extends Controller
         Page::setTitle('Документы | MeraCapital');
         Page::setDescription('Страница документов');
         $user = Auth::user();
+
+        $user->unreadDocuments->markAsRead();
 
         $whiteListOrderColumns = [
             'id' => true,
@@ -115,8 +118,13 @@ class DocumentController extends Controller
                     'manager_id' => $request->input('manager'),
                 ]);
                 $document->addFile($fileData);
-                $document = Document::whereId($document->id)->with('client')->with('manager')->with('files')->first();
 
+                $client = $document->client;
+                if($client){
+                    $client->notify( new DocumentCreated($document, $currUser, $client) );
+                }
+
+                $document = Document::whereId($document->id)->with('client')->with('manager')->with('files')->first();
                 return response()->json([
                     'status'=>'success',
                     'document' => $document

@@ -5,3 +5,18 @@
     padding-top: 5px;
     padding-bottom: 5px;
 }
+
+@media (max-width: 767px) {
+
+    .recommendation-box {
+        & .box-footer {
+            display: flex;
+            justify-content: space-between;
+
+            & .btn {
+                width: 30%;
+            }
+        }
+    }
+
+  }

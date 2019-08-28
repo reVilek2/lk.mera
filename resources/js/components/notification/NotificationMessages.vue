@@ -1,11 +1,20 @@
 <template>
     <li class="dropdown messages-menu" @click="markNotificationAsRead">
+        <a v-if="isMobile" :href="allMessagesUrl">
+            <span class="footer-item-icon">
+                <i class="fa fa-envelope-o">
+                    <span v-if="un_read_count > 0" class="label label-warning">{{un_read_count}}</span>
+                </i>
+            </span>
+            <span class="footer-item-title">Чат</span>
+        </a>
+
         <!-- Menu toggle button -->
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <a v-if="!isMobile" href="#" class="dropdown-toggle" data-toggle="dropdown">
             <i class="fa fa-envelope-o"></i>
             <span v-if="un_read_count > 0" class="label label-success">{{un_read_count}}</span>
         </a>
-        <ul class="dropdown-menu">
+        <ul v-if="!isMobile" class="dropdown-menu">
             <li v-if="message_count > 0" class="header">У вас {{message_count}} {{ $sklonyator(message_count, ['сообщение', 'сообщения', 'сообщений']) }}</li>
             <li v-else class="header">У вас нет новых сообщений</li>
             <li>
@@ -35,6 +44,10 @@
             allMessagesUrl: {
                 type: String,
                 default: () => '#'
+            },
+            isMobile: {
+                type: Boolean,
+                default: false
             }
         },
         data: function() {
@@ -62,7 +75,6 @@
                     let newNotification = {
                         data: {message: notification.message, sender: notification.sender, chat: notification.chat},
                         sender: notification.sender
-
                     };
                     this.notifyMessages.push(newNotification);
                     this.un_read_count = this.un_read_count + 1;

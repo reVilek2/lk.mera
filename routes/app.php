@@ -16,6 +16,15 @@ Route::get('/reports', 'DocumentController@index')->name('reports');
 Route::get('/documents', 'UserController@documentIndex')->name('documents');
 Route::post('/documents', 'UserController@documentCreate')->name('document.create');
 Route::get('/document/{file}', 'UserController@fileAction')->name('document');
+Route::get('/documents/mark-as-read', function() {
+    if (!Auth::user()) {
+        return response()->json(['error' => 'User not authorized.'], 200);
+    }
+    Auth::user()->unreadDocuments->markAsRead();
+
+    return response()->json(['status' => 'success'], 200);
+});
+
 // finances
 Route::get('/finances', 'FinanceController@index')->name('finances');
 
@@ -93,3 +102,11 @@ Route::get('/service-text-notification/mark-as-read',function() {
 Route::get('/recommendations', 'RecommendationsController@index')->name('recommendations');
 Route::post('/recommendations', 'RecommendationsController@create')->name('recommendation.create');
 Route::post('/recommendations/{recommendation}/client-resolve', 'RecommendationsController@clientResolve')->name('recommendation.clientResolve');
+Route::get('/recommendations/mark-as-read',function() {
+    if (!Auth::user()) {
+        return response()->json(['error' => 'User not authorized.'], 200);
+    }
+    Auth::user()->unreadRecommendations->markAsRead();
+
+    return response()->json(['status' => 'success'], 200);
+});

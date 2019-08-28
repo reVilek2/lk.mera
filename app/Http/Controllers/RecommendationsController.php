@@ -13,6 +13,7 @@ use App\Rules\ManagerClientsIds;
 use App\Services\RecommedationManager;
 use App\Services\Page;
 use App\Notifications\RecommendationAccepted;
+use App\Notifications\RecommendationCreated;
 
 class RecommendationsController extends Controller
 {
@@ -32,6 +33,7 @@ class RecommendationsController extends Controller
         if (!$user->hasRole(['manager', 'client'])) {
             abort(403);
         }
+        $user->unreadRecommendations->markAsRead();
 
         $params = [
             'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
@@ -70,8 +72,6 @@ class RecommendationsController extends Controller
         $errors = $validation->errors();
         $errors = json_decode($errors);
 
-        Log::info($request->all());
-
         if ($validation->passes()) {
             $client_ids = $request->input('clients');
             $clients = User::find($client_ids);
@@ -88,6 +88,7 @@ class RecommendationsController extends Controller
                 $receiver->client_id = $client->id;
 
                 $recommendation->receivers()->save($receiver);
+                $client->notify( new RecommendationCreated($recommendation, $currUser, $client) );
             }
 
             return response()->json([

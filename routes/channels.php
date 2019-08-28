@@ -20,3 +20,9 @@ Broadcast::channel('chat.user.{id}', function ($user, $id) {
 Broadcast::channel('service.notification.user.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+Broadcast::channel('recommendation.user.{id}', function ($user, $id) {
+    return (int) $user->id === (int) $id;
+});
+Broadcast::channel('document.user.{id}', function ($user, $id) {
+    return (int) $user->id === (int) $id;
+});
