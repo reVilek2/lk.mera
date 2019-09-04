@@ -1,6 +1,6 @@
 <template>
     <div class="chat-wrapper" :class="[isMobile ? 'mobile' : '', isMobile ? sideBarOpened ? 'sidebar-open' : '' : '']">
-        <div class="chat-sidebar">
+        <div v-if="!currUser.is_client" class="chat-sidebar">
             <div class="chat-sidebar__header">
                 <div class="chat-sidebar__header-title">Список чатов</div>
             </div>
@@ -10,7 +10,7 @@
         </div>
         <div class="chat-content" @click="sideBarClose($event)">
             <div class="chat-content__header">
-                <div v-if="isMobile" class="chat-content__header-btn" @click="toggleMenu" :ref="chatMenuBtn"></div>
+                <div v-if="isMobile && !currUser.is_client" class="chat-content__header-btn" @click="toggleMenu" :ref="chatMenuBtn"></div>
                 <chat-header :chat="activeChat"></chat-header>
             </div>
             <div class="chat-content__message">
