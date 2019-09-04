@@ -78,6 +78,9 @@
             currUser(user) {
                 if (!isEmptyObject(user)) {
                     this.chatsList = this.buildChatList();
+                    if(user.is_client && this.chatsList.length){
+                        this.openChat(this.chatsList[0].id);
+                    }
                 }
             }
         },
@@ -91,7 +94,6 @@
                 }
             },
             buildChatList(){
-                console.log(this.chats);
                 let chatList = [];
                 for(let key in this.chats) {
                     if (this.chats.hasOwnProperty(key)) {
