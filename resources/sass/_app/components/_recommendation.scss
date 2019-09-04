@@ -1,11 +1,14 @@
 .recommendation-box{
     margin-bottom: 5px;
+    box-shadow: 4px 4px 5px 0px rgba(50, 50, 50, 0.75);
 }
 .recommendation-list-wrapper{
     padding-top: 5px;
     padding-bottom: 5px;
 }
-
+.recommendation-cliets-box{
+    border-top: 1px;
+}
 @media (max-width: 767px) {
 
     .recommendation-box {

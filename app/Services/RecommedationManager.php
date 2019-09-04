@@ -13,7 +13,11 @@ class RecommedationManager
             ->orderBy('id', 'desc');
 
         if ($user->hasRole('manager')) {
-            $query->where('manager_id', '=', $user->id);
+            $query
+            ->where('manager_id', '=', $user->id)
+            ->with(['receivers' => function ($query) use($user) {
+                $query->select('recommendation_id', 'client_id', 'status');
+            }]);
         } elseif($user->hasRole('client')) {
             $query
             ->whereHas('receivers', function ($query) use($user) {

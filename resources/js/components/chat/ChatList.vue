@@ -1,6 +1,6 @@
 <template>
     <ul class="chat-list">
-        <li class="chat-list__item" v-for="chat in chatsList" :class="{'active': chat.active}">
+        <li class="chat-list__item" v-for="chat in chatsList" :key="chat.id" :class="{'active': chat.active}">
             <chat-list-item :chat="chat" :key="chat.id" @openChat="openChat"></chat-list-item>
         </li>
     </ul>

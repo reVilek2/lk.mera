@@ -18,6 +18,8 @@ class RecommendationReceiver extends Model
         'client_id', 'recommendation_id', 'status'
     ];
 
+    protected $appends = ['client_name'];
+
     public function client()
     {
         return $this->belongsTo(User::class, 'client_id');
@@ -26,5 +28,9 @@ class RecommendationReceiver extends Model
     public function recommendation()
     {
         return $this->belongsTo(RecommendationReceiver::class);
+    }
+
+    public function getClientNameAttribute() {
+        return $this->client->name;
     }
 }

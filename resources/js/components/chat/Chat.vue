@@ -91,6 +91,7 @@
                 }
             },
             buildChatList(){
+                console.log(this.chats);
                 let chatList = [];
                 for(let key in this.chats) {
                     if (this.chats.hasOwnProperty(key)) {
