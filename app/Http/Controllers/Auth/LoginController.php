@@ -114,7 +114,10 @@ class LoginController extends Controller
 
         if (Auth::guard('web')->attempt($credentials, true)
         ) {
-
+            $user = Auth::user();
+            if($user->is_client){
+                return redirect()->intended('chat');
+            }
             return redirect()->intended($this->redirectTo);
         }
 

@@ -14,8 +14,8 @@
         ></chat-textarea>
         <span class="chat-bth">
             <span v-if="isProcessSending" class="preloader preloader-sm"></span>
-            <button v-if="chat.status === 1" class="btn btn-primary btn-flat" @click="sendMessage">Отправить</button>
-            <button v-else class="btn btn-primary btn-flat" disabled>Отправить</button>
+            <button v-if="chat.status === 1" class="btn btn-danger btn-flat" @click="sendMessage">Отправить</button>
+            <button v-else class="btn btn-danger btn-flat" disabled>Отправить</button>
         </span>
     </div>
 </template>

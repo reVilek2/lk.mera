@@ -26,6 +26,6 @@ class EmailConfirmNotification extends Mailable
     {
         return $this->markdown('mail.email_activation')
             ->with('url', $this->url)
-            ->subject('Активация почты');
+            ->subject('Подтверждение почты');
     }
 }

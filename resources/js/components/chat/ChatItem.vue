@@ -143,6 +143,7 @@
             // прослушивание скролла
             setTimeout(function(){
                 _this.listenScroll();
+                _this.scrollToEnd();
             }, 10);
 
             this.$root.$on('sendNewChatMessage', this.sendMessageHandler);
