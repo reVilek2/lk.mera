@@ -13,9 +13,7 @@ Route::post('/profile/password/{user}', 'ProfileController@updatePassword')->nam
 // reports
 Route::get('/reports', 'DocumentController@index')->name('reports');
 // documents
-Route::get('/documents', 'UserController@documentIndex')->name('documents');
-Route::post('/documents', 'UserController@documentCreate')->name('document.create');
-Route::get('/document/{file}', 'UserController@fileAction')->name('document');
+
 Route::get('/documents/mark-as-read', function() {
     if (!Auth::user()) {
         return response()->json(['error' => 'User not authorized.'], 200);
