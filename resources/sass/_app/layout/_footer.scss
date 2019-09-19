@@ -10,7 +10,6 @@
         width: 100%;
         position: fixed;
         height: initial;
-        font-size: 25px;
         padding-top: 10px;
         padding-bottom: 10px;
         background-color: #1f2c3e;
@@ -25,19 +24,24 @@
 
             & > li {
                 display: flex;
+                height: 40px;
                 line-height: 20px;
+                font-size: 20px;
                 width: 33%;
                 align-items: center;
                 justify-content: center;
-                min-height: 65px;
 
                 & a {
+                    height: 100%;
+                    width: 100%;
+                    align-items: center;
+                    justify-content: center;
                     color: #9e9e9e;
                 }
 
                 & .footer-item-title {
                     display: none;
-                    font-size: 20px;
+                    font-size: 16px;
                 }
 
                 & .footer-item-icon {
