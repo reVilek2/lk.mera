@@ -1,6 +1,27 @@
 .recommendation-box{
     margin-bottom: 5px;
     box-shadow: 4px 4px 5px 0px rgba(50, 50, 50, 0.75);
+
+    & .recommendation-box__labels-wrapper {
+        display: flex;
+    }
+
+    & .recommendation-box__label-container {
+        display: flex;
+
+        &.label-container-common {
+            width: 80%;
+        }
+
+        &.label-container-date {
+            width: 20%;
+            justify-content: flex-end;
+        }
+
+        & .label {
+            font-size: 12px;
+        }
+    }
 }
 .recommendation-list-wrapper{
     padding-top: 5px;

@@ -1,14 +1,17 @@
 <template>
     <div class="box recommendation-box">
         <div class="box-header with-border">
-            <h3 v-if="currUser.is_client" class="box-title">{{recommendation.title}} - <span :class="getReceiverStatus(clientAsReciever).labelClass">{{getReceiverStatus(clientAsReciever).text}}</span></h3>
-            <h3 v-if="currUser.is_manager" class="box-title">{{recommendation.title}}</h3>
-            <div class="box-tools pull-right">
-                <!-- Buttons, labels, and many other things can be placed here! -->
-                <!-- Here is a label for example -->
-                <span class="label label-primary">{{recommendationDate}}</span>
+            <div class="recommendation-box__labels-wrapper">
+                <div class="recommendation-box__label-container label-container-common">
+                    <span v-if="currUser.is_client" :class="getReceiverStatus(clientAsReciever).labelClass">{{getReceiverStatus(clientAsReciever).text}}</span>
+                </div>
+                <div class="recommendation-box__label-container label-container-date">
+                    <span class="label label-primary">{{recommendationDate}}</span>
+                </div>
             </div>
-        <!-- /.box-tools -->
+        </div>
+        <div class="box-header">
+            <h3 class="box-title">{{recommendation.title}}</h3>
         </div>
         <!-- /.box-header -->
         <div class="box-body">
