@@ -1,5 +1,6 @@
 // new
 $chat-btn-message-width: 92px;
+$chat-mobile-btn-message-width: 34px;
 $chat-header-height: 40px;
 $chat-message-input-height: 55px;
 $chat-header-bgcolor: #f9fafc;
@@ -288,34 +289,92 @@ $chat-mobile-sidebar-sm-width: 240px;
     display: block;
   }
 }
+
 .chat-input-group {
   @include clearfix;
   width: 100%;
   position: relative;
+  display: flex;
+  justify-content: space-between;
 
-  textarea {
-    resize: none;
-    position: absolute;
-    bottom: 0;
+  &__element-wrapper.textarea-wrapper{
     width: calc(100% - #{$chat-btn-message-width});
-    left: 0;
+
+    textarea {
+        resize: none;
+        width: 100%;
+    }
   }
 
-  .chat-bth {
-    width: $chat-btn-message-width;
-    float: right;
+  &__element-wrapper.button-wrapper{
     position: relative;
-    font-size: 0;
-    white-space: nowrap;
 
     .preloader {
-      position: absolute;
-      top: 50%;
-      right: 100%;
-      transform: translateY(-50%);
-      z-index: 1;
-      margin-right: 10px;
+        position: absolute;
+        top: 50%;
+        right: 100%;
+        transform: translateY(-50%);
+        z-index: 1;
+        margin-right: 10px;
     }
+
+    .chat-btn {
+        font-size: 0;
+        white-space: nowrap;
+
+        .btn {
+            border-radius: 20px;
+            width: $chat-btn-message-width;
+            height: $chat-btn-message-width;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+  }
+
+  &.mobile {
+
+    .chat-input-group__element-wrapper.textarea-wrapper{
+        width: calc(100% - #{$chat-mobile-btn-message-width});
+        padding-right: 20px;
+
+        textarea {
+            border-radius: 20px;
+            box-shadow: 0px 1px 7px 1px rgba(50, 50, 50, 0.4);
+        }
+    }
+
+    .chat-input-group__element-wrapper.button-wrapper{
+        width: $chat-mobile-btn-message-width;
+        display: flex;
+        justify-content: flex-end;
+
+        .preloader {
+            position: initial;
+            transform: initial;
+            margin-right: 0;
+        }
+
+        .chat-btn {
+            font-size: 0;
+            white-space: nowrap;
+
+            .btn {
+                border-radius: 20px;
+                width: $chat-mobile-btn-message-width;
+                height: $chat-mobile-btn-message-width;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+        }
+    }
+
   }
 }
 .chat-msg {

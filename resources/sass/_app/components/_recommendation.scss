@@ -1,6 +1,10 @@
-.recommendation-box{
-    margin-bottom: 5px;
-    box-shadow: 4px 4px 5px 0px rgba(50, 50, 50, 0.75);
+$border-radius: 15px;
+
+.recommendation-box {
+    margin-bottom: 15px;
+    border-radius: $border-radius;
+    box-shadow: 0px 4px 7px 2px rgba(50, 50, 50, 0.30);
+    border-top :0;
 
     & .recommendation-box__labels-wrapper {
         display: flex;
@@ -21,6 +25,11 @@
         & .label {
             font-size: 12px;
         }
+    }
+
+    & .box-footer {
+        border-bottom-right-radius: $border-radius;
+        border-bottom-left-radius: $border-radius;
     }
 }
 .recommendation-list-wrapper{

@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="chat-content__message-input" :class="{'active': isActiveChat}">
-                <chat-input :chat="activeChat"></chat-input>
+                <chat-input :chat="activeChat" :is-mobile="isMobile" :class="{'mobile': isMobile}"></chat-input>
             </div>
         </div>
     </div>
@@ -39,33 +39,26 @@
     import ChatInput from './ChatInput';
     import ChatList from './ChatList';
     import {isEmptyObject} from "../../libs/utils";
+    import MobileCheck from "../../mixins/MobileCheck";
 
     export default {
         components: {ChatList, ChatItem, ChatInput, ChatHeader},
+        mixins: [MobileCheck],
         props: {
             chats: {
                 type: Array,
                 default: () => []
-            },
-            agentType: {
-                type: String,
-                default: () => 'desktop'
-            },
+            }
         },
         data: function() {
             return {
                 chatMenuBtn: 'chatMenuBtn',
                 chatsList: [],
                 activeChat: {},
-                mobileWindowWidth: 767,
-                windowInnerWidth: 0,
                 sideBarOpened: false
             }
         },
         computed: {
-            isMobile: function () {
-                return this.agentType === 'mobile' || (this.windowInnerWidth > 0 && this.mobileWindowWidth >= this.windowInnerWidth);
-            },
             isActiveChat: function () {
                 return !isEmptyObject(this.activeChat);
             },
@@ -200,16 +193,6 @@
                     }
                 });
             },
-            handleResize() {
-                this.windowInnerWidth = window.innerWidth;
-            }
-        },
-        created() {
-            window.addEventListener('resize', this.handleResize);
-            this.handleResize();
-        },
-        destroyed() {
-            window.removeEventListener('resize', this.handleResize)
         },
         mounted() {
             this.$nextTick(function () {

@@ -1,7 +1,8 @@
 <template>
     <div class="chat-input-group">
-        <input type="hidden" name="_id" value="">
-        <chat-textarea
+        <div class="chat-input-group__element-wrapper textarea-wrapper">
+            <input type="hidden" name="_id" value="">
+            <chat-textarea
                 placeholder="сообщение ..."
                 :ref="messageRef"
                 class="form-control"
@@ -11,12 +12,24 @@
                 rows="1"
                 @keydown.native="keydownHandle($event)"
                 @focus.native="focusHandle($event)"
-        ></chat-textarea>
-        <span class="chat-bth">
+            ></chat-textarea>
+        </div>
+        <div class="chat-input-group__element-wrapper button-wrapper">
+        <template v-if="isMobile">
+            <span v-if="isProcessSending" class="chat-btn">
+                <button class="btn btn-danger btn-flat" disabled><span class="preloader preloader-sm"></span></button>
+            </span>
+            <span v-else class="chat-btn">
+                <button v-if="chat.status === 1" class="btn btn-danger btn-flat" @click="sendMessage"><i class="fa fa-arrow-up" aria-hidden="true"></i></button>
+                <button v-else class="btn btn-danger btn-flat" disabled><i class="fa fa-arrow-up" aria-hidden="true"></i></button>
+            </span>
+        </template>
+        <template v-else>
             <span v-if="isProcessSending" class="preloader preloader-sm"></span>
             <button v-if="chat.status === 1" class="btn btn-danger btn-flat" @click="sendMessage">Отправить</button>
             <button v-else class="btn btn-danger btn-flat" disabled>Отправить</button>
-        </span>
+        </template>
+        </div>
     </div>
 </template>
 
@@ -29,6 +42,10 @@
             chat: {
                 type: Object,
                 default: () => {}
+            },
+            isMobile: {
+                type: Boolean,
+                default: () => false
             },
         },
         data: function() {
