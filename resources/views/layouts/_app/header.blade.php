@@ -22,12 +22,28 @@
                 <!-- Balance Menu -->
                 <user-balance-menu></user-balance-menu>
                 @endhasallroles
+
                 <!-- Messages: style can be found in dropdown.less-->
                 <notification-messages :userid="{{auth()->id()}}"
                                        :notification-messages="{{auth()->user()->unreadNotificationMessages}}"
                                        :all-messages-url="'{{route('chat', [], false)}}'"
                 ></notification-messages>
                 <!-- /.messages-menu -->
+
+                <!-- Documents Menu -->
+                <notification-documents
+                    :userid="{{auth()->id()}}"
+                    :documents="{{auth()->user()->unreadDocuments}}"
+                    :category-url="'{{route('reports', [], false)}}'"
+                ></notification-documents>
+
+                <!-- Recommendations Menu -->
+                <notification-recommendations
+                    :userid="{{auth()->id()}}"
+                    :recommendations="{{auth()->user()->unreadRecommendations}}"
+                    :category-url="'{{route('recommendations', [], false)}}'"
+                ></notification-recommendations>
+
                 <!-- Notifications Menu -->
                 <notification-service-messages :notification-service-text-messages="{{auth()->user()->unreadServiceTextNotificationMessages}}"></notification-service-messages>
                 <!-- User Account Menu -->

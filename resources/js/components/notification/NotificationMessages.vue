@@ -2,7 +2,7 @@
     <li class="dropdown messages-menu" @click="markNotificationAsRead">
         <a v-if="isMobile" :href="allMessagesUrl">
             <span class="footer-item-icon">
-                <i class="fa fa-envelope-o">
+                <i class="fa fa-comments">
                     <span v-if="un_read_count > 0" class="label label-warning">{{un_read_count}}</span>
                 </i>
             </span>
@@ -11,7 +11,7 @@
 
         <!-- Menu toggle button -->
         <a v-if="!isMobile" href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-envelope-o"></i>
+            <i class="fa fa-comments"></i>
             <span v-if="un_read_count > 0" class="label label-success">{{un_read_count}}</span>
         </a>
         <ul v-if="!isMobile" class="dropdown-menu">
