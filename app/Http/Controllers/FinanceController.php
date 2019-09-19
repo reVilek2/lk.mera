@@ -23,7 +23,7 @@ class FinanceController extends Controller
 
     public function index(Request $request)
     {
-        Page::setTitle('Оплата услуг | MeraCapital');
+        Page::setTitle('Оплата услуг');
         Page::setDescription('Оплата услуг');
         $user = Auth::user();
 

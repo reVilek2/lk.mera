@@ -51,7 +51,7 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        Page::setTitle('Sign in | MeraCapital');
+        Page::setTitle('Sign in');
         Page::setDescription('Website authorization form');
 
         return view('auth.login');

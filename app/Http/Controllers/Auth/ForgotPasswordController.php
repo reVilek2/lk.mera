@@ -35,7 +35,7 @@ class ForgotPasswordController extends Controller
 
     public function showLinkRequestForm()
     {
-        Page::setTitle('Forgot password | MeraCapital');
+        Page::setTitle('Forgot password');
         Page::setDescription('Website forgot password form');
 
         return view('auth.passwords.forgot');
@@ -72,7 +72,7 @@ class ForgotPasswordController extends Controller
      */
     protected function sendResetLinkResponse(Request $request, $response)
     {
-        Page::setTitle('Forgot password | MeraCapital');
+        Page::setTitle('Forgot password');
         Page::setDescription('Sending password reset email successfully');
 
         return back()->with('status', trans($response));

@@ -26,7 +26,7 @@ class RecommendationsController extends Controller
 
     public function index(Request $request)
     {
-        Page::setTitle('Рекомендации | MeraCapital');
+        Page::setTitle('Рекомендации');
         Page::setDescription('Страница Рекомендаций');
 
         $user = Auth::user();

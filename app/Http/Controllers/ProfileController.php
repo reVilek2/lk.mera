@@ -43,7 +43,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        Page::setTitle('Профиль | MeraCapital');
+        Page::setTitle('Профиль');
         Page::setDescription('Страница профиля');
 
         $user = Auth::user();

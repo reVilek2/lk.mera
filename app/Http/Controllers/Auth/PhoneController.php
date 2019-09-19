@@ -25,7 +25,7 @@ class PhoneController extends Controller
 
     public function phoneConfirmForm(Request $request, $phone = null)
     {
-        Page::setTitle('Phone Number Form Confirmation | MeraCapital');
+        Page::setTitle('Phone Number Form Confirmation');
         Page::setDescription('Phone Number Form Confirmation');
 
         try {
@@ -179,7 +179,7 @@ class PhoneController extends Controller
 
     public function phoneInformation(Request $request, $phone = null)
     {
-        Page::setTitle('Информация о телефоне | MeraCapital');
+        Page::setTitle('Информация о телефоне');
         Page::setDescription('Информация о телефоне');
         try {
             $user = self::getUserByPhone($phone);

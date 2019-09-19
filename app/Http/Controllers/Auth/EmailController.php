@@ -37,7 +37,7 @@ class EmailController extends Controller
      */
     public function emailConfirm(Request $request, $token = null)
     {
-        Page::setTitle('Activation Email | MeraCapital');
+        Page::setTitle('Activation Email');
         Page::setDescription('Website email confirmation form');
 
         try {
@@ -69,7 +69,7 @@ class EmailController extends Controller
      */
     public function emailInformation(Request $request, $email = null)
     {
-        Page::setTitle('Информация о Email | MeraCapital');
+        Page::setTitle('Информация о Email');
         Page::setDescription('Информация о Email');
         try {
             $user = self::getUserByEmail($email);

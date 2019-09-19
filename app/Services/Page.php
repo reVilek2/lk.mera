@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\View;
 
 class Page
 {
+    const APP_NAME = APP_NAME;
+
     /**
      * Set page breadcrumbs
      *
@@ -17,13 +19,42 @@ class Page
     }
 
     /**
-     * Set page title
+     * Set titles
      *
      * @param string $title
      */
     public static function setTitle($title = '')
     {
+        $app_name =  config('app.name');
+
+        if(!$title){
+            self::setHeadTitle($app_name);
+            self::setPageTitle($app_name);
+        }else{
+            self::setHeadTitle("{$title} | {$app_name}");
+            self::setPageTitle($title);
+        }
+
+    }
+
+    /**
+     * Set title
+     *
+     * @param string $title
+     */
+    public static function setPageTitle($title = '')
+    {
         View::share('pageTitle', $title);
+    }
+
+    /**
+     * Set mobile title
+     *
+     * @param string $title
+     */
+    public static function setHeadTitle($title = '')
+    {
+        View::share('headTitle', $title);
     }
 
     /**

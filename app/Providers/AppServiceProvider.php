@@ -10,6 +10,7 @@ use App\Models\Document;
 use App\Observers\DocumentObserver;
 use App\Models\File;
 use App\Observers\FileObserver;
+use App\Services\Page;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,5 +37,7 @@ class AppServiceProvider extends ServiceProvider
 
         Document::observe(DocumentObserver::class);
         File::observe(FileObserver::class);
+
+        Page::setTitle();
     }
 }

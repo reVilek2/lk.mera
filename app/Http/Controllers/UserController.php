@@ -48,7 +48,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        Page::setTitle('Пользователи | MeraCapital');
+        Page::setTitle('Пользователи');
         Page::setDescription('Страница пользователей');
 
         $whiteListOrderColumns = [
@@ -87,7 +87,7 @@ class UserController extends Controller
 
     public function show(Request $request, User $user)
     {
-        Page::setTitle('Пользователь | MeraCapital');
+        Page::setTitle('Пользователь');
         Page::setDescription('Страница пользователя');
         $currentManager = $user->getManager();
         $managers = User::role(['admin', 'manager'])->with('clients')->get();
@@ -195,7 +195,7 @@ class UserController extends Controller
 
     public function documentIndex(Request $request)
     {
-        Page::setTitle('Документы пользователя | MeraCapital');
+        Page::setTitle('Документы пользователя');
         Page::setDescription('Страница документов пользователя');
 
         $whiteListOrderColumns = [

@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}" data-lifetime="{{config('session.lifetime')}}">
 
-    <title>@if(isset($pageTitle) && !empty($pageTitle)){{ $pageTitle }}@else{{'MeraCapital'}}@endif</title>
+    <title>{{ $headTitle }}</title>
     <meta name="description" content="@if(isset($pageDescription) && !empty($pageDescription)){{ $pageDescription }}@endif">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->

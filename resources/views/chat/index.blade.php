@@ -2,7 +2,7 @@
 
 @section('title')
     @include('components/title', [
-        'title'=>'Чат'
+        'title'=>$pageTitle
      ])
 @endsection
 

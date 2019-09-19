@@ -36,7 +36,7 @@ class ChatsController extends Controller
      */
     public function index()
     {
-        Page::setTitle('Чат | MeraCapital');
+        Page::setTitle('Чат');
         Page::setDescription('Страница чата');
 
         $user = Auth::user();

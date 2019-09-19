@@ -6,9 +6,9 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="format-detection" content="telephone=no">
 
-    <title>{{ $pageTitle }}</title>
+    <title>{{ $headTitle }}</title>
     <meta name="description" content="">
-    <meta name="title" content="{{ $pageTitle }}">
+    <meta name="title" content="{{ $headTitle }}">
     <meta name="description" content="{{ $pageDescription }}">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}" data-lifetime="{{config('session.lifetime')}}">

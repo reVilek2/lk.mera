@@ -2,7 +2,7 @@
 
 @section('title')
     @include('components/title', [
-        'title'=>'Профиль',
+        'title'=>$pageTitle,
         'description'=>'Просмотр и редактирование информации о пользователе'
      ])
 @endsection

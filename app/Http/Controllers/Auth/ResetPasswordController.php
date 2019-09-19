@@ -69,7 +69,7 @@ class ResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-        Page::setTitle('Reset password | MeraCapital');
+        Page::setTitle('Reset password');
         Page::setDescription('Website password reset form');
 
         return view('auth.passwords.reset')->with(

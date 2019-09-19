@@ -37,8 +37,8 @@ class DocumentController extends Controller
      */
     public function index(Request $request)
     {
-        Page::setTitle('Документы | MeraCapital');
-        Page::setDescription('Страница документов');
+        Page::setTitle('Отчеты');
+        Page::setDescription('Страница отчетов');
         $user = Auth::user();
 
         $user->unreadDocuments->markAsRead();

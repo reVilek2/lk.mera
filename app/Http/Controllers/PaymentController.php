@@ -20,7 +20,7 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
-        Page::setTitle('Оплата услуг | MeraCapital');
+        Page::setTitle('Оплата услуг');
         Page::setDescription('Пополнение баланса');
         $user = Auth::user();
         $payment_cards = $user->paymentCards()->get();
@@ -43,7 +43,7 @@ class PaymentController extends Controller
      */
     public function create(Request $request)
     {
-        Page::setTitle('Оплата услуг | MeraCapital');
+        Page::setTitle('Оплата услуг');
         Page::setDescription('Пополнение баланса');
 
         $user = Auth::user();
@@ -140,7 +140,7 @@ class PaymentController extends Controller
      */
     public function checkPayment(Request $request)
     {
-        Page::setTitle('Проверка платежа | MeraCapital');
+        Page::setTitle('Проверка платежа');
         Page::setDescription('Проверка платежа');
 
         $pay_key = $request->input('pay_key', null);
@@ -191,7 +191,7 @@ class PaymentController extends Controller
      */
     public function payFast(Request $request)
     {
-        Page::setTitle('Быстрый платеж | MeraCapital');
+        Page::setTitle('Быстрый платеж');
         Page::setDescription('Быстрый платеж');
 
         $currUser = Auth::user();
@@ -282,7 +282,7 @@ class PaymentController extends Controller
 
     public function setCardDefault(Request $request)
     {
-        Page::setTitle('Установка карты по умолчанию | MeraCapital');
+        Page::setTitle('Установка карты по умолчанию');
         Page::setDescription('Установка карты по умолчанию');
 
         $currUser = Auth::user();
@@ -321,7 +321,7 @@ class PaymentController extends Controller
 
     public function removePaymentPending(Request $request)
     {
-        Page::setTitle('Удаление платежа в статусе Pending | MeraCapital');
+        Page::setTitle('Удаление платежа в статусе Pending');
         Page::setDescription('Удаление платежа в статусе Pending');
 
         $pay_key = $request->input('pay_key', null);

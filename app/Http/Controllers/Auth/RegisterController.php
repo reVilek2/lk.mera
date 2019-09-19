@@ -43,7 +43,7 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm()
     {
-        Page::setTitle('Sign up | MeraCapital');
+        Page::setTitle('Sign up');
         Page::setDescription('Website registration form');
 
         return view('auth.register');
@@ -56,7 +56,7 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
-        Page::setTitle('Sign up | MeraCapital');
+        Page::setTitle('Sign up');
         Page::setDescription('Website registration form');
 
         /**
@@ -119,7 +119,7 @@ class RegisterController extends Controller
 
     public function successRegistrationByEmail(Request $request, $email = null)
     {
-        Page::setTitle('Sign up | MeraCapital');
+        Page::setTitle('Sign up');
         Page::setDescription('Website registration form');
         try {
             $user = EmailController::getUserByEmail($email);

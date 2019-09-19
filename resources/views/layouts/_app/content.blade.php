@@ -1,7 +1,7 @@
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
-    <section class="content-header">
+    <section class="content-header hidden-xs">
         @section('title')
             @include('components/title', [
                 'title'=>'Заголовок страницы',

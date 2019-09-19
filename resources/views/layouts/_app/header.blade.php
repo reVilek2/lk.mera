@@ -40,7 +40,7 @@
                 <div class="navbar-header">
                     <div class="navbar-custom-title">
                         <div class="navbar-custom-title__item">
-                            @if(isset($pageTitle) && !empty($pageTitle)){{ $pageTitle }}@else{{'MeraCapital'}}@endif
+                            {{ $pageTitle }}
                         </div>
                     </div>
                 </div>
