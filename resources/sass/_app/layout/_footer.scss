@@ -72,15 +72,16 @@
 
                 & .label {
                     position: absolute;
-                    bottom: 18px;
-                    left: 24px;
+                    bottom: 6px;
+                    left: 28px;
                     text-align: center;
-                    font-size: 15px;
-                    padding: 2px 3px;
-                    line-height: 1;
-                    width: 23px;
-                    height: 23px;
-                    border-radius: 20px;
+                    font-size: 12px;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
 
                     &.label-success {
                         background-color: #f39c12 !important;
