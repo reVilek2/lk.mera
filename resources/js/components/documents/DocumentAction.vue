@@ -2,7 +2,8 @@
     <div class="col-xs-12">
         <button v-if="btnText.value"
             type="button"
-            class="btn btn-info btn-primary"
+            class="btn"
+            :class="btnText.class"
             :disabled="!btnText.action || isUploadingForm"
             @click="beforeOnSubmit(btnText.action, btnText.action_code)"
         >
@@ -133,15 +134,30 @@
             btnText: function () {
                 if (this.currUser.is_admin) {
                     if (!this.statusSigned && !this.statusPaid) {
-                        return {action: this.actionDelete, action_code: 'delete', value: 'Удалить'};
+                        return {
+                            action: this.actionDelete,
+                            action_code: 'delete',
+                            value: 'Удалить',
+                            class: {'btn-danger': true}
+                        };
                     }
                 }
 
                 if(this.currUser.is_client){
                     if (!this.statusSigned || !this.statusPaid) {
-                        return {action: this.actionSignedAndPaid, action_code: 'signed_and_paid', value: 'Подписать и оплатить'};
+                        return {
+                            action: this.actionSignedAndPaid,
+                            action_code: 'signed_and_paid',
+                            value: 'Подписать и оплатить',
+                            class: {'btn-danger': true}
+                        };
                     } else {
-                        return {action: false, action_code: false, value: 'Оплачено'};
+                        return {
+                            action: false,
+                            action_code: false,
+                            value: 'Оплачено',
+                            class: {'btn-default': true}
+                        };
                     }
                 }
 

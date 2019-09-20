@@ -21,9 +21,10 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="box">
-                <documents-table :documents="{{$documents}}"
+                <documents :documents="{{$documents}}"
                                  :documents_count="{{$documents_count}}"
-                                 :managers="{{$managers}}"></documents-table>
+                                 :managers="{{$managers}}"
+                                 agent-type="{{ layout_type() }}"></documents>
             </div>
         </div>
     </div>

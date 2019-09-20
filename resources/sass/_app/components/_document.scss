@@ -1,0 +1,30 @@
+.document-box {
+    @include round_box;
+
+    &.document-box-paid{
+        background-color: #d3e3e7;
+
+        .box-footer{
+            background-color: #d3e3e7;
+        }
+    }
+
+    .column-title {
+        font-weight: bold;
+    }
+
+    .document_status{
+
+        .label {
+            width: initial;
+            height: initial;
+            border-radius: 0;
+            text-indent: 0;
+        }
+
+    }
+
+    .btn-default[disabled]{
+        opacity: 1;
+    }
+}

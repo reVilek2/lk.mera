@@ -41,7 +41,7 @@ import UsersTable from './components/users/UsersTable';
 import UserFilesTable from './components/users/UserFilesTable';
 import UserProfileBox from './components/users/UserProfileBox';
 import UserProfileTabs from './components/users/UserProfileTabs';
-import DocumentsTable from './components/documents/DocumentsTable';
+import Documents from './components/documents/Documents';
 import VueStoreData from './components/VueStoreData';
 import UserBalanceMenu from './components/users/UserBalanceMenu';
 import UserAccountMenu from './components/users/UserAccountMenu';
@@ -70,7 +70,7 @@ let app = new Vue({
         UserFilesTable,
         UserProfileBox,
         UserProfileTabs,
-        DocumentsTable,
+        Documents,
         PaymentService,
         FinanceService,
         RecommendationsList,

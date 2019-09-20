@@ -34,70 +34,48 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
+                    <template v-if="!isMobile">
                     <datatable :columns="columns"
-                               :sortKey="sortKey"
-                               :sortOrders="sortOrders"
-                               :excludeSortOrders="excludeSortOrders"
-                               @sort="sortBy">
+                            :sortKey="sortKey"
+                            :sortOrders="sortOrders"
+                            :excludeSortOrders="excludeSortOrders"
+                            @sort="sortBy">
                         <tbody>
-                        <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
-                            <td v-if="isColumnExist('created_at')" class="created_at">
-                                {{item.created_at_humanize}}
-                            </td>
-                            <td v-if="isColumnExist('client_full_name')" class="client_full_name">
-                                <span v-if="item.client.last_name">{{item.client.last_name}} </span><span v-if="item.client.first_name">{{item.client.first_name}} </span><span v-if="item.client.second_name">{{item.client.second_name}}</span>
-                            </td>
-                            <td v-if="isColumnExist('name')" class="name">
-                                {{item.name}}
-                            </td>
-                            <td v-if="isColumnExist('file')" class="file">
-                                <div v-if="item.files.length > 0" v-for="file in item.files" :key="file.id" class="btn-group" >
-                                    <a class="document-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa fa-file-pdf-o" v-show="file.type==='application/pdf'"></i>
-                                        {{file.origin_name}}
-                                    </a>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <li><a :href="'/reports/'+item.id+'/files/'+file.id" target="_blank">Посмотреть</a></li>
-                                        <li><a :href="'/reports/'+item.id+'/files/'+file.id+'?download=1'">Скачать</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                            <td v-if="isColumnExist('status')" class="status">
-                                <document-status :signed="item.signed"
-                                                 :paid="item.paid"
-                                                 :item="item"
-                                                 :key="item.id"
-                                                 @updateDocument="updateStatus"></document-status>
-                            </td>
-                            <td v-if="isColumnExist('amount')" class="amount">
-                                {{item.amount_humanize}}
-                            </td>
-                            <td v-if="isColumnExist('manager_full_name')" class="manager_full_name">
-                                <span v-if="item.manager.last_name">{{item.manager.last_name}} </span><span v-if="item.manager.first_name">{{item.manager.first_name}} </span><span v-if="item.manager.second_name">{{item.manager.second_name}}</span>
-                            </td>
-                            <td v-if="isColumnExist('action')" class="action">
-                                <document-action :signed="item.signed"
-                                                 :paid="item.paid"
-                                                 :item="item"
-                                                 :key="'0'+item.id"
-                                                 :key-id="'0'+item.id"
-                                                 @updateDocument="updateStatus"
-                                                 @deleteDocument="deleteItem"
-                                >
-                                </document-action>
-                            </td>
-                        </tr>
-                        <tr v-if="item_count === 0" class="odd empty-row">
-                            <td colspan="8" align="center">
-                                <span v-if="filter">Не найдено ни одного отчета</span>
-                                <span v-if="!filter">
-                                    <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного отчета</span>
-                                    <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного отчета</span>
-                                </span>
-                            </td>
-                        </tr>
+                            <documents-table-row
+                                v-if="item_count > 0"
+                                v-for="(item, index) in items"
+                                :item="item"
+                                :key="item.id"
+                                :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}"
+                                :columns="columns"
+                                @updateDocument="updateStatus"
+                                @deleteDocument="deleteItem"
+                            >
+                            </documents-table-row>
+                            <tr v-if="item_count === 0" class="odd empty-row">
+                                <td colspan="8" align="center">
+                                    <span v-if="filter">Не найдено ни одного отчета</span>
+                                    <span v-if="!filter">
+                                        <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного отчета</span>
+                                        <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного отчета</span>
+                                    </span>
+                                </td>
+                            </tr>
                         </tbody>
                     </datatable>
+                    </template>
+                    <template v-else>
+                        <documents-item
+                            v-if="item_count > 0"
+                            v-for="(item) in items"
+                            :item="item"
+                            :key="item.id"
+                            :columns="columns"
+                            @updateDocument="updateStatus"
+                            @deleteDocument="deleteItem"
+                        >
+                        </documents-item>
+                    </template>
                 </div>
             </div>
             <div class="row">
@@ -132,13 +110,15 @@
 <script>
     import { mapGetters } from 'vuex';
     import FormDocumentCreate from '../forms/FormDocumentCreate';
-    import DocumentStatus from './DocumentStatus';
-    import DocumentAction from './DocumentAction';
+    import DocumentsTableRow from './DocumentsTableRow';
+    import DocumentsItem from './DocumentsItem';
     import Datatable from '../datatables/Datatable.vue';
     import FilterInfo from '../datatables/FilterInfo.vue';
     import Paginate from 'vuejs-paginate';
+    import MobileCheck from "../../mixins/MobileCheck";
 
     export default {
+        mixins: [MobileCheck],
         props: {
             documents: {
                 type: Object,
@@ -153,7 +133,14 @@
                 default: () => []
             },
         },
-        components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate, formDocumentCreate: FormDocumentCreate, documentStatus: DocumentStatus, documentAction: DocumentAction},
+        components: {
+            datatable: Datatable,
+            filterInfo: FilterInfo,
+            paginate: Paginate,
+            formDocumentCreate: FormDocumentCreate,
+            documentsTableRow: DocumentsTableRow,
+            documentsItem: DocumentsItem
+        },
         data() {
             let sortOrders = {};
             let excludeSortOrders = {
@@ -214,12 +201,7 @@
         },
         methods: {
             updateStatus(document) {
-                this.items.forEach(el => {
-                    if (parseInt(el.id) === parseInt(document.id)) {
-                        el.signed = document.signed;
-                        el.paid = document.paid;
-                    }
-                });
+                this.paginateCallback(this.pagination.currentPage);
             },
             paginateCallback(pageNum){
                 this.getItems(this.collection_url+'?page='+pageNum)
@@ -300,17 +282,6 @@
                 });
                 this.items = newItems;
                 this.createdSuccess();
-            },
-            isColumnExist(name) {
-                let column = this.columns.find(column => {
-                    return column.name == name
-                })
-
-                if(column){
-                    return true;
-                }
-
-                return false;
             },
             filterColumns() {
                 this.columns = this.columns.filter( column => {

@@ -39,6 +39,11 @@ class DocumentManager
             ->with('files')
             ;
 
+        if ($user->hasRole('client')) {
+            $query->orderBy('signed', 'asc')
+                ->orderBy('paid', 'asc');
+        }
+
         if (array_key_exists('sort', $params) && array_key_exists('dir', $params) && array_key_exists($params['sort'], $orderColumns)) {
             $sort = $params['sort'];
             $dir = $params['dir'];
@@ -49,8 +54,8 @@ class DocumentManager
                     CASE
                        WHEN (`manager`.`last_name` IS NOT NULL and `manager`.`last_name` <> "") THEN `manager`.`last_name`
                        WHEN (`manager`.`first_name` IS NOT NULL OR `manager`.`first_name` <> "")  THEN `manager`.`first_name`
-                       WHEN (`manager`.`second_name` IS NOT NULL OR `manager`.`second_name` <> "") THEN `manager`.`second_name`     
-                       ELSE 0            
+                       WHEN (`manager`.`second_name` IS NOT NULL OR `manager`.`second_name` <> "") THEN `manager`.`second_name`
+                       ELSE 0
                     END
                     '. $dir.',
                     `manager`.`last_name` '. $dir .', `manager`.`first_name` '. $dir.' , `manager`.`second_name` '. $dir
@@ -60,8 +65,8 @@ class DocumentManager
                     CASE
                        WHEN (`client`.`last_name` IS NOT NULL and `client`.`last_name` <> "") THEN `client`.`last_name`
                        WHEN (`client`.`first_name` IS NOT NULL OR `client`.`first_name` <> "")  THEN `client`.`first_name`
-                       WHEN (`client`.`second_name` IS NOT NULL OR `client`.`second_name` <> "") THEN `client`.`second_name`     
-                       ELSE 0            
+                       WHEN (`client`.`second_name` IS NOT NULL OR `client`.`second_name` <> "") THEN `client`.`second_name`
+                       ELSE 0
                     END
                     '. $dir.',
                     `client`.`last_name` '. $dir .', `client`.`first_name` '. $dir.' , `client`.`second_name` '. $dir
