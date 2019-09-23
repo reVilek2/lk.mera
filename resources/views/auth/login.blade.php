@@ -25,9 +25,6 @@
                 @if ($errors->has('login'))
                     <div class="invalid-feedback d-block login">{{ $errors->first('login') }}</div>
                 @endif
-                @if ($errors->has('email'))
-                    <div class="invalid-feedback d-block email">{{ $errors->first('email') }}</div>
-                @endif
                 @if ($errors->has('phone'))
                     <div class="invalid-feedback d-block phone">{{ $errors->first('phone') }}</div>
                 @endif

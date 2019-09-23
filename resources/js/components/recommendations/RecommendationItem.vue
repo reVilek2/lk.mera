@@ -15,7 +15,7 @@
         </div>
         <!-- /.box-header -->
         <div class="box-body">
-            {{recommendation.text}}
+            <nl2br tag="div" :text="recommendation.text" />
         </div>
         <!-- /.box-body -->
         <div v-if="currUser.is_client && !isResolved" class="box-footer">

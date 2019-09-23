@@ -12,7 +12,7 @@ use Validator;
 use App\Rules\ManagerClientsIds;
 use App\Services\RecommedationManager;
 use App\Services\Page;
-use App\Notifications\RecommendationAccepted;
+use App\Mail\RecommendationAccepted;
 use App\Notifications\RecommendationCreated;
 
 class RecommendationsController extends Controller
@@ -135,7 +135,8 @@ class RecommendationsController extends Controller
         $receiver->save();
 
         if($receiver->status == RecommendationReceiver::STATUS_ACCEPTED){
-            $recommendation->notify( new RecommendationAccepted($receiver->client) );
+            $mail = \MultiMail::to($recommendation->email);
+            $mail->send(new RecommendationAccepted($recommendation));
         }
 
         $recommendation = $recommendation::where('id', $recommendation->id)

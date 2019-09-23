@@ -1,6 +1,5 @@
-@component('mail::message')
+@component('mail::recommendation.message')
 
-На вашу рекомендацию {{$recommendation_title}} от {{ $recommendation_date }} откликнулся {{ $client_name }}.
+{!! $recommendation_text !!}
 
-{{ config('app.name') }}
 @endcomponent

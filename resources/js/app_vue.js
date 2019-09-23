@@ -50,8 +50,10 @@ import PaymentService from './components/payments/PaymentService';
 import FinanceService from './components/finances/FinanceService';
 import Chat from './components/chat/Chat';
 import RecommendationsList from './components/recommendations/RecommendationsList';
+import Nl2br from 'vue-nl2br';
 
 Vue.config.devtools = process.env.NODE_ENV === 'development';
+Vue.component('nl2br', Nl2br);
 
 let app = new Vue({
     el: '#app',
