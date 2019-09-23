@@ -112,8 +112,6 @@ class User extends Authenticatable implements HasMedia
 
     const AVATAR_COLLECTION_NAME = 'avatar';
 
-    const REGISTER_TYPE_EMAIL = 'email';
-    const REGISTER_TYPE_PHONE = 'phone';
     const TOKEN_QUERY_NAME = 'token';
 
     const ROLE_ADMIN = 'admin';

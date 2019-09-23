@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Models\Token;
 use App\Notifications\EmailConfirmNotification;
 use App\Rules\PhoneNumber;
+use App\Rules\PasswordStrength;
 use App\Services\PhoneNormalizer;
 use App\Services\UserManager;
 use Illuminate\Http\Request;
@@ -65,58 +66,48 @@ class RegisterController extends Controller
         $data = $request->all();
 
         $rules = [
-            'password' => 'required:create|between:6,50|confirmed',
-            'password_confirmation' => 'required_with:password|between:6,50'
+            'email' => 'required|between:6,255|email',
+            'password' => ['required:create', 'confirmed', new PasswordStrength],
+            'password_confirmation' => 'required_with:password',
         ];
-        if(preg_match('/^\+?[\d]+$/', $request->phone_or_email)) {
-            // Регистрация через телефон
-            $register_type = User::REGISTER_TYPE_PHONE;
-            $phoneNormalizer = new PhoneNormalizer();
-            $phoneNormalized = $phoneNormalizer->normalize($request->phone_or_email);
-            if ($phoneNormalized) {
-                $data['phone_or_email'] = '+'.$phoneNormalized;
-            }
-            $rules['phone_or_email'] = ['required', new PhoneNumber('Поле phone or email имеет ошибочный формат.')];
-        }else{
-            // Регистрация через email
-            $register_type = User::REGISTER_TYPE_EMAIL;
-            $rules['phone_or_email'] = 'required|between:6,255|email';
+
+        $phoneNormalizer = new PhoneNormalizer();
+        $phoneNormalized = $phoneNormalizer->normalize($request->phone);
+        if ($phoneNormalized) {
+            $data['phone'] = '+'.$phoneNormalized;
         }
+        $rules['phone'] = ['required', new PhoneNumber('Поле phone имеет ошибочный формат.')];
+
         /**
          * Валидация данных
          */
-        $validation = $this->validateRegisterData($data, $rules, $register_type);
+        $validation = $this->validateRegisterData($data, $rules);
         if (!empty($validation->errors()->messages())) {
 
             return back()->withErrors($validation)->withInput();
         }
+
         /**
          * Регистрация нового пользователя
          */
         $user = User::create([
-            'email' => $register_type === User::REGISTER_TYPE_EMAIL ? $data['phone_or_email']: null,
-            'phone' => $register_type === User::REGISTER_TYPE_PHONE ? $data['phone_or_email']: null,
+            'email' => $data['email'],
+            'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
             'api_token' => Token::generate() // API tokens
         ]);
 
         $user->assignRole('user');
 
-        if ($register_type === User::REGISTER_TYPE_EMAIL) {
-            // Если регистрация через email
-            // отсылаем на почту письмо
-            $this->userManager->sendActivationEmail($user);
-
-            return redirect()->route('successRegistrationByEmail', $user->email);
-        } else {
-            // Если регистрация через телефон
-            // отсылаем sms на телефон
-            $this->userManager->sendActivationPhone($user);
-
-            return redirect()->route('phone.confirm', $user->phone);
-        }
+        // Если регистрация через телефон
+        // отсылаем sms на телефон
+        $this->userManager->sendActivationPhone($user);
+        return redirect()->route('phone.confirm', $user->phone);
     }
 
+    /*
+     *Depricated
+     */
     public function successRegistrationByEmail(Request $request, $email = null)
     {
         Page::setTitle('Sign up');
@@ -143,17 +134,19 @@ class RegisterController extends Controller
      * @param $register_type
      * @return \Illuminate\Validation\Validator
      */
-    private function validateRegisterData(array $data, array $rules, $register_type)
+    private function validateRegisterData(array $data, array $rules)
     {
         $validation = Validator::make($data, $rules);
         if ($validation->fails()) {
             return $validation;
         }
 
-        if ($register_type === User::REGISTER_TYPE_EMAIL && !User::isUniqueEmail($data['phone_or_email'])) {
-            $validation->getMessageBag()->add('phone_or_email', 'Данный email уже используется');
-        } elseif ($register_type === User::REGISTER_TYPE_PHONE && !User::isUniquePhone($data['phone_or_email'])) {
-            $validation->getMessageBag()->add('phone_or_email', 'Данный телефон уже используется');
+        if (!User::isUniqueEmail($data['phone'])) {
+            $validation->getMessageBag()->add('email', 'Данный email уже используется');
+        }
+
+        if (!User::isUniquePhone($data['email'])) {
+            $validation->getMessageBag()->add('phone', 'Данный телефон уже используется');
         }
 
         return $validation;

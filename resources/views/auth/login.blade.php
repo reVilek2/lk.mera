@@ -14,13 +14,13 @@
         <form class="form_login" method="POST" action="{{ route('login') }}">
             @csrf
             <div class="form-group">
-                <label class="form-label" for="userSigninLogin">Телефон или email</label>
+                <label class="form-label" for="userSigninLogin">Телефон</label>
                 <input
                         name="login"
                         type="text"
                         class="form-control"
                         id="userSigninLogin"
-                        placeholder="Введите телефон или email"
+                        placeholder="Введите телефон"
                         value="{{ old('login') ?? ''}}" />
                 @if ($errors->has('login'))
                     <div class="invalid-feedback d-block login">{{ $errors->first('login') }}</div>

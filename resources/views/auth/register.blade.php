@@ -16,19 +16,32 @@
                 <form class="form_register" method="POST" action="{{ route('register') }}">
                     @csrf
                     <div class="form-group">
-                        <label class="form-label" for="registerPhoneOrEmail">Телефон или Email *</label>
+                        <label class="form-label" for="registerPhone">Телефон *</label>
                         <input
-                                name="phone_or_email"
+                                name="phone"
                                 type="text"
                                 class="form-control"
-                                id="registerPhoneOrEmail"
-                                placeholder="Введите телефон или email"
+                                id="registerPhone"
+                                placeholder="Введите телефон"
                                 required
-                                value="{{ old('phone_or_email') ?? ''}}" />
-                        @if ($errors->has('phone_or_email'))
-                            <div class="invalid-feedback d-block">{{ $errors->first('phone_or_email') }}</div>
+                                value="{{ old('phone') ?? ''}}" />
+                        @if ($errors->has('phone'))
+                            <div class="invalid-feedback d-block">{{ $errors->first('phone') }}</div>
                         @endif
-
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="registerEmail">Email *</label>
+                        <input
+                                name="email"
+                                type="text"
+                                class="form-control"
+                                id="registerEmail"
+                                placeholder="Введите email"
+                                required
+                                value="{{ old('email') ?? ''}}" />
+                        @if ($errors->has('email'))
+                            <div class="invalid-feedback d-block">{{ $errors->first('email') }}</div>
+                        @endif
                     </div>
 
                     <div class="form-group">
