@@ -9,7 +9,7 @@
     <title>{{ $headTitle }}</title>
     <meta name="description" content="">
     <meta name="title" content="{{ $headTitle }}">
-    <meta name="description" content="{{ $pageDescription }}">
+    <meta name="description" content="@if(isset($pageDescription) && !empty($pageDescription)){{ $pageDescription }}@endif">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}" data-lifetime="{{config('session.lifetime')}}">
 

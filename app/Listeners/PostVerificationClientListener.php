@@ -10,6 +10,7 @@ use App\Mail\NewClientRegisterd;
 use Illuminate\Support\Facades\Mail;
 use App\Services\UserManager;
 use App\Mail\NewClientRegistered;
+use App\Mail\ClientConfirmation;
 
 class PostVerificationClientListener
 {
@@ -43,5 +44,8 @@ class PostVerificationClientListener
             $mail->bcc($administration_staff);
         }
         $mail->send(new NewClientRegistered($client));
+
+        $mail = \MultiMail::to($client);
+        $mail->send(new ClientConfirmation($client));
     }
 }

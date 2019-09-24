@@ -6,7 +6,7 @@
     </div>
     <div class="recommendation-sign__block recommendation-sign__links">
         <div class="recommendation-sign__link-wrapper">
-        <a href="tel:{{config('mera-capital.phone')}}">тел. 8 800 250 78 77</a>
+            <a href="tel:{{config('mera-capital.phone')}}">тел. 8 800 250 78 77</a>
         </div>
         <div class="recommendation-sign__link-wrapper">
             <a href="{{config('mera-capital.main_site_url')}}">mera-capital.com</a>

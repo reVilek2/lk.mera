@@ -302,3 +302,7 @@ img {
 .recommendation-sign__link-wrapper a {
     color: inherit;
 }
+
+.recommendation-sign__logo_image{
+    width: 200px;
+}
