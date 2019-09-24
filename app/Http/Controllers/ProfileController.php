@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Rules\PhoneNumber;
+use App\Rules\PasswordStrength;
 use App\Services\Page;
 use App\Services\PhoneNormalizer;
 use App\Services\UserManager;
@@ -70,8 +71,8 @@ class ProfileController extends Controller
             abort(403);
         }
         $validation = Validator::make($request->all(), [
-            'email'    => 'nullable|between:6,255|email',
-            'phone'    => ['nullable', new PhoneNumber('Поле phone имеет ошибочный формат.')],
+            'email'    => 'required|between:6,255|email',
+            'phone'    => ['required', new PhoneNumber('Поле phone имеет ошибочный формат.')],
             'first_name' => 'nullable|string',
             'second_name' => 'nullable|string',
             'last_name' => 'nullable|string',
@@ -232,8 +233,8 @@ class ProfileController extends Controller
         }
 
         $validation = Validator::make(['password' => $new_password, 'password_confirmation' => $confirm_new_password], [
-            'password' => 'required:create|between:6,50|confirmed',
-            'password_confirmation' => 'required_with:password|between:6,50'
+            'password' => ['required:create', 'confirmed', new PasswordStrength],
+            'password_confirmation' => 'required_with:password',
         ]);
         $errors = $validation->errors();
         $errors = json_decode($errors);

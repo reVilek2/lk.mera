@@ -16,8 +16,3 @@ Route::post('/refresh-csrf', function (){
 
 Route::post('/yandex-kassa-notify', 'YandexNotifyController@index')->name('yandex.kassa.notify');
 Route::get('/yandex-kassa-notify', 'YandexNotifyController@index')->name('yandex.kassa.notify');
-
-Route::get('testmail', function () {
-    $recommendation = App\Models\Recommendation::find(77);
-    return new \App\Mail\RecommendationAccepted($recommendation);
-});
