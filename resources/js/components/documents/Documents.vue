@@ -75,6 +75,14 @@
                             @deleteDocument="deleteItem"
                         >
                         </documents-item>
+
+                        <template v-if="item_count == 0" >
+                            <span v-if="filter">Не найдено ни одного отчета</span>
+                            <span v-if="!filter">
+                                <span v-if="currUser.is_admin || currUser.is_manager">Вы не создали ни одного отчета</span>
+                                <span v-if="!currUser.is_admin && !currUser.is_manager">У вас нет ни одного отчета</span>
+                            </span>
+                        </template>
                     </template>
                 </div>
             </div>
