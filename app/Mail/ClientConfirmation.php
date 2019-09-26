@@ -14,6 +14,8 @@ class ClientConfirmation extends Mailable
 
     public $fromMailer;
 
+    protected $theme = 'mera';
+
     /**
      * Create a new message instance.
      *
@@ -34,7 +36,7 @@ class ClientConfirmation extends Mailable
     {
         $login = $this->client->phone;
 
-        return $this->subject('Подтверждение аккаунта')
+        return $this->subject('Активация почты')
             ->markdown('mail.client_confirmation', [
                 'login' => $login,
             ]);

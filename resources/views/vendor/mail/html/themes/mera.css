@@ -117,6 +117,10 @@ img {
     text-shadow: 0 1px 0 white;
 }
 
+.header .header__image {
+    width: 400px;
+}
+
 /* Body */
 
 .body {
@@ -212,12 +216,14 @@ img {
 }
 
 .button {
-    border-radius: 3px;
+    font-size: 22px;
+    border-radius: 15px;
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16);
     color: #fff;
     display: inline-block;
     text-decoration: none;
     -webkit-text-size-adjust: none;
+    text-transform: lowercase;
 }
 
 .button-blue,
