@@ -141,11 +141,11 @@ class RegisterController extends Controller
             return $validation;
         }
 
-        if (!User::isUniqueEmail($data['phone'])) {
+        if (!User::isUniqueEmail($data['email'])) {
             $validation->getMessageBag()->add('email', 'Данный email уже используется');
         }
 
-        if (!User::isUniquePhone($data['email'])) {
+        if (!User::isUniquePhone($data['phone'])) {
             $validation->getMessageBag()->add('phone', 'Данный телефон уже используется');
         }
 
