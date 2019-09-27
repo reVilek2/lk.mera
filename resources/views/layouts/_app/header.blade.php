@@ -4,9 +4,9 @@
     <!-- Logo -->
     <a href="/" class="logo">
         <!-- mini logo for sidebar mini 50x50 pixels -->
-        <span class="logo-mini"><b>M</b>C</span>
+        <span class="logo-mini"><b>М</b>К</span>
         <!-- logo for regular state and mobile devices -->
-        <span class="logo-lg">MeraCapital</span>
+        <span class="logo-lg"></span>
     </a>
 
     <!-- Header Navbar -->
