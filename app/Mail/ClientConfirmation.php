@@ -36,7 +36,7 @@ class ClientConfirmation extends Mailable
     {
         $login = $this->client->phone;
 
-        return $this->subject('Активация почты')
+        return $this->subject('Подтверждение почты')
             ->markdown('mail.client_confirmation', [
                 'login' => $login,
             ]);

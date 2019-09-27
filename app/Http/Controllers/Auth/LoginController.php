@@ -77,7 +77,7 @@ class LoginController extends Controller
             'phone'    => $data['login'],
             'password' => $data['password']
         ];
-        $rules['login'] = ['required', new PhoneNumber('Поле phone or email имеет ошибочный формат.')];
+        $rules['login'] = ['required', new PhoneNumber('Поле phone имеет ошибочный формат.')];
 
         $validation = Validator::make($data, $rules);
         if ($validation->fails()) {
