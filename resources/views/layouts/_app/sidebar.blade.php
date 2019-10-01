@@ -5,7 +5,6 @@
 
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu" data-widget="tree">
-            <li class="header">Навигация</li>
             <!-- Optionally, you can add icons to the links -->
             <li class="{{ set_active(['reports', 'reports/*']) }}"><a href="{{route('reports')}}"><i class="fa fa-file-pdf-o"></i> <span>Отчеты</span></a></li>
             <li class="{{ set_active(['profile', 'profile/*']) }}"><a href="{{route('profile')}}"><i class="fa fa-user"></i> <span>Профиль</span></a></li>

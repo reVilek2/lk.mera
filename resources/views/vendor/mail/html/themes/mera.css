@@ -139,10 +139,10 @@ img {
     background-color: #ffffff;
     margin: 0 auto;
     padding: 0;
-    width: 570px;
+    width: 800px;
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
-    -premailer-width: 570px;
+    -premailer-width: 800px;
 }
 
 /* Subcopy */
@@ -163,10 +163,10 @@ img {
     margin: 0 auto;
     padding: 0;
     text-align: center;
-    width: 570px;
+    width: 800px;
     -premailer-cellpadding: 0;
     -premailer-cellspacing: 0;
-    -premailer-width: 570px;
+    -premailer-width: 800px;
 }
 
 .footer p {
@@ -294,5 +294,15 @@ img {
 
 .promotion p {
     font-size: 15px;
+    text-align: center;
+}
+
+/* Greetings */
+
+.greetings {
+    text-align: center;
+}
+
+.greetings p{
     text-align: center;
 }
