@@ -108,7 +108,6 @@
                 }
                 return chatList;
             },
-
             getChatAvatar(chat)
             {
                 let avatar = '/images/chats/avatar.jpg';
@@ -143,7 +142,6 @@
                 }
                 return name;
             },
-
             getChatStatus(chat) {
                 let status = 1;
                 if (chat.users.length <= 1) { //если всего один участник
@@ -152,7 +150,6 @@
 
                 return status;
             },
-
             openChat(chat_id) {
                 this.sideBarClose();
 
@@ -168,7 +165,6 @@
                 // set active chat
                 window.location.hash = chat_id;
             },
-
             markAllAsRead(done, chat) {
                 if (chat.un_read_messages.length) {
                     this.chatsList.forEach(el => {
@@ -193,6 +189,31 @@
                     }
                 });
             },
+            scrollPageToChatBottom() {
+                let $container = $('html, body');
+                let scrollTo = this.$el.scrollHeight;
+
+                $container.stop().animate({
+                    scrollTop: scrollTo
+                });
+            },
+            adminLTELayoutFixListner(){
+                let target = document.querySelector('html');
+
+                const config = {
+                    attributes: true,
+                    childList: false,
+                    subtree: false
+                };
+
+                const callback = (mutationsList, observer) => {
+                    this.scrollPageToChatBottom();
+                    observer.disconnect();
+                };
+
+                const observer = new MutationObserver(callback);
+                observer.observe(target, config);
+            }
         },
         mounted() {
             this.$nextTick(function () {
@@ -204,6 +225,9 @@
                         }
                     });
                 }
+
+                this.scrollPageToChatBottom();
+                this.adminLTELayoutFixListner();
             });
             window.Echo.private('chat.user.'+this.currUser.id).listen('MessageSent', (e) => {
                 this.chatsList.forEach(el => {
