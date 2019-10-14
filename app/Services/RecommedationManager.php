@@ -12,13 +12,18 @@ class RecommedationManager
         $query = Recommendation::query()
             ->orderBy('id', 'desc');
 
-        if ($user->hasRole('manager')) {
+        if ($user->hasRole('admin')) {
+          $query
+            ->with(['receivers' => function ($query) use($user) {
+                $query->select('recommendation_id', 'client_id', 'status');
+            }]);
+        } else if ($user->hasRole('manager')) {
             $query
             ->where('manager_id', '=', $user->id)
             ->with(['receivers' => function ($query) use($user) {
                 $query->select('recommendation_id', 'client_id', 'status');
             }]);
-        } elseif($user->hasRole('client')) {
+        } else if($user->hasRole('client')) {
             $query
             ->whereHas('receivers', function ($query) use($user) {
                 $query->where('client_id', '=', $user->id);

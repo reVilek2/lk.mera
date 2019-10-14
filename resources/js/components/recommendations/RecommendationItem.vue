@@ -35,7 +35,7 @@
                 type="button"
                 class="btn btn-danger"
             >
-                Отлонить
+                Отклонить
             </button>
         </div>
 
