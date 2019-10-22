@@ -1,8 +1,8 @@
 <?php
-namespace App\ModulePayment\Drivers;
+namespace App\ModulePayment\Drivers\Yandex;
 
 use Illuminate\Contracts\Support\Arrayable;
-use App\ModulePayment\Drivers\YandexReceiptItem as ReceiptItem;
+use App\ModulePayment\Drivers\Yandex\YandexReceiptItem as ReceiptItem;
 
 class YandexReceipt implements Arrayable
 {

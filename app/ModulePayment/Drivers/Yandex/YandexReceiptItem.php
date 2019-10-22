@@ -1,5 +1,5 @@
 <?php
-namespace App\ModulePayment\Drivers;
+namespace App\ModulePayment\Drivers\Yandex;
 
 use Illuminate\Contracts\Support\Arrayable;
 

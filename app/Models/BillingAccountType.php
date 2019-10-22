@@ -25,6 +25,7 @@ class BillingAccountType extends Model
     const BALANCE = 'balance';
     const VIRTUAL = 'virtual';
     const KASSA_YANDEX = 'kassa_yandex';
+    const TINKOFF = 'tinkoff';
     const SERVICE = 'service';
 
     protected $table = 'billing_account_type';

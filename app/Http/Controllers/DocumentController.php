@@ -277,7 +277,7 @@ class DocumentController extends Controller
                 /** @var User $client */
                 $client = $document->client;
                 if ($missingAmount = BillingService::calculateMissingAmount($client, (int) $document->amount)) {
-                    $paymentCardDefault = $client->getPaymentCardDefault();
+                    $paymentCardDefault = $client->getPaymentCardDefault(config('payment.default_driver'));
                     return response()->json([
                         'status'=>'missingAmount',
                         'missingAmount' => $missingAmount,

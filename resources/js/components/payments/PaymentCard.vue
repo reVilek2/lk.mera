@@ -138,7 +138,7 @@
                 if (this.raw_amount > 0 && !this.isUploadingForm) {
                     this.isUploadingForm = true;
                     const formData = {};
-                    formData.card_id = this.card.card_id;
+                    formData.card_id = this.card.id;
                     formData.amount = this.raw_amount;
                     if (this.document) {
                         formData.document = this.document.id;

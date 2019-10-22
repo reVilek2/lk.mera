@@ -336,9 +336,14 @@ class User extends Authenticatable implements HasMedia
         return $this->clients()->get();
     }
 
-    public function getPaymentCardDefault()
+    public function getPaymentCardDefault($source = null)
     {
-        return $this->paymentCards()->whereCardDefault(true)->first();
+        $cards = $this->paymentCards()->whereCardDefault(true);
+        if($source){
+            $cards->where('source', $source);
+        }
+
+        return $cards->first();
     }
 
     /**

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use MoneyAmount;
 
 /**
- * Class YandexPayment
+ * Class Payment
  *
  * @property int $id
  * @property string|null $idempotency_key
@@ -46,7 +46,7 @@ use MoneyAmount;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment whereUserId($value)
  * @mixin \Eloquent
  */
-class YandexPayment extends Model implements ModelPaymentInterface
+class Payment extends Model implements ModelPaymentInterface
 {
     const TYPE_PAYMENT = 'payment';
     const TYPE_REFUND = 'refund';
@@ -56,7 +56,7 @@ class YandexPayment extends Model implements ModelPaymentInterface
      *
      * @var string
      */
-    protected $table = 'yandex_payments';
+    protected $table = 'payments';
 
     /**
      * The attributes that are mass assignable.
@@ -64,9 +64,9 @@ class YandexPayment extends Model implements ModelPaymentInterface
      * @var array
      */
     protected $fillable = [
-        'idempotency_key' ,
+        'idempotency_key',
+        'source',
         'amount',
-        'paid',
         'payment_id' ,
         'payment_type' ,
         'payment_method_type' ,

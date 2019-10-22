@@ -2,6 +2,7 @@
 namespace App\ModulePayment\Services;
 
 use App\ModulePayment\Interfaces\PaymentServiceInterface;
+use App\ModulePayment\Interfaces\ModelPaymentInterface;
 
 class PaymentService implements PaymentServiceInterface
 {
@@ -23,6 +24,26 @@ class PaymentService implements PaymentServiceInterface
      * @var string
      */
     private $currentDriverName;
+
+    /**
+     * Available processings
+     *
+     * @var array
+     */
+    private $processings = [];
+    /**
+     * Current processing
+     *
+     * @var PaymentServiceInterface
+     */
+    private $currentProcessing;
+
+    /**
+     * Name of current processing
+     *
+     * @var string
+     */
+    private $currentProcessingName;
 
     /**
      * Set drivers
@@ -56,9 +77,11 @@ class PaymentService implements PaymentServiceInterface
      */
     public function setCurrentDriver($name)
     {
-        $this->currentDriverName = $name;
+        $this->currentProcessingName = $name;
 
         $this->makeCurrentDriver($name);
+
+        $this->setCurrentProcessing($name);
 
         return $this;
     }
@@ -84,9 +107,7 @@ class PaymentService implements PaymentServiceInterface
      */
     protected function makeCurrentDriver($name)
     {
-        $this->currentDriver = \App::make($this->getDriver($name), [
-            'config' => config('payment.' . $name),
-        ]);
+        $this->currentDriver = \App::make($this->getDriver($name));
 
         return $this;
     }
@@ -112,6 +133,81 @@ class PaymentService implements PaymentServiceInterface
     }
 
     /**
+     * Set processings
+     *
+     * @param array $processings
+     *
+     * @return $this
+     */
+    public function setProcessings(array $processings)
+    {
+        $this->processings = $processings;
+
+        return $this;
+    }
+
+    /**
+     * Get processings
+     *
+     * @return array
+     */
+    public function getProcessings()
+    {
+        return $this->processings;
+    }
+    /**
+     * Set current driver
+     *
+     * @param string $name
+     *
+     * @return $this
+     */
+    public function setCurrentProcessing($name)
+    {
+        $this->currentProcessingName = $name;
+
+        $this->makeCurrentProcessing($name);
+
+        return $this;
+    }
+
+    /**
+     * Get driver by name
+     *
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getProcessing($name)
+    {
+        return $this->getProcessings()[$name];
+    }
+
+    /**
+     * Build driver
+     *
+     * @param string $name
+     *
+     * @return $this
+     */
+    protected function makeCurrentProcessing($name)
+    {
+        $this->currentProcessing = \App::make($this->getProcessing($name));
+
+        return $this;
+    }
+
+    /**
+     * Get current driver name
+     *
+     * @return PaymentServiceInterface
+     */
+    public function getCurrentProcessing()
+    {
+        return $this->currentProcessing;
+    }
+
+    /**
      * Pay
      *
      * @param float $amount
@@ -122,34 +218,38 @@ class PaymentService implements PaymentServiceInterface
      * @param array $extraParams
      * @return string
      */
-    public function regularPayment($amount,
-                                  $paymentType = self::PAYMENT_TYPE_CARD,
-                                  $description = '',
-                                  $successReturnUrl = '',
-                                  $metadata = [],
-                                  $extraParams = [])
+    public function regularPayment( $orderId,
+                                    $amount,
+                                    $paymentType = self::PAYMENT_TYPE_CARD,
+                                    $description = '',
+                                    $successReturnUrl = '',
+                                    $failReturnUrl = '',
+                                    $notificationUrl = '',
+                                    $extraParams = [])
     {
         return $this->getCurrentDriver()->regularPayment(
+            $orderId,
             $amount,
             $paymentType,
             $description,
             $successReturnUrl,
-            $metadata,
+            $failReturnUrl,
+            $notificationUrl,
             $extraParams
         );
     }
 
-    public function fastPayment($amount,
+    public function fastPayment($orderId,
+                                $amount,
                                 $card_id,
                                 $description = '',
-                                $metadata = [],
                                 $extraParams = [])
     {
         return $this->getCurrentDriver()->fastPayment(
+            $orderId,
             $amount,
             $card_id,
             $description,
-            $metadata,
             $extraParams
         );
     }
@@ -160,7 +260,9 @@ class PaymentService implements PaymentServiceInterface
                                            $idempotencyKey,
                                            $metadata = [])
     {
-        return $this->getCurrentDriver()->makePaymentTransaction(
+        $paymentType = $this->getCurrentDriver()->getPaymentMethod($paymentType);
+
+        return $this->getCurrentProcessing()->makePaymentTransaction(
             $amount,
             $paymentType,
             $description,
@@ -168,24 +270,33 @@ class PaymentService implements PaymentServiceInterface
             $metadata);
     }
 
-    public function updatePaymentTransaction($payment, $paymentData)
+    public function updatePaymentTransaction($payment)
     {
-        return $this->getCurrentDriver()->updatePaymentTransaction($payment, $paymentData);
+        $driver = $this->getCurrentDriver();
+
+        return $this->getCurrentProcessing()->updatePaymentTransaction($payment, $driver);
     }
 
     public function getPaymentByUniqueKey($key)
     {
-        return $this->getCurrentDriver()->getPaymentByUniqueKey($key);
+        return $this->getCurrentProcessing()->getPaymentByUniqueKey($key);
     }
 
-    public function getPayLink($paymentData)
+    public function getPayLink()
     {
-        return $this->getCurrentDriver()->getPayLink($paymentData);
+        return $this->getCurrentDriver()->getPayLink();
     }
 
     public function checkPayment($payment)
     {
-        return $this->getCurrentDriver()->checkPayment($payment);
+        if (!$payment || !$payment instanceof ModelPaymentInterface) {
+            return null;
+        }
+
+        $driver = $this->getCurrentDriver();
+        $driver->getPayInfo($payment->payment_id);
+
+        return $this->getCurrentProcessing()->processPayment($payment, $driver);
     }
 
     /**
@@ -194,21 +305,26 @@ class PaymentService implements PaymentServiceInterface
      * @param $request
      * @return mixed
      */
-    public function processNotificationRequest($request)
+    public function processNotificationRequest($notification)
     {
-        return $this->getCurrentDriver()->processNotificationRequest($request);
+        $driver = $this->getCurrentDriver();
+        if($driver->validateNotification($notification)){
+            return false;
+        }
+
+        return $this->getCurrentProcessing()->processNotificationRequest($notification, $driver);
     }
 
     /**
      * Ответ платежной системе что мы получили уведомление
      *
-     * @param int $errorCode
+     * @param int $reponseCode
      *
      * @return string
      */
-    public function getNotificationResponse($errorCode = null)
+    public function getNotificationResponse($reponseCode = null)
     {
-        return $this->getCurrentDriver()->getNotificationResponse($errorCode);
+        return $this->getCurrentDriver()->getNotificationResponse($reponseCode);
     }
 
     /**
@@ -222,6 +338,6 @@ class PaymentService implements PaymentServiceInterface
 
     public function uniqid()
     {
-        return $this->getCurrentDriver()->uniqid();
+        return $this->getCurrentProcessing()->uniqid();
     }
 }

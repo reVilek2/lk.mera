@@ -52,6 +52,7 @@ class PaymentCard extends Model
      * @var array
      */
     protected $fillable = [
+        'source',
         'card_id' ,
         'year',
         'month',
@@ -69,6 +70,7 @@ class PaymentCard extends Model
     }
 
     public function saveCard(User $user, $metaData = [
+        'source' => null,
         'card_id' => null,
         'year' => null,
         'month' => null,
@@ -79,25 +81,21 @@ class PaymentCard extends Model
     ])
     {
         $card = $this;
-        $cardDefault = $user->getPaymentCardDefault();
+        $cardDefault = $user->getPaymentCardDefault($metaData['source']);
 
         if ($metaData['card_id'] && !empty($metaData['card_id'])) {
-            if ($issetCardById = PaymentCard::whereCardId($metaData['card_id'])->first()) { // если существует карта с такимиже уникальным ключом то обновляем ее
+            if ($issetCardById = PaymentCard::getCardForPaymentSystem($metaData['card_id'], $metaData['source'])) { // если существует карта с такимиже уникальным ключом то обновляем ее
                 $card = $issetCardById;
-            } else { // иначе ищем по данным карты
-                $issetCardByData = PaymentCard::where('type', $metaData['type'])->where('first', $metaData['first'])->where('last', $metaData['last'])->first();
-                if ($issetCardByData) { // если существует карта с такимиже данными то обновляем ее
-                    $card = $issetCardByData;
-                }
             }
 
+            $card->source = $metaData['source'];
             $card->card_id = $metaData['card_id'];
             $card->year = $metaData['year'];
             $card->month = $metaData['month'];
-            $card->type = $metaData['type'];
+            $card->type = isset($metaData['type']) ? $metaData['type'] : null;
             $card->pan = $metaData['pan'];
-            $card->first = $metaData['first'];
-            $card->last = $metaData['last'];
+            $card->first = isset($metaData['first']) ? $metaData['first'] : null;
+            $card->last = isset($metaData['last']) ? $metaData['last'] : null;
             $card->user_id = $user->id;
 
             if (!$cardDefault) {
@@ -110,5 +108,11 @@ class PaymentCard extends Model
         }
 
         return $card;
+    }
+
+    public static function getCardForPaymentSystem($card_id, $source){
+        PaymentCard::whereCardId($card_id)
+            ->whereSource($source)
+            ->first();
     }
 }

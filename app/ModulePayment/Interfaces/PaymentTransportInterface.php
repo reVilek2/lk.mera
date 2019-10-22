@@ -11,15 +11,7 @@ interface PaymentTransportInterface
      *
      * @return string
      */
-    public function createPayment($params, $idempotencyKey = null);
-    /**
-     * Prepare parameters
-     *
-     * @param array $params
-     *
-     * @return array
-     */
-    public function prepareParams($params);
+    public function createPayment($params);
 
     /**
      * get Info

@@ -77,7 +77,8 @@ class PaymentController extends Controller
 
             try {
                 $idempotency_key = PayService::uniqid();
-                $description = 'Пополнение баланса через "Yandex Kassa"';
+                $description = '';
+
                 $metadata = [];
                 if ($document) {
                     $missingAmount = BillingService::calculateMissingAmount($document->client, (int) $document->amount);
@@ -88,6 +89,7 @@ class PaymentController extends Controller
                         $metadata['document'] = $document->id;
                     }
                 }
+
                 /** @var ModelPaymentInterface $payment */
                 $payment = PayService::makePaymentTransaction( // создаем транзакции
                     $amount,
@@ -97,21 +99,22 @@ class PaymentController extends Controller
                     $metadata
                 );
 
-                $metadata['idempotency_key'] = $idempotency_key;
-                $metadata['save_card'] = $saveCard;
 
+                $metadata['save_card'] = $saveCard;
                 $paymentData = PayService::regularPayment(
+                    $idempotency_key,
                     $amount,
                     $paymentType,
                     $description,
                     $successReturnUrl = route('payment.check').'?pay_key='.$idempotency_key,
-                    $metadata,
-                    $extraParams = []
+                    '',
+                    route('tinkoff.payment.notify'),
+                    $metadata
                 );
 
-                PayService::updatePaymentTransaction($payment, $paymentData); // обновляем транзакции
+                PayService::updatePaymentTransaction($payment); // обновляем транзакции
 
-                $payLink  = PayService::getPayLink($paymentData);
+                $payLink  = PayService::getPayLink();
 
                 return response()->json([
                     'status'=>'success',
@@ -213,9 +216,8 @@ class PaymentController extends Controller
         $errors = $validation->errors();
         $errors = json_decode($errors);
 
-
         if ($validation->passes()) {
-            $paymentCard = PaymentCard::whereCardId($card_id)->where('user_id', $currUser->id)->first();
+            $paymentCard = PaymentCard::whereId($card_id)->where('user_id', $currUser->id)->first();
             $idempotency_key = PayService::uniqid();
 
             if (!$paymentCard) {
@@ -227,7 +229,7 @@ class PaymentController extends Controller
             }
 
             try {
-                $description = 'Пополнение баланса через "Yandex Kassa"';
+                $description = '';
                 $metadata = [];
                 if ($document && !$document->getTransaction()) {
                     $missingAmount = BillingService::calculateMissingAmount($document->client, (int) $document->amount);
@@ -247,17 +249,16 @@ class PaymentController extends Controller
                     $metadata
                 );
 
-                $metadata['idempotency_key'] = $idempotency_key;
-
                 $paymentData = PayService::fastPayment(
+                    $idempotency_key,
                     $amount,
-                    $card_id,
+                    $paymentCard->card_id,
                     $description,
-                    $metadata,
-                    $extraParams = []
+                    route('tinkoff.payment.notify'),
+                    $metadata
                 );
 
-                PayService::updatePaymentTransaction($payment, $paymentData); // обновляем транзакции
+                PayService::updatePaymentTransaction($payment); // обновляем транзакции
 
                 return response()->json([
                     'status'=>'success',

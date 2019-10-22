@@ -437,6 +437,14 @@ class BillingManager
                 'sender' => BillingAccountType::BALANCE,
                 'receiver' => BillingAccountType::KASSA_YANDEX,
             ],
+            TransactionType::TINKOFF_IN => [
+                'sender' => BillingAccountType::TINKOFF,
+                'receiver' => BillingAccountType::BALANCE,
+            ],
+            TransactionType::TINKOFF_OUT => [
+                'sender' => BillingAccountType::BALANCE,
+                'receiver' => BillingAccountType::TINKOFF,
+            ],
             TransactionType::SERVICE_IN => [
                 'sender' => BillingAccountType::BALANCE,
                 'receiver' => BillingAccountType::SERVICE,
@@ -476,6 +484,8 @@ class BillingManager
             TransactionType::MANUAL_OUT => Transaction::OUTGOING,
             TransactionType::YANDEX_IN => Transaction::INCOMING,
             TransactionType::YANDEX_OUT => Transaction::OUTGOING,
+            TransactionType::TINKOFF_IN => Transaction::INCOMING,
+            TransactionType::TINKOFF_OUT => Transaction::OUTGOING,
             TransactionType::SERVICE_IN => Transaction::OUTGOING,
             TransactionType::SERVICE_OUT => Transaction::INCOMING,
         ];

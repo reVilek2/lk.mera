@@ -1,15 +1,18 @@
 <?php
-namespace App\ModulePayment\Drivers;
+namespace App\ModulePayment\Drivers\Yandex;
 
 use App\ModulePayment\Exceptions\YandexPaymentException;
 use YandexCheckout\Client;
 use App\ModulePayment\Interfaces\PaymentTransportInterface;
-use YandexCheckout\Helpers\UUID;
+use App\ModulePayment\Traits\TransportTrait;
+
 /**
  * Class to work with Yandex.Kassa
  */
 class YandexKassa implements PaymentTransportInterface
 {
+    use TransportTrait;
+
     /**
      * @var Client
      */
@@ -65,10 +68,10 @@ class YandexKassa implements PaymentTransportInterface
      * @return string
      * @throws YandexPaymentException
      */
-    public function createPayment($params, $idempotencyKey = null)
+    public function createPayment($params)
     {
         try {
-            $response = $this->getClient()->createPayment($this->prepareParams($params), $idempotencyKey);
+            $response = $this->getClient()->createPayment($params, $params['metadata']['orderID']);
         }
         catch (\Exception $exception) {
             throw YandexPaymentException::parse($exception);
@@ -127,24 +130,5 @@ class YandexKassa implements PaymentTransportInterface
         }
         return $this->client;
     }
-    /**
-     * Prepare parameters
-     *
-     * @param array $params
-     *
-     * @return array
-     */
-    public function prepareParams($params)
-    {
-        return $params;
-    }
 
-    /**
-     * @return string
-     * @throws \Exception
-     */
-    public function uniqid()
-    {
-        return UUID::v4();
-    }
 }

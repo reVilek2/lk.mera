@@ -14,5 +14,7 @@ Route::post('/refresh-csrf', function (){
     return csrf_token();
 });
 
-Route::post('/yandex-kassa-notify', 'YandexNotifyController@index')->name('yandex.kassa.notify');
-Route::get('/yandex-kassa-notify', 'YandexNotifyController@index')->name('yandex.kassa.notify');
+Route::post('/yandex-kassa-notify', 'PaymentNotifyController@yandex')->name('yandex.kassa.notify');
+Route::get('/yandex-kassa-notify', 'PaymentNotifyController@yandex')->name('yandex.kassa.notify');
+Route::post('/tinkoff-payment-notify', 'PaymentNotifyController@tinkoff')->name('tinkoff.payment.notify');
+Route::get('/tinkoff-payment-notify', 'PaymentNotifyController@tinkoff')->name('tinkoff.payment.notify');

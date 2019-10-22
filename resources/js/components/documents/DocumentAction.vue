@@ -242,7 +242,7 @@
             stepMissingAmount() {
                 if (this.missingAmount > 0) {
                     if (!isEmptyObject(this.paymentCardDefault)) {
-                        this.payFastDocument(this.paymentCardDefault.card_id);
+                        this.payFastDocument(this.paymentCardDefault.id);
                     } else {
                         this.showModalCreditFail('Недостаточно средств на балансе и не выбрана карта для быстрой оплаты. Перейти на страницу ручной оплаты?');
                     }

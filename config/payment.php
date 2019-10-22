@@ -7,4 +7,8 @@ return [
         'scid'       => env('YANDEX_SCID'),
         'secretKey'  => env('YANDEX_SECRET_KEY'),
     ],
+    'tinkoff'  => [
+        'merchantId'    => env('TINKOFF_TERMINAL_KEY'),
+        'secretKey'       => env('TINKOFF_TERMINAL_PASSWORD'),
+    ],
 ];
