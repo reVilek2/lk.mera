@@ -24,17 +24,6 @@
             </div>
         </div>
         <div class="payment-boxes__content">
-            <div class="payment-boxes__content-details">
-                <div class="form-group">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" checked="checked" v-model="save_card">
-                            Привязать карту для дальнейших покупок
-                        </label>
-                    </div>
-                </div>
-                <p>Привязка карты ускоряет и облегчает работу. Карта будет использоваться для быстрой оплаты в один клик.</p>
-            </div>
             <div class="payment-boxes__content-action">
                 <div class="row">
                     <div class="col-lg-12">
@@ -96,7 +85,7 @@
                 modalAlertClass: 'alert-danger',
                 payment_url: '/finances/payment',
                 payment_type: 'card',
-                save_card: true,
+                save_card: false,
                 amount: this.totalPayable,
                 money: this.moneyParam,
                 isUploadingForm:false,

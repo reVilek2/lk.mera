@@ -56,7 +56,7 @@ class PaymentController extends Controller
         }
 
         $validation = Validator::make([
-            'save_card'=> $saveCard,
+            'save_card'=> false,
             'payment_type'=> $paymentType,
             'amount'=> $amount
         ], [

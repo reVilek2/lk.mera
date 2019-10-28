@@ -51,10 +51,6 @@
             <div class="v-modal-body">
                 {{credit_fail_message}}
             </div>
-            <div class="v-modal-footer">
-                <button type="button" class="btn btn-default pull-right" @click="hideModalCreditFail">Нет</button>
-                <button type="button" class="btn btn-success" @click="redirectToPaid" style="margin-right: 10px">Да</button>
-            </div>
         </modal>
         <modal :name="modalAlert"
             classes="v-modal v-modal-alert"
@@ -224,10 +220,7 @@
 
                         }
                         if (response.data.status === 'missingAmount') {
-                            this.missingAmount = response.data.missingAmount;
-                            this.paymentCardDefault = response.data.paymentCardDefault ? response.data.paymentCardDefault : {};
-
-                            this.stepMissingAmount();
+                            this.showModalCreditFail('Недостаточно средств на балансе');
                         }
                         // выполнить функцию после ajax
                         callback();

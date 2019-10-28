@@ -13,20 +13,6 @@
                     <div v-else class="payment-amount-total__text">К оплате по документу:</div>
                     <input type="text" class="form-control payment-amount-total__input" v-model.lazy="user_total_for_pay" v-money="money">
                 </div>
-                <div v-if="cards.length" class="payment-card-wrapper">
-                    <h2 class="page-header">
-                        Привязанные карты:
-                    </h2>
-                    <div class="payment-cards">
-                        <payment-card v-for="card in cards"
-                                      :key="card.id"
-                                      :card="card"
-                                      :cardDefault="cardDefault"
-                                      :total-payable="user_total_for_pay"
-                                      :document="document"
-                                      @newCardDefaultSelected="newCardDefaultSelected"></payment-card>
-                    </div>
-                </div>
                 <div class="payment-boxes-wrapper">
                     <h2 class="page-header">
                         Оплатить онлайн:
