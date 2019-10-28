@@ -148,21 +148,14 @@ class TinkoffDriver implements PaymentServiceInterface
 
             $data['Receipt'] = $receipt->toArray();
         }
-
         $payment_response = $this->getTransport()->createPayment($data)->response;
-
-        dump($payment_response);
 
         $data = [
             'PaymentId'           => $payment_response['PaymentId'],
             'TerminalKey'         => $this->config['merchantId'],
             'RebillId'            => $card_id,
         ];
-
         $payment_response = $this->getTransport()->createCharge($data)->response;
-
-        dd($payment_response);
-
         $this->setResponse($payment_response);
 
         return $payment_response ;

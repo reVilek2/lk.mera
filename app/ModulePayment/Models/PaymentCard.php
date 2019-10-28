@@ -111,7 +111,7 @@ class PaymentCard extends Model
     }
 
     public static function getCardForPaymentSystem($card_id, $source){
-        PaymentCard::whereCardId($card_id)
+        return PaymentCard::whereCardId($card_id)
             ->whereSource($source)
             ->first();
     }

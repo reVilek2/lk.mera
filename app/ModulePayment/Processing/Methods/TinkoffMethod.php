@@ -96,15 +96,10 @@ class TinkoffMethod extends Method
     public function processPayment($payment, $driver)
     {
         $payment_id = $driver->getPaymentId();
-        info($payment_id);
 
         if (!empty($payment_id) && $payment_id) {
             $transaction = $payment->getTransaction();
-
             $api_status = $this->nomalizeStatus($driver->getStatus());
-
-            info($api_status);
-            info($driver->getParam('RebillId'));
 
             /*Проверить на наличие сохраненной карты*/
             if(Payment::STATUS_SUCCEEDED == $api_status && $driver->getParam('RebillId')){
@@ -179,7 +174,6 @@ class TinkoffMethod extends Method
         try {
             $driver->setResponse($notification);
 
-            info($driver->getStatus());
             if($driver->getStatus() != 'CONFIRMED'){
                 return true;
             }
@@ -201,8 +195,8 @@ class TinkoffMethod extends Method
                 throw new \Exception('Ошибка при обработке уведомлений tinkoff, идентификатор платежа пустой.');
             }
         } catch (\Exception $e) {
-
             info('tinkoff notify process: '.$e->getMessage());
+
             return false;
         }
 
