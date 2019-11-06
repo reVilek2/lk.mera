@@ -3,7 +3,7 @@ namespace App\ModulePayment\Drivers\Tinkoff;
 
 use Illuminate\Contracts\Support\Arrayable;
 
-class Receipt extends Arrayable
+class Receipt implements Arrayable
 {
     /**
      * общая СН
