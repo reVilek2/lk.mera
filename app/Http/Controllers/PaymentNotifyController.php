@@ -19,8 +19,6 @@ class PaymentNotifyController extends Controller
 
     public function tinkoff(Request $request)
     {
-        $notification = $request->all();
-        info($notification);
         if (PayService::processNotificationRequest($notification)) {
             return PayService::getNotificationResponse(200);
         }
