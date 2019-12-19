@@ -25,8 +25,7 @@ class Page
      */
     public static function setTitle($title = '')
     {
-        $app_name =  config('app.name');
-
+        $app_name =  splitCamelCase(config('app.name'));
         if(!$title){
             self::setHeadTitle($app_name);
             self::setPageTitle($app_name);
