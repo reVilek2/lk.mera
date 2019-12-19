@@ -40,8 +40,8 @@ class CreateUsersTable extends Migration
         });
 
         Schema::create('users_managers', function (Blueprint $table) {
-            $table->unsignedInteger('client_id');
-            $table->unsignedInteger('manager_id');
+            $table->unsignedBigInteger('client_id');
+            $table->unsignedBigInteger('manager_id');
             $table->timestamps();
 
             $table->primary(['client_id']);

@@ -14,7 +14,7 @@ class CreateYandexPaymentsTable extends Migration
     public function up()
     {
         Schema::create('yandex_payments', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->string('idempotency_key')->unique();
             $table->bigInteger('amount')->default(0);
             $table->boolean('paid')->default(false);
@@ -41,7 +41,7 @@ class CreateYandexPaymentsTable extends Migration
         });
 
         Schema::create('payment_cards', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->string('card_id')->unique();
             $table->string('year')->nullable();
             $table->string('month')->nullable();

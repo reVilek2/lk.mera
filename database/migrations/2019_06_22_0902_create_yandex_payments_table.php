@@ -14,7 +14,7 @@ class CreateYandexPaymentsTable extends Migration
     public function up()
     {
         Schema::create('yandex_payments', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->string('idempotency_key')->unique();
             $table->bigInteger('amount')->default(0);
             $table->boolean('paid')->default(false);
@@ -26,8 +26,8 @@ class CreateYandexPaymentsTable extends Migration
             $table->string('status')->default('pending');
             $table->text('description')->nullable();
 
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('transaction_id');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('transaction_id');
 
             $table->index(['user_id', 'transaction_id']);
             $table->foreign('user_id')
@@ -41,7 +41,7 @@ class CreateYandexPaymentsTable extends Migration
         });
 
         Schema::create('payment_cards', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->string('card_id')->unique();
             $table->string('year')->nullable();
             $table->string('month')->nullable();
@@ -50,7 +50,7 @@ class CreateYandexPaymentsTable extends Migration
             $table->string('last')->nullable();
             $table->string('pan')->nullable();
             $table->boolean('card_default')->default(false);
-            $table->unsignedInteger('user_id');
+            $table->unsignedBigInteger('user_id');
 
             $table->index(['user_id']);
             $table->foreign('user_id')
