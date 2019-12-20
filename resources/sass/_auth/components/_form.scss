@@ -45,3 +45,18 @@
     color: $blue;
   }
 }
+
+input {
+  &.wrong {
+    &:focus {
+      border-color: #e03831;
+      box-shadow: 0 0 0 0.2rem rgba(224, 56, 49, 0.25);
+    }
+  }
+  &.fit {
+    &:focus {
+      border-color: #41ea6a;
+      box-shadow: 0 0 0 0.2rem rgba(65, 243, 106, 0.25);
+    }
+  }
+}

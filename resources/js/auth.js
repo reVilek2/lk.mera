@@ -74,5 +74,16 @@ $(function () {
             });
         }
     });
+    $('#registerPassword').on('input', function () {
+        const passw = /^(?=.*\d)(?=.*[A-Z])[a-zA-Z\d]{8,}$/;
+        $(this).removeClass('wrong fit');
+        if($(this).val().match(passw)) {
+            $(this).addClass('fit');
+            console.log('norm!')
+        } else {
+            $(this).addClass('wrong');
+            console.log('nenorm!')
+        }   
+    });
 });
 

@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\Token;
 use App\Notifications\EmailConfirmNotification;
-use App\Rules\PhoneNumber;
 use App\Rules\PasswordStrength;
-use App\Services\PhoneNormalizer;
 use App\Services\UserManager;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -16,7 +14,6 @@ use Hash;
 use Mail;
 use Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Validation;
 
 class RegisterController extends Controller
 {
@@ -69,21 +66,14 @@ class RegisterController extends Controller
             'email' => 'required|between:6,255|email',
             'password' => ['required:create', 'confirmed', new PasswordStrength],
             'password_confirmation' => 'required_with:password',
+            'phone' => 'required|regex:/^\+[0-9_]{4,11}$/' 
         ];
-
-        $phoneNormalizer = new PhoneNormalizer();
-        $phoneNormalized = $phoneNormalizer->normalize($request->phone);
-        if ($phoneNormalized) {
-            $data['phone'] = '+'.$phoneNormalized;
-        }
-        $rules['phone'] = ['required', new PhoneNumber('Поле phone имеет ошибочный формат.')];
 
         /**
          * Валидация данных
          */
         $validation = $this->validateRegisterData($data, $rules);
         if (!empty($validation->errors()->messages())) {
-
             return back()->withErrors($validation)->withInput();
         }
 

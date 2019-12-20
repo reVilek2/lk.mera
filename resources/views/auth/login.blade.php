@@ -1,7 +1,7 @@
 @extends('layouts.auth')
 
 @section('content')
-<div class="shadow-box jsAjaxForm">
+<div class="shadow-box no-shadow jsAjaxForm">
     <div class="shadow-box__title">Авторизация</div>
     <div class="shadow-box__content">
         @if ($errors->has('authentication_failed'))

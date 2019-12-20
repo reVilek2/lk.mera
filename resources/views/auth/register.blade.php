@@ -17,6 +17,7 @@
                     @csrf
                     <div class="form-group">
                         <label class="form-label" for="registerPhone">Телефон *</label>
+                        <div class="wrapper-tooltip">
                         <input
                                 name="phone"
                                 type="text"
@@ -25,6 +26,8 @@
                                 placeholder="Введите телефон"
                                 required
                                 value="{{ old('phone') ?? ''}}" />
+                                <span>Введите номер телефона, указав в начале код вашей страны <br>Например: +7**********<br>+380**********</span>
+                            </div>
                         @if ($errors->has('phone'))
                             <div class="invalid-feedback d-block">{{ $errors->first('phone') }}</div>
                         @endif
@@ -46,13 +49,16 @@
 
                     <div class="form-group">
                         <label class="form-label" for="registerPassword">Пароль *</label>
-                        <input
-                                name="password"
-                                type="password"
-                                class="form-control"
-                                id="registerPassword"
-                                placeholder="Введите пароль"
-                                required />
+                        <div class="wrapper-tooltip">
+                            <input
+                                    name="password"
+                                    type="password"
+                                    class="form-control"
+                                    id="registerPassword"
+                                    placeholder="Введите пароль"
+                                    required  />
+                            <span>Пароль может состоять из латинских букв и цифр, должен иметь не менее одной прописной буквы и цифры и быть не менее 8 символов в длину</span>
+                        </div>
                         @if ($errors->has('password'))
                             <div class="invalid-feedback d-block">{{ $errors->first('password') }}</div>
                         @endif

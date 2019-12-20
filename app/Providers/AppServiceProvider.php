@@ -11,6 +11,8 @@ use App\Observers\DocumentObserver;
 use App\Models\File;
 use App\Observers\FileObserver;
 use App\Services\Page;
+use Illuminate\Support\Facades\Validator;
+use App\Rules\PhoneNumber;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,5 +41,9 @@ class AppServiceProvider extends ServiceProvider
         File::observe(FileObserver::class);
 
         Page::setTitle();
+
+        Validator::extend('phone', function($attribute, $value, $parameters, $validator) {
+            return preg_match('/+[0-9]{9}/', $value);
+        }, 'Поле phone имеет ошибочный формат.');
     }
 }
