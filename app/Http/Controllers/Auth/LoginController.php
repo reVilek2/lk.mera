@@ -68,26 +68,28 @@ class LoginController extends Controller
         $data = $request->all();
         $rules['password'] = 'required|between:6,50';
 
-        $phoneNormalizer = new PhoneNormalizer();
-        $phoneNormalized = $phoneNormalizer->normalize($request->login);
-        if ($phoneNormalized) {
-            $data['login'] = '+'.$phoneNormalized;
-        }
-        $credentials = [
-            'phone'    => $data['login'],
-            'password' => $data['password']
-        ];
-        $rules['login'] = ['required', new PhoneNumber('Поле phone имеет ошибочный формат.')];
+        // $phoneNormalizer = new PhoneNormalizer();
+        // $phoneNormalized = $phoneNormalizer->normalize($request->login);
+        // if ($phoneNormalized) {
+        //     $data['login'] = '+'.$phoneNormalized;
+        // }
+        $rules['login'] = 'required|between:6,50';
 
         $validation = Validator::make($data, $rules);
         if ($validation->fails()) {
             return back()->withErrors($validation)->withInput($request->only('login'));
         }
 
-        $user = User::findByPhone($credentials['phone']);
+        $user = User::where('email', $data['login'])->orWhere('phone', $data['login'])->firstOrFail();
+
         if ($user && !$user->hasVerifiedPhone()) {
             return redirect()->route('phone.confirm.info', $user->phone);
         }
+
+        $credentials = [
+            'phone'    => $user->phone,
+            'password' => $data['password']
+        ];
 
         if (Auth::guard('web')->attempt($credentials, true)
         ) {

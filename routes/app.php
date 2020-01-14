@@ -31,6 +31,8 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/documents/{document}/change-status', 'DocumentController@changeStatus')->name('documents.change.status');
     Route::post('/documents/{document}/delete', 'DocumentController@delete')->name('documents.delete');
     Route::post('/users/{user}/change-balance', 'UserController@changeBalance')->name('change.balance');
+    Route::post('/users/{user}/togle-role', 'UserController@togleRole')->name('togle.role');
+    Route::post('/users/{user}/sync-introducer', 'UserController@syncIntroducer')->name('sync.introducer');
     Route::post('/profile/fast-confirm-phone/{user}', 'ProfileController@fastConfirmPhone')->name('profile.fast.confirm.phone');
     Route::post('/profile/fast-confirm-email/{user}', 'ProfileController@fastConfirmEmail')->name('profile.fast.confirm.email');
 });
@@ -45,7 +47,7 @@ Route::middleware(['role:admin|manager'])->group(function () {
 });
 
 // Only manager or admin or client
-Route::middleware(['role:admin|manager|client'])->group(function () {
+Route::middleware(['role:admin|manager|client|introducer'])->group(function () {
     Route::get('/reports/{document}/files/{file}', 'DocumentController@documentFile')->name('reports.files');
     Route::post('/documents/{document}/set-signed', 'DocumentController@setSigned')->name('documents.set.signed');
     Route::post('/documents/{document}/set-paid', 'DocumentController@setPaid')->name('documents.set.paid');

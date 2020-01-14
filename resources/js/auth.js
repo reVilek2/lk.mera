@@ -25,6 +25,20 @@ if (token) {
 }
 
 $(function () {
+    $('.form-group input').on('focus', function(e) {
+        
+        $('.shadow-box').addClass('disables_margins');
+        $('.layout__page-thin').addClass('fixes_pg');
+
+    });
+    $('.form-group input').on('blur', function(e) {
+
+        setTimeout(() => {
+            $('.shadow-box').removeClass('disables_margins');
+            $('.layout__page-thin').removeClass('fixes_pg');
+        }, 200)
+     
+    });
     $('.js-resend-phone-code').on('click', function (e) {
         e.preventDefault();
         let _this = $(this);
@@ -79,10 +93,8 @@ $(function () {
         $(this).removeClass('wrong fit');
         if($(this).val().match(passw)) {
             $(this).addClass('fit');
-            console.log('norm!')
         } else {
             $(this).addClass('wrong');
-            console.log('nenorm!')
         }   
     });
 });

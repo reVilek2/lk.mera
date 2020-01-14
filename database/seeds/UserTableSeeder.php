@@ -27,6 +27,7 @@ class UserTableSeeder extends Seeder
         // this can be done as separate statements
         Role::create(['name' => 'user']);
         Role::create(['name' => 'client']);
+        Role::create(['name' => 'introducer']);
         Role::create(['name' => 'manager']);
         Role::create(['name' => 'admin'])->givePermissionTo(Permission::all());
 

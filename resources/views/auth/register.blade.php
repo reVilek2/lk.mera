@@ -2,7 +2,7 @@
 
 @section('content')
 <div id="ajax-register">
-    <div id="jsAjaxForm" class="shadow-box">
+    <div id="jsAjaxForm" class="shadow-box no-shadow">
         <div class="shadow-box__title">Регистрация</div>
         <div class="shadow-box__content">
             <div id='ajaxErrorMessage' class="error-block hidden">&nbsp;</div>
@@ -76,16 +76,16 @@
                     </div>
 
                     <div class="form-btn">
-                        <button type="submit" class="btn btn-info btn-block">Регистрация</button>
+                        <button type="submit" class="btn btn-danger btn-block">Регистрация</button>
                     </div>
                 </form>
             @endif
         </div>
     </div>
-    <div class="shadow-box shadow-box_additionals">
-    <span class="form-additional-message">
-        Уже зарегистрированы? <a href="{{ route('login') }}" class="form-additional-message__link">Войдите</a>
-    </span>
+    <div class="shadow-box no-shadow shadow-box_additionals">
+        <span class="form-additional-message">
+            Уже зарегистрированы? <a href="{{ route('login') }}" class="form-additional-message__link">Войдите</a>
+        </span>
     </div>
 </div>
 @endsection

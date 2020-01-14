@@ -28,3 +28,14 @@
 .no-shadow {
   box-shadow: none;
 }
+
+@media (min-width: 355px) and (max-width: 490px) {
+  .shadow-box {
+    &.disables_margins {
+      padding-left: 40px;
+      padding-right: 40px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+}

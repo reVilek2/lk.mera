@@ -19,6 +19,7 @@
 
 <main id="app" class="layout">
     <div class="layout__page layout__page-thin">
+        <a href="/" class="logo"></a>
         @yield('content')
     </div>
 </main>

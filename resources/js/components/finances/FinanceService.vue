@@ -2,7 +2,7 @@
     <div>
         <div class="row">
             <div class="col-lg-12">
-                <div class="finance-wrapper">
+                <!-- <div class="finance-wrapper">
                     <h2 v-if="currUser.is_user || currUser.is_client" class="page-header">
                         Остаток средств:
                     </h2>
@@ -22,7 +22,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <h2 class="page-header">
                         <i class="fa fa-clock-o"></i> История операций:

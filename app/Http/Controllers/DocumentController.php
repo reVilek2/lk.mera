@@ -60,7 +60,7 @@ class DocumentController extends Controller
             'sort' => $request->has('column') ? $request->input('column') : null,
             'dir' => $request->has('dir') && $request->input('dir') === 'asc' ? 'asc' : 'desc',
             'search' => $request->has('search') && !empty($request->input('search')) ? $request->input('search') : null,
-            'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
+            'length' => $request->has('length')  ? (int) $request->input('length') : '30', //default 30
         ];
 
         $documents = $this->documentManager->getDocumentsWithOrderAndPagination($user, $whiteListOrderColumns, $whiteListSearchColumns, $params);
@@ -188,14 +188,22 @@ class DocumentController extends Controller
             abort(404);
         }
         if (!$currUser->hasRole('admin') && $currUser->id !== $document->client->id && $currUser->id !== $document->manager->id) {
-            abort(403);
+            $introduced = false;
+            if ($currUser->hasRole('introducer')) {
+                foreach ($currUser->introducers as $client) {
+                    if ($client->id === $document->client->id)
+                        $introduced = true;
+                }
+            }
+            if (!$introduced)
+                abort(403);
         }
 
         if (!FileService::isFileTypeDisplayable($file->type) || $request->has('download')) {
 
             return FileService::download($file, 'documents');
 
-        }else {
+        } else {
             return FileService::display($file, 'documents');
         }
     }

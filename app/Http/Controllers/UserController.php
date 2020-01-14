@@ -67,7 +67,7 @@ class UserController extends Controller
            'sort' => $request->has('column') ? $request->input('column') : null,
            'dir' => $request->has('dir') && $request->input('dir') === 'asc' ? 'asc' : 'desc',
            'search' => $request->has('column') && !empty($request->input('search')) ? $request->input('search') : null,
-           'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
+           'length' => $request->has('length')  ? (int) $request->input('length') : '30', //default 30
         ];
 
         $users = $this->userManager->getUsersWithOrderAndPagination($whiteListOrderColumns, $whiteListSearchColumns, $params);
@@ -87,15 +87,18 @@ class UserController extends Controller
 
     public function show(Request $request, User $user)
     {
+        $currUser = Auth::user();
         Page::setTitle('Пользователь');
         Page::setDescription('Страница пользователя');
         $currentManager = $user->getManager();
         $managers = User::role(['admin', 'manager'])->with('clients')->get();
-
+        $clients = $currUser->hasRole('admin') ? User::role(['client', 'user'])->get() : [];
         return view('users.show', [
             'user' => $user,
             'currentManager' => $currentManager,
-            'managers' => $managers
+            'managers' => $managers,
+            'clients' => $clients,
+            'intruduceList' => $currUser->hasRole('admin') ? $user->introducers : []
         ]);
     }
 
@@ -193,6 +196,63 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
+    public function togleRole(Request $request, User $user)
+    {
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin')) {
+            abort(403);
+        }
+        $inputRole = $request->input('role');
+        if (!$user->hasRole($inputRole)) {
+            if ($user->hasRole('client'))
+                $user->removeRole('client');
+            if ($user->hasRole('user'))
+                $user->removeRole('user');
+            switch ($inputRole) {
+                case 'admin':
+                    if ($user->hasRole('manager'))
+                        break;
+                    if ($user->hasRole('introducer'))
+                        $user->removeRole('introducer');
+                    break;
+                case 'manager':
+                    if ($user->hasRole('admin'))
+                        break;
+                    if ($user->hasRole('introducer'))
+                        $user->removeRole('introducer');
+                    break;
+            }
+            $user->assignRole($inputRole);
+            $user->save();
+        } 
+        return response()->json([
+            'status'=>'success',
+            'user' => $user
+        ], 200);
+    }
+
+    public function syncIntroducer(Request $request, User $user)
+    {
+        $currUser = Auth::user();
+        if (!$currUser->hasRole('admin')) {
+            abort(403);
+        }
+        $newAtached = [];
+        foreach($request->input('selected') as $client)
+            $newAtached[] = $client['code'];
+        $user->introducers()->sync($newAtached);
+        return response()->json([
+            'status'=>'success',
+            'user' => $user
+        ], 200);
+    }
+
     public function documentIndex(Request $request)
     {
         Page::setTitle('Документы пользователя');
@@ -212,7 +272,7 @@ class UserController extends Controller
             'sort' => $request->has('column') ? $request->input('column') : null,
             'dir' => $request->has('dir') && $request->input('dir') === 'asc' ? 'asc' : 'desc',
             'search' => $request->has('column') && !empty($request->input('search')) ? $request->input('search') : null,
-            'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
+            'length' => $request->has('length')  ? (int) $request->input('length') : '30', //default 30
         ];
 
         $files = $this->userManager->getUserFilesWithOrderAndPagination($whiteListOrderColumns, $whiteListSearchColumns, $params);

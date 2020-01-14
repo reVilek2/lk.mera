@@ -46,7 +46,6 @@
                             <div class="help-block" :class="{'with-success': phoneCodeValidate.valid, 'with-errors': !phoneCodeValidate.valid}">
                                 <span v-if="phoneCodeValidate.show">{{phoneCodeValidate.message}}</span>
                             </div>
-
                             <span v-if="preloader" class="preloader preloader-sm"></span>
                             <span class="form-resend-link" :class="{'active': resend_code}" style="cursor: pointer" @click="resendCode">Отправить код повторно.</span>
                             <span :ref="resendTimer" class="form-resend-link" :class="{'active': resend_timer}">Время действия кода:  --- сек.</span>

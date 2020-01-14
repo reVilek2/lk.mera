@@ -28,7 +28,25 @@
                     <span v-if="user.phone_verified_at">{{user.phone_verified_at}}</span>
                     <span v-else>—</span>
                 </div>
-
+                <hr>
+                <div v-if="currUser.is_admin">
+                    <h4>Управление пользователем</h4>
+                    <div class="info-mb-5">
+                        <button @click="onMangeRolesButtonClick('admin')" class="btn btn-primary" :class="{'disabled': (inProcess || user.is_admin)}">
+                            {{'Сделать администратором'}}
+                        </button>
+                    </div>
+                    <div class="info-mb-5">
+                        <button @click="onMangeRolesButtonClick('manager')" class="btn btn-primary" :class="{'disabled': (inProcess || user.is_manager)}">
+                            {{'Сделать менеджером'}}
+                        </button>
+                    </div>
+                    <div class="info-mb-5">
+                        <button @click="onMangeRolesButtonClick('introducer')" class="btn btn-primary" :class="{'disabled': (inProcess || user.is_introducer)}">
+                            {{'Сделать интродьюсерером'}}
+                        </button>
+                    </div>
+                </div>
                 <br>
                 <br>
             </div>
@@ -46,6 +64,11 @@
                 default: () => {}
             },
         },
+        data() {
+            return {
+                inProcess: false,
+            }
+        },
         computed: {
             // смешиваем результат mapGetters с внешним объектом computed
             ...mapGetters({
@@ -53,7 +76,15 @@
             })
         },
         methods: {
-
+            onMangeRolesButtonClick(role) {
+                this.inProcess = true;
+                axios.post('/users/'+this.user.id+'/togle-role', {role: role}).then(response => {
+                    if (response.data.status === 'success') {
+                        location.reload();
+                    }
+                    this.inProcess = false;
+                });
+            }
         },
     }
 </script>

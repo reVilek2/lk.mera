@@ -2,7 +2,7 @@
     <li class="dropdown notifications-menu" @click="markNotificationAsRead">
         <a v-if="isMobile" :href="categoryUrl">
             <span class="footer-item-icon">
-                <i class="fa fa-tasks">
+                <i class="fa icon recommendation mid white">
                     <span v-if="unreadItemsCount > 0" class="label label-warning">{{unreadItemsCount}}</span>
                 </i>
             </span>
@@ -11,7 +11,7 @@
 
         <!-- Menu toggle button -->
         <a v-if="!isMobile" href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <i class="fa fa-tasks"></i>
+            <i class="fa icon recommendation mini white"></i>
             <span v-if="unreadItemsCount > 0" class="label label-success">{{unreadItemsCount}}</span>
         </a>
         <ul v-if="!isMobile" class="dropdown-menu">

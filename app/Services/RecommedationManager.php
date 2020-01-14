@@ -32,6 +32,25 @@ class RecommedationManager
                 $query->select('recommendation_id', 'client_id', 'status');
                 $query->where('client_id', '=', $user->id);
             }]);
+        } else if ($user->hasRole('introducer')) {
+            foreach ($user->introducers as $key=>$client) {
+                if ($key === 0)
+                    $query
+                    ->whereHas('receivers', function ($query) use($client) {
+                        $query->where('client_id', '=', $client->id);
+                    })
+                    ->with(['receivers' => function ($query) use($client) {
+                        $query->select('recommendation_id', 'client_id', 'status');
+                    }]);
+                else
+                    $query
+                    ->orWhereHas('receivers', function ($query) use($client) {
+                        $query->where('client_id', '=', $client->id);
+                    })
+                    ->with(['receivers' => function ($query) use($client) {
+                        $query->select('recommendation_id', 'client_id', 'status');
+                    }]);
+            }
         }
 
         if (array_key_exists('length', $params) && $params['length']) {

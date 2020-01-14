@@ -12,6 +12,7 @@
                 rows="1"
                 @keydown.native="keydownHandle($event)"
                 @focus.native="focusHandle($event)"
+                @blur.native="blurHandle($event)"
             ></chat-textarea>
         </div>
         <div class="chat-input-group__element-wrapper button-wrapper">
@@ -102,10 +103,22 @@
                     });
                     this.newMessage = '';
                     this.$refs[this.messageRef].$el.focus();
+                    this.$refs[this.messageRef].$el.blur();
                 }
             },
             focusHandle(e) {
+                document.querySelector('.main-footer-mobile').classList.add('hidden_menu');
+                document.querySelector('.chat-wrapper').classList.add('set__full_height');
                 this.$root.$emit('chatInputFocusHandle', e);
+            },
+            blurHandle(e) {
+                setTimeout(function() {
+                  document.querySelector('.main-footer-mobile').classList.remove('hidden_menu');
+                  document.querySelector('.chat-wrapper').classList.remove('set__full_height');
+                  const scrollingElement =  document.body;
+                  window.scrollTo(0, scrollingElement.scrollHeight);
+                }, 200);
+                
             }
         }
     }

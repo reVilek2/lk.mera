@@ -24,6 +24,45 @@
 .btn-group.open .document-link.dropdown-toggle {
   box-shadow: none;
 }
+.icon {
+  &.document {
+    background: url("../../svg/check.svg") no-repeat center;
+  }
+
+  &.recommendation {
+    background: url("../../svg/check-mark.svg") no-repeat center;
+  }
+
+  &.pay {
+    background: url("../../svg/credit-card.svg") no-repeat center;
+  }
+
+  &.mini {
+    height: 14px;
+    width: 14px!important;
+  }
+  &.mid {
+    height: 20px;
+    width: 20px!important;
+  }
+  &.white {
+    filter: invert(1);
+  }
+  background-size: contain!important;
+  display: inline-block;
+}
+.fixed .main-footer-mobile ul.footer-nav > li .icon {
+  filter: invert(0.35);
+  &.white {
+    filter: invert(0.65);
+  }
+}
+.fixed .main-footer-mobile ul.footer-nav > li.active .icon {
+  filter: invert(0);
+  &.white {
+    filter: invert(1);
+  }
+}
 .icon-cards {
   width: 98px;
   height: 72px;
@@ -47,6 +86,15 @@
   &:hover {
     color: #444444;
   }
+}
+
+.box {
+  border-top: none;
+  box-shadow: none;
+}
+
+.content-wrapper {
+  background-color: white;
 }
 
 @media (max-width: 767px) {

@@ -11,6 +11,7 @@ use App\Notifications\RecommendationCreated;
 use App\Notifications\DocumentCreated;
 use App\Services\MoneyAmountManager;
 use DB;
+use Auth;
 use Exception;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -94,6 +95,7 @@ use App\Events\ClientVerified;
  * @property-read mixed $is_admin
  * @property-read mixed $is_client
  * @property-read mixed $is_manager
+ * @property-read mixed $is_introducer
  * @property-read mixed $is_user
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\ModulePayment\Models\PaymentCard[] $paymentCards
  * @property-read mixed $created_at_diff
@@ -118,6 +120,7 @@ class User extends Authenticatable implements HasMedia
     const ROLE_MANAGER = 'manager';
     const ROLE_USER = 'user';
     const ROLE_CLIENT = 'client';
+    const ROLE_INTRODUCER = 'introducer';
 
     const TRANSLATE_ROLES = [
         // base roles
@@ -125,6 +128,7 @@ class User extends Authenticatable implements HasMedia
         self::ROLE_MANAGER => 'Менеджер',
         self::ROLE_USER => 'Пользователь',
         self::ROLE_CLIENT => 'Клиент',
+        self::ROLE_INTRODUCER => 'Интродьюсер',
     ];
 
     protected $table = 'users';
@@ -195,6 +199,7 @@ class User extends Authenticatable implements HasMedia
         'balance_humanize',
         'is_admin',
         'is_manager',
+        'is_introducer',
         'is_client',
         'is_user',
         'total_payable',
@@ -258,6 +263,10 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasRole(self::ROLE_USER);
     }
+    function getIsIntroducerAttribute()
+    {
+        return $this->hasRole(self::ROLE_INTRODUCER);
+    }
     function getTotalPayableAttribute()
     {
         $documentsPayable = DB::table('documents')
@@ -306,6 +315,11 @@ class User extends Authenticatable implements HasMedia
     public function manager()
     {
         return $this->belongsToMany(User::class, 'users_managers', 'client_id', 'manager_id')->withTimestamps();
+    }
+
+    public function introducers()
+    {
+        return $this->belongsToMany(User::class, 'users_introducers', 'client_id', 'introduser_id')->withTimestamps();
     }
 
     public function accountBalance()
@@ -599,17 +613,18 @@ class User extends Authenticatable implements HasMedia
      */
     public function getUserRole()
     {
+        $currUser = Auth::user();
         $roleNames = $this->getRoleNames();
         $ruRoleNames = [];
         foreach ($roleNames as $roleName) {
             if (array_key_exists($roleName, self::TRANSLATE_ROLES)) {
-                $ruRoleNames[] = self::TRANSLATE_ROLES[$roleName];
+                if ($roleName != self::ROLE_INTRODUCER || ($currUser && ($currUser->hasRole('admin') || ($currUser->hasRole('introducer') && !$currUser->hasRole('manager')))))
+                    $ruRoleNames[] = self::TRANSLATE_ROLES[$roleName];
             }
         }
 
         return implode(", ", $ruRoleNames);
     }
-
     /**
      * User Avatar
      * @param string $avatar_type

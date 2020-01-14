@@ -123,7 +123,7 @@ export default {
             columns: columns,
             sortKey: 'deadline',
             sortOrders: sortOrders,
-            perPage: ['10', '20', '30'],
+            perPage: ['30', '100', '300'],
             tableData: {
                 draw: 0,
                 length: 10,

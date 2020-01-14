@@ -106,8 +106,10 @@ class UserManager
      */
     public function getUsersWithOrderAndPagination(array $orderColumns = [], array $searchColumns = [], array $params = [])
     {
+        $currUser = Auth::user();
         $query = User::select(['id', 'email', 'phone', 'first_name', 'second_name', 'last_name', 'created_at']);
-
+        if (!$currUser->hasRole('admin'))
+            $query->role(['admin', 'manager', 'client', 'user']);
         if (array_key_exists('sort', $params) && array_key_exists('dir', $params) && array_key_exists($params['sort'], $orderColumns)) {
             $sort = $params['sort'];
             $dir = $params['dir'];

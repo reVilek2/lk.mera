@@ -1,6 +1,6 @@
 <template>
     <div class="history-pay-table-wrapper dataTables_wrapper dt-bootstrap">
-        <div class="row">
+        <div v-if="currUser.is_manager || currUser.is_admin" class="row">
             <div class="col-sm-6">
                 <div class="dataTables_length">
                     <label>
@@ -31,10 +31,10 @@
                     <tbody>
                     <tr v-if="item_count > 0" v-for="(item, index) in items" :key="item.id" :class="{'odd': index % 2 === 1, 'even': index % 2 === 0}">
                         <td class="created_at">{{item.created_at}}</td>
-                        <td class="operation"><span :class="getOperationNameClass(item.operation)">{{item.operation_name}}</span></td>
+                        <!-- <td class="operation"><span :class="getOperationNameClass(item.operation)">{{item.operation_name}}</span></td> -->
                         <td class="amount"><span class="history-pay-amount">{{amountHumanize(item.operation, item.amount)}}</span></td>
                         <td class="comment">{{item.comment}}</td>
-                        <td class="balance">{{balanceHumanize(item.balance)}}</td>
+                        <!-- <td class="balance">{{balanceHumanize(item.balance)}}</td> -->
                     </tr>
                     <tr v-if="item_count === 0" class="odd empty-row">
                         <td colspan="5" align="center">
@@ -96,10 +96,10 @@
             };
             let columns = [
                 {width: 'auto', label: 'Дата', name: 'created_at' },
-                {width: 'auto', label: 'Операция', name: 'operation' },
+                //{width: 'auto', label: 'Операция', name: 'operation' },
                 {width: 'auto', label: 'Сумма', name: 'amount' },
                 {width: 'auto', label: 'Комментарий', name: 'comment' },
-                {width: 'auto', label: 'Баланс', name: 'balance' },
+                //{width: 'auto', label: 'Баланс', name: 'balance' },
             ];
 
             columns.forEach((column) => {
@@ -114,10 +114,10 @@
                 columns: columns,
                 sortKey: 'deadline',
                 sortOrders: sortOrders,
-                perPage: ['10', '20', '30'],
+                perPage: ['30', '100', '300'],
                 tableData: {
                     draw: 0,
-                    length: 10,
+                    length: 30,
                     search: '',
                     column: '',
                     dir: 'desc',

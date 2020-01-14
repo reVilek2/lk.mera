@@ -16,8 +16,8 @@
         </div>
         <h3 class="profile-username text-center">{{profUser.name}}</h3>
         <p class="text-muted text-center">{{profUser.role}}</p>
-        <ul v-if="profUser.is_client || profUser.is_user" class="list-group list-group-unbordered">
-            <li class="list-group-item box-profile-list">
+        <ul v-if="profUser.is_client || profUser.is_user || profUser.is_introducer" class="list-group list-group-unbordered">
+            <li v-if="profUser.is_client || profUser.is_user" class="list-group-item box-profile-list">
                 <b class="box-profile-list__title">Баланс:</b>
                 <div v-if="!isProfile && currUser.is_admin" class="btn-group box-profile-list__btn">
                     <button type="button" class="btn btn-success" @click="openBalanceBox()">{{profUser.balance_humanize}}</button>
@@ -29,7 +29,7 @@
                     <span>{{profUser.balance_humanize}}</span>
                 </div>
             </li>
-            <li class="list-group-item box-profile-list">
+            <li v-if="profUser.is_client || profUser.is_user" class="list-group-item box-profile-list">
                 <b class="box-profile-list__title">Менеджер:</b>
                 <div v-if="!isProfile" class="btn-group box-profile-list__btn">
                     <button type="button" class="btn btn-info" @click="openManagerBox()">{{managerName}}</button>
@@ -39,6 +39,20 @@
                 </div>
                 <div v-else class="btn-group box-profile-list__btn">
                     <span>{{managerName}}</span>
+                </div>
+            </li>
+            <li v-if="profUser.is_introducer && currUser.is_admin" class="list-group-item box-profile-list">
+                <b class="box-profile-list__title">Наблюдаемые Клиенты:</b>
+                <div class="btn-group box-profile-list__btn">
+                    <vue-multiselect
+                        tagPlaceholder="Имя клиента"
+                        placeholder="Выберите клиентов"
+                        :value="selectedClients"
+                        :options="clientOptions"
+                        :multiple="true"
+                        :taggable="true"                                
+                        @input="multiSelectHandler">
+                    </vue-multiselect>
                 </div>
             </li>
         </ul>
@@ -60,7 +74,6 @@
                 </div>
             </div>
         </div>
-
         <form-manual-balance v-if="!isProfile && currUser.is_admin && (profUser.is_client || profUser.is_user)"
                              :active="activeBoxBalance"
                              :profile-user="profUser"
@@ -72,6 +85,7 @@
 <script>
     import { mapGetters } from 'vuex';
     import FormManualBalance from '../forms/FormManualBalance';
+    import MultiSelect from '../forms/MultiSelect'
     export default {
         props: {
             managers: {
@@ -86,14 +100,27 @@
                 type: Object,
                 default: () => {}
             },
+            allClients: {
+                type: Array,
+                default: () => []
+            },
+            usersIntruduceList: {
+                type: Array,
+                default: () => []
+            },
             isProfile: {
                 type: Boolean,
                 default: () => true
-            }
+            },
         },
-        components: { formManualBalance: FormManualBalance},
+        components: { 
+            formManualBalance: FormManualBalance,
+            vueMultiselect: MultiSelect
+        },
         data: function() {
             return {
+                selectedClients: [],
+                clientOptions: [],
                 manager_saved_process: false,
                 balance_saved_process: false,
                 profUser: this.profileUser,
@@ -101,6 +128,7 @@
                 managerName: 'Не закреплен',
                 activeBoxManager: false,
                 activeBoxBalance: false,
+                activeBoxIntroduced: false,
                 managerSelected: 0,
                 managerOptions: this.getOptionsManager(),
                 selectedFile: null,
@@ -118,6 +146,17 @@
         },
 
         methods: {
+            multiSelectHandler (selected) {
+                this.selectedClients = selected;
+                axios.post('/users/' + this.profUser.id + '/sync-introducer', {selected: selected}).then(response => {
+                    console.log(response)
+                })
+            },
+            removeTag (tag) {
+                this.selectedClients = this.selectedClients.filter( client => {
+                    return client.code != tag.code
+                });
+            },
             openBalanceBox() {
                 this.activeBoxBalance = true;
             },
@@ -130,6 +169,14 @@
 
             closeManagerBox() {
                 this.activeBoxManager = false;
+            },
+
+            openIntroducerBox() {
+                this.activeBoxIntroduced = true;
+            },
+
+            closeIntroducerBox() {
+                this.activeBoxIntroduced = false;
             },
 
             changedBalanceDone(user) {
@@ -230,6 +277,14 @@
                 if (parseInt(this.profUser.id) === parseInt(user.id)) {
                     this.profUser = user;
                 }
+            },
+            setClients() {
+                this.allClients.forEach(client => {
+                    this.clientOptions.push({ name:client.name, code:client.id });
+                });
+                this.usersIntruduceList.forEach(intruduced => {
+                    this.selectedClients.push({ name:intruduced.name, code:intruduced.id });
+                });
             }
         },
 
@@ -238,8 +293,9 @@
         },
 
         mounted() {
+            this.setClients()
             let _this = this;
-            setTimeout(function(){
+            setTimeout(function() {
                 _this.loadedComponent = true;
             }, 10);
 

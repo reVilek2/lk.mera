@@ -21,15 +21,6 @@
         <div v-if="currUser.is_client && !isResolved" class="box-footer">
             <button
                 v-if="currUser.is_client"
-                @click="showModalConfirm('accepted')"
-                :disabled="isResolved"
-                type="button"
-                class="btn btn-primary"
-            >
-             Принять
-            </button>
-            <button
-                v-if="currUser.is_client"
                 @click="showModalConfirm('declined')"
                 :disabled="isResolved"
                 type="button"
@@ -37,9 +28,18 @@
             >
                 Отклонить
             </button>
+            <button
+                v-if="currUser.is_client"
+                @click="showModalConfirm('accepted')"
+                :disabled="isResolved"
+                type="button"
+                class="btn btn-success"
+            >
+                Принять
+            </button>
         </div>
 
-        <div v-if="currUser.is_manager && !isResolved" class="box-footer">
+        <div v-if="(currUser.is_manager || currUser.is_introducer) && !isResolved" class="box-footer">
             <div class="box recommendation-cliets-box">
                 <div class="box-header with-border">
                     <a href="#"
@@ -103,6 +103,7 @@ export default {
                 return true;
             },
             recommendationDate(){
+                console.log(this.currUser)
                 return moment(this.recommendation.created_at).format("YYYY-MM-DD HH:mm")
             },
             clientAsReciever(){

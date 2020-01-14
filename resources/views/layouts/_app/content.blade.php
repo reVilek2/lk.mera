@@ -8,9 +8,9 @@
                 'description'=>'Описание страницы'
              ])
         @show
-        @section('breadcrumbs')
+        {{-- @section('breadcrumbs')
             {{ Breadcrumbs::render('home') }}
-        @show
+        @show --}}
     </section>
 
     <!-- Main content -->

@@ -92,3 +92,10 @@
         }
     }
 }
+@media (min-width: 355px) and (max-width: 490px) {
+    .main-footer {
+      &.hidden_menu {
+        display: none!important;
+      }
+    }
+  }

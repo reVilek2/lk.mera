@@ -43,7 +43,7 @@ class FinanceController extends Controller
             'sort' => $request->has('column') ? $request->input('column') : null,
             'dir' => $request->has('dir') && $request->input('dir') === 'asc' ? 'asc' : 'desc',
             'search' => $request->has('search') && !empty($request->input('search')) ? $request->input('search') : null,
-            'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
+            'length' => $request->has('length')  ? (int) $request->input('length') : '30', //default 30
         ];
 
         $transactions = $this->transactionManager->getHistoryWithOrderAndPagination($user, $whiteListOrderColumns, $whiteListSearchColumns, $params);

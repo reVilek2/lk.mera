@@ -203,13 +203,12 @@
                 if(!this.currUser.is_manager){
                     return;
                 }
-
                 let managerOptions = this.managerOptions;
                 let currUserId = 0;
                 if (this.currUser.hasOwnProperty('id')) {
                     currUserId = this.currUser.id;
                 }
-
+                console.log(this.managers)
                 this.clientSelected = [];
                 this.clientOptions = [];
                 this.managers.forEach(el => {

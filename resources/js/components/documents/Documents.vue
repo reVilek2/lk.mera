@@ -8,7 +8,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div v-if="currUser.is_manager || currUser.is_admin" class="row">
                 <div class="col-sm-10">
                     <div class="dataTables_filter">
                         <label>
@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <div class="col-sm-2">
-                    <div v-if="currUser.is_manager || currUser.is_admin" class="dataTables_action dataTables_action__desktop">
+                    <div class="dataTables_action dataTables_action__desktop">
                         <button class="btn btn-success" @click="showModal">Добавить</button>
                     </div>
                 </div>
@@ -180,10 +180,10 @@
                 columns: columns,
                 sortKey: 'deadline',
                 sortOrders: sortOrders,
-                perPage: ['10', '20', '30'],
+                perPage: ['30', '100', '300'],
                 tableData: {
                     draw: 0,
-                    length: 10,
+                    length: 30,
                     search: '',
                     column: '',
                     dir: 'desc',

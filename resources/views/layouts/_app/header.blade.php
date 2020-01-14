@@ -20,7 +20,7 @@
             <ul class="nav navbar-nav">
                 @hasanyrole('user|client')
                 <!-- Balance Menu -->
-                <user-balance-menu></user-balance-menu>
+                {{-- <user-balance-menu></user-balance-menu> --}}
                 @endhasallroles
 
                 <!-- Messages: style can be found in dropdown.less-->
@@ -45,7 +45,7 @@
                 ></notification-recommendations>
 
                 <!-- Notifications Menu -->
-                <notification-service-messages :notification-service-text-messages="{{auth()->user()->unreadServiceTextNotificationMessages}}"></notification-service-messages>
+                {{-- <notification-service-messages :notification-service-text-messages="{{auth()->user()->unreadServiceTextNotificationMessages}}"></notification-service-messages> --}}
                 <!-- User Account Menu -->
                 <user-account-menu></user-account-menu>
             </ul>

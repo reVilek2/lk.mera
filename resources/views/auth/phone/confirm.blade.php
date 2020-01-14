@@ -48,14 +48,15 @@
                     <script type="text/javascript">
                         window.onload = function () {
                             let i = {{$resend_phone_code_time}};
+                            console.log({{$resend_phone_code_time}})
                             if (i > 0) {
-                                document.getElementById('resend-link').style.display = 'none';
+                                //document.getElementById('resend-link').style.display = 'none';
                                 document.getElementById('resend-link-timer').style.display = 'block';
                                 let timer = setInterval(function () {
                                     i--;
                                     document.getElementById('resend-link-timer').innerHTML = 'Время действия кода: ' + i + ' сек.';
                                     if (i === 0) {
-                                        document.getElementById('resend-link').style.display = 'block';
+                                        //document.getElementById('resend-link').style.display = 'block';
                                         document.getElementById('resend-link-timer').style.display = 'none';
                                         clearInterval(timer);
                                     }

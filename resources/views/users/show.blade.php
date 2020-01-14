@@ -27,7 +27,9 @@
                     <user-profile-box :profile-user="{{$user}}"
                                       :is-profile="false"
                                       :managers="{{!empty($managers) ? $managers : '[]'}}"
-                                      :current-manager="{{$currentManager ?? '{}'}}"></user-profile-box>
+                                      :current-manager="{{$currentManager ?? '{}'}}"
+                                      :all-clients="{{!empty($clients) ? $clients : '[]'}}"
+                                      :users-intruduce-list="{{!empty($intruduceList) ? $intruduceList : '[]'}}"></user-profile-box>
                 </div>
                 <!-- /.box-body -->
             </div>

@@ -248,6 +248,7 @@ $chat-mobile-sidebar-sm-width: 240px;
     position: relative;
     border-bottom: 1px solid $chat-header-brcolor;
     height: $chat-header-height;
+    display: none;
 
     &-title {
       font-weight: 500;
@@ -400,9 +401,14 @@ $chat-mobile-sidebar-sm-width: 240px;
 }
 .chat-msg-item {
   @include clearfix;
-  display: block;
-  margin-bottom: 25px;
-
+  display: flex;
+  flex-direction: row;
+  margin-left: 40px;
+  margin-right: 0;
+  &-boddy {
+    display: block;
+    width: -webkit-fill-available;
+  }
   &__info {
     @include clearfix;
     display: block;
@@ -412,13 +418,14 @@ $chat-mobile-sidebar-sm-width: 240px;
       display: inline-block;
       font-weight: 400;
       color: $chat-message-info-color;
+      margin-left: 5px;
     }
   }
   &__img {
     border-radius: 50%;
     float: left;
-    width: 40px;
     height: 40px;
+    margin-top: auto;
   }
   &__text {
     display: inline-block;
@@ -427,10 +434,11 @@ $chat-mobile-sidebar-sm-width: 240px;
     padding: 5px 10px;
     background: $chat-message-receiver-bgcolor;
     border: 1px solid $chat-message-receiver-bgcolor;
-    margin: 5px 0 0 15px;
+    margin: 5px 0 0 5px;
     color: $chat-message-receiver-color;
     float: left;
-    max-width: 600px;
+    max-width: 80%;
+    word-wrap: break-word;
 
     &:before,
     &:after {
@@ -438,7 +446,7 @@ $chat-mobile-sidebar-sm-width: 240px;
       right: 100%;
       top: 15px;
       border: solid transparent;
-      border-right-color: $chat-message-receiver-bgcolor;
+      //border-right-color: $chat-message-receiver-bgcolor;
       content: ' ';
       height: 0;
       width: 0;
@@ -462,34 +470,42 @@ $chat-mobile-sidebar-sm-width: 240px;
     color: $chat-message-receiver-dcolor;
   }
   &__timestamp.pull-left {
-    text-align: right;
+    text-align: left;
   }
   &__timestamp.pull-right {
     text-align: right;
     color: $chat-message-sender-dcolor;
   }
-}
-.right.chat-msg-item {
-  & .chat-msg-item{
-    &__img {
-      float: right;
-    }
-    &__text {
-      background: $chat-message-sender-bgcolor;
-      border-color: $chat-message-sender-bgcolor;
-      color: $chat-message-sender-color;
-      margin-right: 15px;
-      margin-left: 0;
-      float: right;
+  &.right {
+    flex-direction: row-reverse;
+    margin-left: 0;
+    margin-right: 40px;
+    & .chat-msg-item{
+      &__img {
+        float: right;
+      }
+      &__text {
+        background: $chat-message-sender-bgcolor;
+        border-color: $chat-message-sender-bgcolor;
+        color: $chat-message-sender-color;
+        margin-right: 5px;
+        margin-left: 0;
+        float: right;
 
-      &:before,
-      &:after {
-        right: auto;
-        left: 100%;
-        border-right-color: transparent;
-        border-left-color: $chat-message-sender-bgcolor;
+        &:before,
+        &:after {
+          right: auto;
+          left: 100%;
+          border-right-color: transparent;
+          //border-left-color: $chat-message-sender-bgcolor;
+        }
       }
     }
+  }
+  &.stucked {
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 25px;
   }
 }
 .unread {
@@ -513,5 +529,16 @@ $chat-mobile-sidebar-sm-width: 240px;
 @media (min-width: 992px) {
   .chat-wrapper {
     height: 79vh;
+  }
+}
+
+@media (min-width: 355px) and (max-width: 490px) {
+  .chat-wrapper {
+      &.set__full_height {
+        height: 100vh;
+        position: fixed;
+        bottom: 0;
+        left: 0
+      }
   }
 }

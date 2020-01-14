@@ -2,17 +2,19 @@
     <div class="chat-msg__wrapper">
         <div :id="chat_msg_id" class="chat-msg">
             <div class="chat-msg__item">
-                <div v-for="message in messages" :key="message.id" :id="'message-'+message.id" class="chat-msg-item" :class="{'right':isSender(message)}">
-                    <div v-if="!isPrivateChat && !isSender(message)" class="chat-msg-item__info">
-                        <span class="chat-msg-item__info-name pull-left" :class="isSender(message) ? 'pull-right': 'pull-left'">
-                            {{message.sender.name}}
-                        </span>
-                    </div>
-                    <img v-if="message.sender.avatar" :src="message.sender.avatar" alt="Message User Image" class="chat-msg-item__img">
-                    <div class="chat-msg-item__text">
-                        <span class="chat-msg-item__text-item">{{ message.message }}</span>
-                        <span class="chat-msg-item__timestamp" :class="isSender(message) ? 'pull-right': 'pull-left'">{{message.created_at_humanize}}</span>
-                    </div>
+                <div v-for="message in messages" :key="message.id" :id="'message-'+message.id" class="chat-msg-item" :class="{'right':isSender(message), 'stucked':isStucked(message)}" >
+                    <img v-if="message.sender.avatar && isStucked(message)" :src="message.sender.avatar" alt="Message User Image" class="chat-msg-item__img">
+                        <div class="chat-msg-item-boddy">
+                            <div v-if="isFirstinStuck(message) && !isSender(message)" class="chat-msg-item__info">
+                                <span class="chat-msg-item__info-name pull-left" :class="isSender(message) ? 'pull-right': 'pull-left'">
+                                    {{message.sender.name}}
+                                </span>
+                            </div>
+                            <div class="chat-msg-item__text">
+                                <span class="chat-msg-item__text-item">{{ message.message }}</span>
+                                <span v-if="isStucked(message)" class="chat-msg-item__timestamp" :class="isSender(message) ? 'pull-right': 'pull-left'">{{message.created_at_humanize}}</span>
+                            </div>
+                        </div>
                 </div>
             </div>
         </div>
@@ -68,6 +70,17 @@
         methods: {
             isSender(message) {
                 return message.sender.id === this.currentUser.id
+            },
+            isStucked(message) {
+                console.log(message);
+                const index = this.messages.map(e => e.id).indexOf(message.id)
+                return !this.messages[index+1] || 
+                    this.messages[index].sender.id !== this.messages[index+1].sender.id ||
+                    new Date (this.messages[index+1].created_at.replace('-', '/')) - new Date (this.messages[index].created_at.replace('-', '/')) > 180000
+            },
+            isFirstinStuck(message) {
+                const index = this.messages.map(e => e.id).indexOf(message.id)
+                return index === 0 || this.isStucked(this.messages[index-1])
             },
             resetBottomDone() {
                 this.bottom_done = false;

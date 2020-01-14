@@ -14,13 +14,13 @@
         <form class="form_login" method="POST" action="{{ route('login') }}">
             @csrf
             <div class="form-group">
-                <label class="form-label" for="userSigninLogin">Телефон</label>
+                <label class="form-label" for="userSigninLogin">Телефон или е-мейл</label>
                 <input
                         name="login"
                         type="text"
                         class="form-control"
                         id="userSigninLogin"
-                        placeholder="Введите телефон"
+                        placeholder="Введите телефон или е-мейл"
                         value="{{ old('login') ?? ''}}" />
                 @if ($errors->has('login'))
                     <div class="invalid-feedback d-block login">{{ $errors->first('login') }}</div>
@@ -42,7 +42,7 @@
                 @endif
             </div>
             <div class="form-btn">
-                <button type="submit" class="btn btn-info btn-block">Войти</button>
+                <button type="submit" class="btn btn-danger btn-block">Войти</button>
                 <a href="{{route('password.forgot')}}" class="form-remind-password-link">
                     Забыли пароль?
                 </a>
@@ -50,9 +50,9 @@
         </form>
     </div>
 </div>
-<div class="shadow-box shadow-box_additionals">
-    <span class="form-additional-message">
-        <a href="{{route('login')}}" class="form-additional-message__link">Войти</a> или <a href="{{route('register')}}" class="form-additional-message__link">зарегистрироваться</a>
-    </span>
+<div class="shadow-box no-shadow">
+    <div class="form-btn">
+        <button type="button" onclick="location.href='{{route('register')}}'" class="btn btn-info btn-block">Зарегистрироваться</button>
+    </div>
 </div>
 @endsection

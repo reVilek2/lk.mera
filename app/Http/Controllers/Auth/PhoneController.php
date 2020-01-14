@@ -151,13 +151,13 @@ class PhoneController extends Controller
                 ], 200);
             }
 
-            $resend_phone_code_time = $this->userManager->getResendPhoneCodeTime($user);
-            if ($resend_phone_code_time !== 0) {
-                return response()->json([
-                    'status'=>'success',
-                    'resend_phone_code_time' => $resend_phone_code_time
-                ], 200);
-            }
+            // $resend_phone_code_time = $this->userManager->getResendPhoneCodeTime($user);
+            // if ($resend_phone_code_time !== 0) {
+            //     return response()->json([
+            //         'status'=>'success',
+            //         'resend_phone_code_time' => $resend_phone_code_time
+            //     ], 200);
+            // }
             $this->userManager->sendActivationPhone($user);
             $resend_phone_code_time = $this->userManager->getResendPhoneCodeTime($user->fresh());
             return response()->json([

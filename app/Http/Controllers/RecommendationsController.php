@@ -30,13 +30,13 @@ class RecommendationsController extends Controller
         Page::setDescription('Страница Рекомендаций');
 
         $user = Auth::user();
-        if (!$user->hasRole(['manager', 'client'])) {
+        if (!$user->hasRole(['manager', 'client', 'introducer'])) {
             abort(403);
         }
         $user->unreadRecommendations->markAsRead();
 
         $params = [
-            'length' => $request->has('length')  ? (int) $request->input('length') : '10', //default 10
+            'length' => $request->has('length')  ? (int) $request->input('length') : '30', //default 30
         ];
 
         $recommendations = $this->recommedationManager->getRecommedationsWithPagination($user, $params);

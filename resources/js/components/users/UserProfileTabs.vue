@@ -94,6 +94,7 @@
             }
         },
         created() {
+            //console.log(this.profUser)
             this.setActiveTab();
         }
     }
