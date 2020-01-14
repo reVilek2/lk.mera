@@ -2,16 +2,16 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="payment-wrapper">
-                <div class="payment-balance-info">
+                <!-- <div class="payment-balance-info">
                     <div class="payment-balance-info__text">Баланс: {{user_balance}}</div>
                 </div>
                 <div class="payment-balance-info">
                     <div class="payment-balance-info__text">На оплату: {{user_total_payable}}</div>
-                </div>
+                </div> -->
                 <div class="payment-amount-total">
                     <div v-if="!this.document" class="payment-amount-total__text">Итого к оплате:</div>
                     <div v-else class="payment-amount-total__text">К оплате по документу:</div>
-                    <input type="text" class="form-control payment-amount-total__input" v-model.lazy="user_total_for_pay" v-money="money">
+                    <input readonly type="text" class="form-control payment-amount-total__input" v-model.lazy="user_total_for_pay" v-money="money">
                 </div>
                 <div class="payment-boxes-wrapper">
                     <h2 class="page-header">

@@ -28,7 +28,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="input-group payment-boxes__content-box_amount">
-                            <input type="text" class="form-control" v-model.lazy="amount" v-money="money">
+                            <input readonly type="text" class="form-control" v-model.lazy="amount" v-money="money">
                             <span class="input-group-btn">
                                 <button v-if="!disable_btn" type="button" class="btn btn-success btn-flat" @click="submit">Оплатить</button>
                                 <button v-else type="button" class="btn btn-success btn-flat" disabled>Оплатить</button>

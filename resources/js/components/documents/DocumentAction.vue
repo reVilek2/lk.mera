@@ -175,7 +175,8 @@
                     let url = '/documents/'+this.item.id+'/set-paid';
                     this.submitForm(url, data);
                 } else if (this.currUser.is_client) {
-                    this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1}, this.actionPaid);
+                    document.location.href = `/finances/payment?document=${this.item.id}`;
+                    //this.submitForm('/documents/'+this.item.id+'/set-signed', {signed:1}, this.actionPaid);
                 }
             },
             actionPaid() {
