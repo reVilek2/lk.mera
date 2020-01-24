@@ -126,7 +126,7 @@ export default {
             perPage: ['30', '100', '300'],
             tableData: {
                 draw: 0,
-                length: 10,
+                length: 30,
                 search: '',
                 column: '',
                 dir: 'desc',

@@ -27,14 +27,14 @@
                         <span>{{manager_name}}</span>
                     </div>
                 </div>
-                <div class="row">
+                <!-- <div class="row">
                     <div class="col-xs-4">
                         <a href="#">Баланс:</a>
                     </div>
                     <div class="col-xs-8 text-left">
                         <span>{{user_balance}}</span>
                     </div>
-                </div>
+                </div> -->
                 <div class="row">
                     <div class="col-xs-4">
                         <a href="#">На оплату:</a>

@@ -2,7 +2,7 @@
 
 @section('content')
 <div id="ajax-register">
-    <div id="jsAjaxForm" class="shadow-box no-shadow">
+    <div id="jsAjaxForm" class="shadow-box no-shadow no-padding-top">
         <div class="shadow-box__title">Регистрация</div>
         <div class="shadow-box__content">
             <div id='ajaxErrorMessage' class="error-block hidden">&nbsp;</div>

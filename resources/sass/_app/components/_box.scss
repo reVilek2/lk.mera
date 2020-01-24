@@ -1,6 +1,6 @@
 .box-profile {
   position: relative;
-  // overflow: hidden;
+  //overflow-x: hidden;
 }
 .box-profile-list {
   display: flex;
@@ -8,6 +8,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+
   &__title {
     flex-grow: 1;
     display: flex;

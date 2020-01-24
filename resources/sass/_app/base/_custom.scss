@@ -26,27 +26,60 @@
 }
 .icon {
   &.document {
-    background: url("../../svg/check.svg") no-repeat center;
+    &:before {
+      display: block;
+      content: ' ';
+      background: url("../../svg/check.svg") no-repeat center;
+      background-size: 14px 14px;
+      height: 15px;
+      width: 14px;
+    }
   }
 
   &.recommendation {
-    background: url("../../svg/check-mark.svg") no-repeat center;
+    &:before {
+      display: block;
+      content: ' ';
+      background: url("../../svg/check-mark.svg") no-repeat center;
+      background-size: 14px 14px;
+      height: 15px;
+      width: 14px;
+    }
   }
 
   &.pay {
-    background: url("../../svg/credit-card.svg") no-repeat center;
+    &:before {
+      display: block;
+      content: ' ';
+      background: url("../../svg/credit-card.svg") no-repeat center;
+      background-size: 14px 14px;
+      height: 15px;
+      width: 14px;
+    }
   }
 
   &.mini {
-    height: 14px;
-    width: 14px!important;
+    &:before {
+      background-size: 14px 14px;
+      height: 10px;
+      width: 14px!important;
+    }
   }
   &.mid {
-    height: 20px;
-    width: 20px!important;
+    &:before {
+      background-size: 20px 20px;
+      height: 20px;
+      width: 20px!important;
+    }
+  }
+  span {
+    filter: invert(0);
   }
   &.white {
     filter: invert(1);
+    span {
+      filter: invert(0);
+    }
   }
   background-size: contain!important;
   display: inline-block;
@@ -55,12 +88,24 @@
   filter: invert(0.35);
   &.white {
     filter: invert(0.65);
+    span {
+      filter: invert(1);
+    }
+  }
+  span {
+    filter: invert(0);
   }
 }
 .fixed .main-footer-mobile ul.footer-nav > li.active .icon {
   filter: invert(0);
   &.white {
     filter: invert(1);
+    span {
+      filter: invert(1);
+    }
+  }
+  span {
+    filter: invert(0);
   }
 }
 .icon-cards {

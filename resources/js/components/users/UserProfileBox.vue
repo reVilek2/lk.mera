@@ -17,7 +17,7 @@
         <h3 class="profile-username text-center">{{profUser.name}}</h3>
         <p class="text-muted text-center">{{profUser.role}}</p>
         <ul v-if="profUser.is_client || profUser.is_user || profUser.is_introducer" class="list-group list-group-unbordered">
-            <li v-if="profUser.is_client || profUser.is_user" class="list-group-item box-profile-list">
+            <!-- <li v-if="profUser.is_client || profUser.is_user" class="list-group-item box-profile-list">
                 <b class="box-profile-list__title">Баланс:</b>
                 <div v-if="!isProfile && currUser.is_admin" class="btn-group box-profile-list__btn">
                     <button type="button" class="btn btn-success" @click="openBalanceBox()">{{profUser.balance_humanize}}</button>
@@ -28,7 +28,7 @@
                 <div v-else class="btn-group box-profile-list__btn">
                     <span>{{profUser.balance_humanize}}</span>
                 </div>
-            </li>
+            </li> -->
             <li v-if="profUser.is_client || profUser.is_user" class="list-group-item box-profile-list">
                 <b class="box-profile-list__title">Менеджер:</b>
                 <div v-if="!isProfile" class="btn-group box-profile-list__btn">
@@ -293,6 +293,7 @@
         },
 
         mounted() {
+            console.log(this.profUser)
             this.setClients()
             let _this = this;
             setTimeout(function() {

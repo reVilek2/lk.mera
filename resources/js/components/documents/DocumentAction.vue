@@ -145,7 +145,7 @@
                             action: this.actionSignedAndPaid,
                             action_code: 'signed_and_paid',
                             value: 'Подписать и оплатить',
-                            class: {'btn-danger': true}
+                            class: {'btn-success': true}
                         };
                     } else {
                         return {

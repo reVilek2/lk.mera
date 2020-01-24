@@ -23,7 +23,7 @@
 
             <!-- Profile Image -->
             <div class="box box-primary">
-                <div class="box-body box-profile">
+            <div class="box-body box-profile" style="{{$user['is_client'] || $user['is_user'] ? 'overflow: hidden;' : ''}}">
                     <user-profile-box :profile-user="{{$user}}"
                                       :is-profile="false"
                                       :managers="{{!empty($managers) ? $managers : '[]'}}"

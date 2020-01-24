@@ -1,7 +1,7 @@
 @extends('layouts.auth')
 
 @section('content')
-    <div class="shadow-box no-shadow">
+    <div class="shadow-box no-shadow no-padding-top">
         <div class="shadow-box__title">Восстановление пароля</div>
         <div class="shadow-box__content">
             @if (session('status'))
