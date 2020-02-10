@@ -45,7 +45,7 @@ class PostVerificationClientListener
         }
         $mail->send(new NewClientRegistered($client));
 
-        $mail = \MultiMail::to($client);
+        $mail = Mail::to($client);
         $mail->send(new ClientConfirmation($client));
     }
 }
