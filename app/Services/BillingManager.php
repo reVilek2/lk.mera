@@ -380,7 +380,9 @@ class BillingManager
 
             // меняем статус оплаты документу
             $paid = 1;
+            $signed = 1;
             $document->paid = $paid;
+            $document->signed = $signed;
             $document->save();
             // log в историю
             $document->history()->create([

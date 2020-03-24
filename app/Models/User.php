@@ -23,6 +23,7 @@ use Spatie\MediaLibrary\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
 use Str;
 use App\Events\ClientVerified;
+use App\Mail\RecoveryPassword;
 
 /**
  * App\Models\User
@@ -538,7 +539,8 @@ class User extends Authenticatable implements HasMedia
      */
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new ResetPasswordNotification($token));
+        $mail = \MultiMail::to($this->email);
+        $mail->send(new RecoveryPassword($token));
     }
 
     /**

@@ -1,5 +1,10 @@
-@component('mail::message')
-# Здравствуйте!
+@component('mail::mera.message')
+
+<div class="greetings">
+    <p>
+        Здравствуйте!
+    </p>
+</div>
 
 @component('mail::button', ['url' => $url])
 Подтвердить почту

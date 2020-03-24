@@ -36,9 +36,14 @@ class ClientConfirmation extends Mailable
     {
         $login = $this->client->phone;
 
+        $code = implode('!', [$this->client->id, $this->client->makeEmailActivationCode()]);
+        $url = route('email.confirm', $code);
+
         return $this->subject('Подтверждение почты')
             ->markdown('mail.client_confirmation', [
                 'login' => $login,
+                'code' => $code,
+                'url' => $url,
             ]);
     }
 }

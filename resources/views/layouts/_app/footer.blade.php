@@ -6,7 +6,7 @@
     </div>
     <a href="https://mera-capital.com/user-agreement" target="_blank" class="f-link">Пользовательское соглашение</a>
     <!-- Default to the left -->
-    {{--<strong>Copyright &copy; {{ date( 'Y' ) }} <a href="http://mera-capital.com">MeraCapital</a>.</strong> All rights reserved.--}}
+    {{--<strong>Copyright &copy; {{ date( 'Y' ) }} <a href="http://mera-capital.com">Mera Capital</a>.</strong> All rights reserved.--}}
 </footer>
 <footer class="main-footer main-footer-mobile visible-xs">
     <ul class="footer-nav">

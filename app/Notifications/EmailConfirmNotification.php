@@ -12,6 +12,8 @@ class EmailConfirmNotification extends Mailable
 
     private $url;
 
+    protected $theme = 'mera';
+
     /**
      * Create a new notification instance.
      *

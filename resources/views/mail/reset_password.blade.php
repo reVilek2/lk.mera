@@ -1,9 +1,14 @@
-@component('mail::message')
-# Здравствуйте!
+@component('mail::mera.message')
+
+<div class="greetings">
+    <p>
+        Здравствуйте!
+    </p>
+</div>
 
 Вы получили это письмо, потому что мы получили запрос на сброс пароля для вашей учетной записи.
 
-@component('mail::button', ['url' => $url])
+@component('mail::button', ['url' => $url, 'color' => 'red'])
     Сбросить пароль
 @endcomponent
 
@@ -11,7 +16,6 @@
 
 Если вы не запрашивали сброс пароля, дальнейшие действия не требуются.
 
-С уважением,<br>{{ config('app.name') }}
 @component('mail::subcopy')
 Если у вас возникли проблемы с нажатием кнопки "Сбросить пароль", скопируйте URL ниже и вставьте в ваш веб-браузер <br>{{ $url }}
 @endcomponent
