@@ -47,11 +47,11 @@
             </li>
             <!-- Menu Footer-->
             <li class="user-footer">
-                <div class="pull-left">
-                    <a href="/profile" class="btn btn-default btn-flat">Редактировать</a>
+                <div type="button"  class="pull-left">
+                    <a href="/profile" class="btn btn-block btn-info-darkBlue">Редактировать</a>
                 </div>
-                <div class="pull-right">
-                    <a href="/logout" class="btn btn-default btn-flat">Выйти</a>
+                <div type="button"  class="pull-right">
+                    <a  href="/logout" class="btn btn-block btn-info-darkBlue">Выйти</a>
                 </div>
             </li>
         </ul>

@@ -1,6 +1,42 @@
 .navbar-nav > .user-menu > .dropdown-menu > li.user-header {
   height: 186px;
 }
+.navbar-nav > .user-menu > .dropdown-menu > li.user-footer {
+  background:#e7e6e6;
+  .btn-info-darkBlue {
+    color: #fff;
+    background-color: #558cb7;
+    border-color: #558cb7;
+  }
+  .btn-info-darkBlue:hover {
+    color: #fff;
+    background-color: #4479a1;
+    border-color: #417298;
+  }
+  .btn-info-darkBlue:focus, .btn-info-darkBlue.focus {
+    color: #fff;
+    background-color: #4479a1;
+    border-color: #417298;
+    box-shadow: 0 0 0 0.2rem rgba(111, 157, 194, 0.5);
+  }
+  .btn-info-darkBlue.disabled, .btn-info-darkBlue:disabled {
+    color: #fff;
+    background-color: #558cb7;
+    border-color: #558cb7;
+  }
+  .btn-info-darkBlue:not(:disabled):not(.disabled):active, .btn-info-darkBlue:not(:disabled):not(.disabled).active, .show > .btn-info-darkBlue.dropdown-toggle {
+    color: #fff;
+    background-color: #417298;
+    border-color: #3d6b8f;
+  }
+  .btn-info-darkBlue:not(:disabled):not(.disabled):active:focus, .btn-info-darkBlue:not(:disabled):not(.disabled).active:focus, .show > .btn-info-darkBlue.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(111, 157, 194, 0.5);
+  }
+  
+}
+
+
+
 .navbar .icon-finance {
   fill: $white;
   vertical-align: middle;
