@@ -14,6 +14,23 @@ use stdClass;
 class UserManager
 {
     /**
+     * sendResetCode
+     *
+     * @param User $user
+     */
+    public function sendResetCode(User $user)
+    {
+        try {
+            $code = $user->makePhoneResetCode();
+            SmsService::send($user->phone, 'Ваш код: ' . $code);
+
+            return true;
+        } catch (\Exception $ex) {
+            \Log::error('Ошибка при отправке Sms для подтверждения телефона: '.$ex->getMessage());
+        }
+    }
+
+    /**
      * Sends the activation email to a user
      * @param  User $user
      * @return void
@@ -120,8 +137,8 @@ class UserManager
                     CASE
                        WHEN (last_name IS NOT NULL and last_name <> "") THEN last_name
                        WHEN (first_name IS NOT NULL OR first_name <> "")  THEN first_name
-                       WHEN (second_name IS NOT NULL OR second_name <> "") THEN second_name     
-                       ELSE 0            
+                       WHEN (second_name IS NOT NULL OR second_name <> "") THEN second_name
+                       ELSE 0
                     END
                     '. $dir.',
                     last_name '. $dir .', first_name '. $dir.' , second_name '. $dir
@@ -143,12 +160,12 @@ class UserManager
                                 CONCAT(COALESCE(`last_name`,\'\'),\' \', COALESCE(`second_name`,\'\')) like \'%'. $searchValue .'%\' OR
                                 CONCAT(COALESCE(`last_name`,\'\'),\' \', COALESCE(`first_name`,\'\'),\' \', COALESCE(`second_name`,\'\')) like \'%'. $searchValue .'%\' OR
                                 CONCAT(COALESCE(`last_name`,\'\'),\' \', COALESCE(`second_name`,\'\'),\' \', COALESCE(`first_name`,\'\')) like \'%'. $searchValue .'%\' OR
-        
+
                                 CONCAT(COALESCE(`first_name`,\'\'),\' \', COALESCE(`last_name`,\'\')) like \'%'. $searchValue .'%\' OR
                                 CONCAT(COALESCE(`first_name`,\'\'),\' \', COALESCE(`second_name`,\'\')) like \'%'. $searchValue .'%\' OR
                                 CONCAT(COALESCE(`first_name`,\'\'),\' \', COALESCE(`last_name`,\'\'),\' \', COALESCE(`second_name`,\'\')) like \'%'. $searchValue .'%\' OR
                                 CONCAT(COALESCE(`first_name`,\'\'),\' \', COALESCE(`second_name`,\'\'),\' \', COALESCE(`last_name`,\'\')) like \'%'. $searchValue .'%\' OR
-                                
+
                                 CONCAT(COALESCE(`second_name`,\'\'),\' \', COALESCE(`first_name`,\'\')) like \'%'. $searchValue .'%\' OR
                                 CONCAT(COALESCE(`second_name`,\'\'),\' \', COALESCE(`last_name`,\'\')) like \'%'. $searchValue .'%\' OR
                                 CONCAT(COALESCE(`second_name`,\'\'),\' \', COALESCE(`last_name`,\'\'),\' \', COALESCE(`first_name`,\'\')) like \'%'. $searchValue .'%\' OR
@@ -211,10 +228,10 @@ class UserManager
                     CASE
                         WHEN (`users`.`first_name` IS NOT NULL OR `users`.`first_name` <> "")  THEN `users`.`first_name`
                         WHEN (`users`.`second_name` IS NOT NULL OR `users`.`second_name` <> "") THEN `users`.`second_name`
-                        WHEN (`users`.`last_name` IS NOT NULL and `users`.`last_name` <> "") THEN `users`.`last_name`                        
-                        WHEN (`users`.`email` IS NOT NULL and `users`.`email` <> "") THEN `users`.`email`                        
-                        WHEN (`users`.`phone` IS NOT NULL and `users`.`phone` <> "") THEN `users`.`phone`                        
-                       ELSE 0            
+                        WHEN (`users`.`last_name` IS NOT NULL and `users`.`last_name` <> "") THEN `users`.`last_name`
+                        WHEN (`users`.`email` IS NOT NULL and `users`.`email` <> "") THEN `users`.`email`
+                        WHEN (`users`.`phone` IS NOT NULL and `users`.`phone` <> "") THEN `users`.`phone`
+                       ELSE 0
                     END
                     '. $dir.',
                     `users`.`first_name` '. $dir .', `users`.`second_name` '. $dir.' , `users`.`last_name` '. $dir.', `users`.`email` '. $dir.', `users`.`phone` '. $dir

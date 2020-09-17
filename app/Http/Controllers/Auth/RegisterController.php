@@ -9,7 +9,9 @@ use App\Services\UserManager;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Rules\PhoneNumber;
 use App\Services\Page;
+use App\Services\PhoneNormalizer;
 use Hash;
 use Mail;
 use Validator;
@@ -66,7 +68,7 @@ class RegisterController extends Controller
             'email' => 'required|between:6,255|email',
             'password' => ['required:create', 'confirmed', new PasswordStrength],
             'password_confirmation' => 'required_with:password',
-            'phone' => 'required|regex:/^\+[0-9_]{4,11}$/' 
+            'phone' => 'required|regex:/^\+?[0-9\-\(\) ]{4,20}$/'
         ];
 
         /**
@@ -82,7 +84,7 @@ class RegisterController extends Controller
          */
         $user = User::create([
             'email' => $data['email'],
-            'phone' => $data['phone'],
+            'phone' => PhoneNormalizer::simple($data['phone']),
             'password' => Hash::make($data['password']),
             'api_token' => Token::generate() // API tokens
         ]);

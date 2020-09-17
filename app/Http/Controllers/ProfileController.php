@@ -72,7 +72,7 @@ class ProfileController extends Controller
         }
         $validation = Validator::make($request->all(), [
             'email'    => 'required|between:6,255|email',
-            'phone'    => ['required', new PhoneNumber('Поле phone имеет ошибочный формат.')],
+            'phone'    => 'required|regex:/^\+?[0-9\-\(\) ]{4,20}$/',
             'first_name' => 'nullable|string',
             'second_name' => 'nullable|string',
             'last_name' => 'nullable|string',
@@ -95,11 +95,7 @@ class ProfileController extends Controller
                 }
             }
             if ($request->has('phone') && $request->phone) {
-                $phoneNormalizer = new PhoneNormalizer();
-                $newPhone = $phoneNormalizer->normalize(trim($request->phone));
-                if ($newPhone) {
-                    $newPhone = '+' . $newPhone;
-                }
+                $newPhone = PhoneNormalizer::simple($request->phone);
                 if ($user->phone !== $newPhone && !User::isUniquePhone($newPhone)) {
                     return response()->json([
                         'status'=>'error',
@@ -133,6 +129,11 @@ class ProfileController extends Controller
                 $user->phone_confirmation_code = null;
                 $user->phone_confirmation_code_created_at = null;
                 $phone_changed = $newPhone ? true : false;
+            }
+
+            if ($currUser->hasRole('admin')) {
+                $user->email_verified_at = now();
+                $user->phone_verified_at = now();
             }
 
             $user->save();
@@ -222,7 +223,7 @@ class ProfileController extends Controller
         $confirm_new_password = trim($request->password_confirmation);
 
         $old_password = trim($request->old_password);
-        if (!$currUser->hasRole('admin')) { // если админ то без старого пароля
+        if (!$currUser->hasRole('admin') && !$currUser->is_empty_password) { // если админ то без старого пароля
             if (!$old_password || empty($old_password) || !Hash::check($old_password, $user->password)) {
 
                 return response()->json([

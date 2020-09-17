@@ -112,6 +112,7 @@ class User extends Authenticatable implements HasMedia
     use SmsCodeGeneratorTrait;
 
     const PHONE_CODE_EXPIRY = 60*5; // 5 минут - время действия кода
+    const PHONE_RESET_CODE_EXPIRY = 3; // 3 минуты - время действия кода сброса пароля
 
     const AVATAR_COLLECTION_NAME = 'avatar';
 
@@ -205,6 +206,7 @@ class User extends Authenticatable implements HasMedia
         'is_user',
         'total_payable',
         'total_payable_humanize',
+        'is_empty_password',
     ];
 
     function getAvatarAttribute()
@@ -282,6 +284,11 @@ class User extends Authenticatable implements HasMedia
     function getTotalPayableHumanizeAttribute()
     {
         return MoneyAmount::toHumanize($this->total_payable);
+    }
+
+    public function getIsEmptyPasswordAttribute()
+    {
+        return empty($this->password);
     }
 
     /**
@@ -430,6 +437,25 @@ class User extends Authenticatable implements HasMedia
         $this->phone_confirmation_code_created_at = $this->freshTimestamp();
         $this->save();
         return $phoneActivationCode;
+    }
+
+    public function makePhoneResetCode()
+    {
+        $this->reset_code = $phoneActivationCode = $this->getRandomCode(4);
+        $this->reset_code_created_at = $this->freshTimestamp();
+        $this->save();
+
+        return $phoneActivationCode;
+    }
+
+    public function isResetCodeExpired()
+    {
+        $start = new \Carbon\Carbon($this->reset_code_created_at);
+        $now = new \Carbon\Carbon();
+
+        $diff = $now->diffInMinutes($start);
+
+        return $diff > self::PHONE_RESET_CODE_EXPIRY;
     }
 
     /**

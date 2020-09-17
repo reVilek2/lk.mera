@@ -80,7 +80,8 @@ class LoginController extends Controller
             return back()->withErrors($validation)->withInput($request->only('login'));
         }
 
-        $user = User::where('email', $data['login'])->orWhere('phone', $data['login'])->firstOrFail();
+        $phone = PhoneNormalizer::simple($data['login']);
+        $user = User::where('email', $data['login'])->orWhere('phone', $phone)->firstOrFail();
 
         if ($user && !$user->hasVerifiedPhone()) {
             return redirect()->route('phone.confirm.info', $user->phone);

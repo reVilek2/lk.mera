@@ -1,7 +1,7 @@
 <template>
     <div :class="{'has-success': validate.show && validate.valid, 'has-error': validate.show && !validate.valid}">
         <div :class="{'input-group':is_phone}">
-            <masked-input
+            <input
                     type="text"
                     class="form-control"
                     :name="name"
@@ -9,12 +9,10 @@
                     :required="required"
                     :placeholder="placeholder"
                     v-model="inputValue"
-                    :mask="['+', '7', ' ', '(', /\d/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, ' ', /\d/, /\d/,' ', /\d/, /\d/]"
                     :guide="true"
                     placeholderChar="_"
                     @focus="focusEvent($event)"
-                    @keydown="keydownEvent($event)">
-            </masked-input>
+                    @keydown="keydownEvent($event)"/>
             <div v-if="is_phone" class="input-group-btn" :title="inputBtnTitle">
                 <div v-if="is_allowed_fast_confirm" class="btn-group">
                     <button type="button" class="btn dropdown-toggle" :class="inputBtnClass" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-check text-white"></i></button>

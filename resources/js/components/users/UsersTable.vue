@@ -1,8 +1,8 @@
 <template>
     <div class="box-body">
-        <div class="users-table-wrapper dataTables_wrapper form-inline dt-bootstrap">
+        <div class="users-tableusers-table-wrapper dataTables_wrapper form-inline dt-bootstrap">
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-11">
                     <div class="dataTables_length">
                         <label>
                             Показывать по:
@@ -11,14 +11,17 @@
                             </select>
                         </label>
                     </div>
-                </div>
-                <div class="col-sm-6">
                     <div class="dataTables_filter">
                         <label>
                             Поиск:
                             <input class="form-control input-sm" type="text" v-model="tableData.search" placeholder="Введите фразу"
                                    @input="getItems()">
                         </label>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div v-if="currUser.is_admin" class="dataTables_action dataTables_action__desktop">
+                        <a href="/users/add" class="btn btn-success">Добавить</a>
                     </div>
                 </div>
             </div>
@@ -36,6 +39,7 @@
                                     <td>{{item.created_at_short}}</td>
                                     <td>
                                         <a :href="'/users/'+item.id" class="btn btn-info"><i class="fa fa-eye"></i></a>
+                                        <button v-on:click="removeUser(item.id)" class="btn btn-danger"><i class="fa fa-trash"></i></button>
                                     </td>
                                 </tr>
                                 <tr v-if="item_count === 0" class="odd empty-row">
@@ -76,6 +80,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import Datatable from '../datatables/Datatable.vue';
 import FilterInfo from '../datatables/FilterInfo.vue';
 import Paginate from 'vuejs-paginate';
@@ -90,6 +95,12 @@ export default {
             type: Number,
             default: () => 0
         },
+    },
+    computed: {
+        // смешиваем результат mapGetters с внешним объектом computed
+        ...mapGetters({
+            currUser: 'getCurrentUser'
+        })
     },
     components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate},
     created() {
@@ -107,7 +118,7 @@ export default {
             {width: 'auto', label: 'Email', name: 'email' },
             {width: 'auto', label: 'Телефон', name: 'phone' },
             {width: 'auto', label: 'Регистрация', name: 'created_at' },
-            {width: '50px', label: 'Действия', name: 'action' },
+            {width: '80px', label: 'Действия', name: 'action' },
 
         ];
         columns.forEach((column) => {
@@ -145,6 +156,40 @@ export default {
         }
     },
     methods: {
+        removeUser(userId) {
+            if (!confirm('Вы уверены что хотите удалить пользователя?')) {
+                return;
+            }
+
+            axios.post(`/users/${userId}/remove`)
+                .then(response => {
+                    if (response.data.status !== 'success') {
+                        return new Noty({
+                            type: 'error',
+                            text: response.data.errors.user,
+                            layout: 'topRight',
+                            timeout: 5000,
+                            progressBar: true,
+                            theme: 'metroui',
+                        }).show();
+                    }
+
+                    this.getItems();
+                })
+                .catch(({response}) => {
+                    if (response.status == 404) {
+                        return new Noty({
+                            type: 'error',
+                            text: 'Пользователь не найден',
+                            layout: 'topRight',
+                            timeout: 5000,
+                            progressBar: true,
+                            theme: 'metroui',
+                        }).show();
+                    }
+                    console.error(response)
+                })
+        },
         paginateCallback(pageNum){
             this.getItems(this.collection_url+'?page='+pageNum)
         },
@@ -192,6 +237,9 @@ export default {
         getIndex(array, key, value) {
             return array.findIndex(i => i[key] === value)
         },
+    },
+    mounted() {
+        console.log(this.currUser);
     }
 };
 </script>

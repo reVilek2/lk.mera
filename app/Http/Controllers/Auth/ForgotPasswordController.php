@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\Page;
+use App\Services\PhoneNormalizer;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use App\Services\UserManager;
+use Auth;
 
 class ForgotPasswordController extends Controller
 {
@@ -21,6 +25,11 @@ class ForgotPasswordController extends Controller
     |
     */
 
+    /**
+     * @var UserManager
+     */
+    private $userManager;
+
     use SendsPasswordResetEmails;
 
     /**
@@ -28,8 +37,9 @@ class ForgotPasswordController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(UserManager $userManager)
     {
+        $this->userManager = $userManager;
         $this->middleware('guest');
     }
 
@@ -42,25 +52,55 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * Send a reset link to the given user.
+     * Send a reset code to the given user.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
-    public function sendResetLinkEmail(Request $request)
+    public function sendResetCode(Request $request)
     {
-        $this->validateEmail($request);
+        $phone = PhoneNormalizer::simple($request->phone);
+        $user = User::where('phone', $phone)->first();
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $response = $this->broker()->sendResetLink(
-            $this->credentials($request)
-        );
+        if (!$user) {
+            return $this->sendResetLinkFailedResponse($request, 'Пользователь не найден');
+        }
 
-        return $response == Password::RESET_LINK_SENT
-            ? $this->sendResetLinkResponse($request, $response)
+        $response = $this->userManager->sendResetCode($user);
+
+        return $response
+            ? $this->sendResetLinkResponse($request)
             : $this->sendResetLinkFailedResponse($request, $response);
+    }
+
+    public function code(Request $request)
+    {
+        $phone = PhoneNormalizer::simple($request->phone);
+        User::where('phone', $phone)->firstOrFail();
+
+        return view('auth.passwords.code', ['phone' => $phone]);
+    }
+
+    public function checkCode(Request $request)
+    {
+        $phone = PhoneNormalizer::simple($request->phone);
+        $user = User::where('phone', $phone)->firstOrFail();
+
+        if ($user->isResetCodeExpired()) {
+            return $this->sendResetLinkFailedResponse($request, 'Время жизни кода истекло');
+        }
+
+        if ($user->reset_code != $request->code) {
+            return $this->sendResetLinkFailedResponse($request, 'Операция невозможна. Неверный код');
+        }
+
+        // сбрасываем пароль
+        $user->password = '';
+        $user->save();
+
+        Auth::loginUsingId($user->id);
+
+        return redirect()->route('profile', ['#password']);
     }
 
     /**
@@ -70,12 +110,18 @@ class ForgotPasswordController extends Controller
      * @param  string  $response
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
-    protected function sendResetLinkResponse(Request $request, $response)
+    protected function sendResetLinkResponse(Request $request)
     {
-        Page::setTitle('Forgot password');
-        Page::setDescription('Sending password reset email successfully');
+        $phone = PhoneNormalizer::simple($request->phone);
 
-        return back()->with('status', trans($response));
+        return redirect()->route('password.code', ['phone' => $phone]);
+    }
+
+    protected function sendResetLinkFailedResponse(Request $request, $msg)
+    {
+        return back()
+                ->withInput($request->only('phone'))
+                ->withErrors(['phone' => $msg]);
     }
 
     public function broker()

@@ -43,6 +43,9 @@
             </div>
             <div class="form-btn">
                 <button type="submit" class="btn btn-danger btn-block">Войти</button>
+                <a href="{{ route('login.facebook.login') }}" class="btn btn-primary btn-block">Facebook</a>
+                <a href="{{ route('login.google.login') }}" class="btn btn-danger btn-block">Google</a>
+
                 <a href="{{route('password.forgot')}}" class="form-remind-password-link">
                     Забыли пароль?
                 </a>
