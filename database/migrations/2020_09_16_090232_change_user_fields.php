@@ -17,6 +17,8 @@ class ChangeUserFields extends Migration
             $table->string('password')->nullable()->change();
             $table->string('reset_code', 4)->nullable();
             $table->timestamp('reset_code_created_at')->nullable();
+            $table->string('social_type')->nullable();
+            $table->string('social_id')->nullable();
         });
     }
 
@@ -31,6 +33,8 @@ class ChangeUserFields extends Migration
             $table->string('password')->change();
             $table->dropColumn('reset_code');
             $table->dropColumn('reset_code_created_at');
+            $table->dropColumn('social_type');
+            $table->dropColumn('social_id');
         });
     }
 }

@@ -162,6 +162,8 @@ class User extends Authenticatable implements HasMedia
         'password',
         'password_confirmation',
         'api_token',
+        'social_type',
+        'social_id',
     ];
 
     /**

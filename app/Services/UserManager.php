@@ -22,7 +22,7 @@ class UserManager
     {
         try {
             $code = $user->makePhoneResetCode();
-            SmsService::send($user->phone, 'Ваш код: ' . $code);
+            SmsService::send($user->phone, 'Mera Capital. Ваш код: ' . $code);
 
             return true;
         } catch (\Exception $ex) {
@@ -65,7 +65,7 @@ class UserManager
         try {
             $code = $user->makePhoneActivationCode();
 
-            SmsService::send($phone, 'Код активации: '.$code);
+            SmsService::send($phone, 'Mera Capital. Код активации: '.$code);
 
             return true;
         } catch (\Exception $ex) {
