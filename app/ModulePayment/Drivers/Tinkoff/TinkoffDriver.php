@@ -18,27 +18,6 @@ class TinkoffDriver implements PaymentServiceInterface
 {
     use DriversTrait;
 
-    /**
-     * TinkoffMerchantAPI object
-     *
-     * @var PaymentTransportInterface
-     */
-    private $transport;
-
-    /**
-     * Module config
-     *
-     * @var array
-     */
-    private $config;
-
-    /**
-     * Notification info
-     *
-     * @var array
-     */
-    protected $response;
-
     public function __construct($config)
     {
         $this->setConfig($config);
@@ -199,30 +178,6 @@ class TinkoffDriver implements PaymentServiceInterface
      */
 
     /**
-     * Get configuration
-     *
-     * @return array
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /**
-     * Set driver configuration
-     *
-     * @param array $config
-     *
-     * @return $this
-     */
-    public function setConfig($config)
-    {
-        $this->config = $config;
-
-        return $this;
-    }
-
-    /**
      * Parse notification
      *
      * @param array $data
@@ -235,19 +190,6 @@ class TinkoffDriver implements PaymentServiceInterface
         $this->response = $data;
 
         return $this;
-    }
-
-    /**
-     * Get response param by name
-     *
-     * @param string $name
-     * @param string $default
-     *
-     * @return mixed|string
-     */
-    public function getResponseParam($name, $default = '')
-    {
-        return isset($this->response[$name]) ? $this->response[$name] : $default;
     }
 
     /**
@@ -339,30 +281,6 @@ class TinkoffDriver implements PaymentServiceInterface
     public function getDateTime()
     {
         return $this->getResponseParam('DateTime');
-    }
-
-    /**
-     * Set transport/protocol wrapper
-     *
-     * @param PaymentTransportInterface $protocol
-     *
-     * @return $this
-     */
-    public function setTransport(PaymentTransportInterface $protocol)
-    {
-        $this->transport = $protocol;
-
-        return $this;
-    }
-
-    /**
-     * Get transport
-     *
-     * @return PaymentTransportInterface
-     */
-    public function getTransport()
-    {
-        return $this->transport;
     }
 
     /**

@@ -1,8 +1,25 @@
 <?php
 namespace App\ModulePayment\Traits;
 
+use App\ModulePayment\Interfaces\PaymentTransportInterface;
+
 trait DriversTrait
 {
+    /**
+     * @var PaymentTransportInterface
+     */
+    protected $transport;
+
+    /**
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * @var array
+     */
+    protected $response;
+
     public function getPaymentMethod($type)
     {
         $map = [
@@ -20,6 +37,61 @@ trait DriversTrait
     private function substrCardNum(string $val)
     {
         return substr($val, 0, 4);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTransport(PaymentTransportInterface $protocol)
+    {
+        $this->transport = $protocol;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTransport()
+    {
+        return $this->transport;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setResponse($data)
+    {
+        $data['DateTime'] = date('Y-m-d H:i:s');
+        $this->response = $data;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getResponseParam($name, $default = '')
+    {
+        return isset($this->response[$name]) ? $this->response[$name] : $default;
     }
 
 }

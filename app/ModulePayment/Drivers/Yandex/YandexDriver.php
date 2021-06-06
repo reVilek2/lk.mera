@@ -18,69 +18,13 @@ class YandexDriver implements PaymentServiceInterface
     use DriversTrait;
 
     /**
-     * Module config
-     *
-     * @var array
-     */
-    private $config;
-
-    private $transport;
-
-    /**
      * @var array
      */
     protected $paymentData;
-    /**
-     * @var PaymentTransportInterface
-     */
 
     public function __construct($config)
     {
         $this->setConfig($config);
-    }
-
-    /**
-     * Get configuration
-     *
-     * @return array
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-    /**
-     * Set driver configuration
-     *
-     * @param array $config
-     *
-     * @return $this
-     */
-    public function setConfig($config)
-    {
-        $this->config = $config;
-        return $this;
-    }
-
-    /**
-     * Get transport
-     *
-     * @return PaymentTransportInterface
-     */
-    public function getTransport()
-    {
-        return $this->transport;
-    }
-    /**
-     * Set transport
-     *
-     * @param PaymentTransportInterface $transport
-     *
-     * @return $this
-     */
-    public function setTransport(PaymentTransportInterface $transport)
-    {
-        $this->transport = $transport;
-        return $this;
     }
 
     /**
