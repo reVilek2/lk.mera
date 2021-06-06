@@ -11,4 +11,10 @@ return [
         'merchantId'    => env('TINKOFF_TERMINAL_KEY'),
         'secretKey'       => env('TINKOFF_TERMINAL_PASSWORD'),
     ],
+    'paykeeper' => [
+        'server' => env('PAYKEEPER_SERVER'),
+        'user'   => env('PAYKEEPER_USER'),
+        'pass'   => env('PAYKEEPER_PASS'),
+        'secret' => env('PAYKEEPER_SECRET'),
+    ],
 ];

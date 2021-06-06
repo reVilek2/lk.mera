@@ -26,6 +26,8 @@ class TransactionType extends Model
     const YANDEX_OUT = 'yandex_out';
     const TINKOFF_IN = 'tinkoff_in';
     const TINKOFF_OUT = 'tinkoff_out';
+    const PAYKEEPER_IN = 'paykeeper_in';
+    const PAYKEEPER_OUT = 'paykeeper_out';
     const SERVICE_IN = 'service_in';
     const SERVICE_OUT = 'service_out';
 

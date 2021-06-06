@@ -21,5 +21,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         '/yandex-kassa-notify',
         '/tinkoff-payment-notify',
+        '/paykeeper-payment-notify',
     ];
 }

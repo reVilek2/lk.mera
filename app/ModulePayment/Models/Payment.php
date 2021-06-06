@@ -118,7 +118,7 @@ class Payment extends Model implements ModelPaymentInterface
     }
 
     /**
-     * @return Model|\Illuminate\Database\Eloquent\Relations\BelongsTo|null|object
+     * @return Transaction|\Illuminate\Database\Eloquent\Relations\BelongsTo|null|object
      */
     public function getTransaction()
     {

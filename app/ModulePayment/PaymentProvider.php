@@ -5,8 +5,11 @@ use App\ModulePayment\Drivers\Yandex\YandexDriver;
 use App\ModulePayment\Drivers\Yandex\YandexKassa;
 use App\ModulePayment\Drivers\Tinkoff\TinkoffDriver;
 use App\ModulePayment\Drivers\Tinkoff\TinkoffProtocol;
+use App\ModulePayment\Drivers\Paykeeper\PaykeeperDriver;
+use App\ModulePayment\Drivers\Paykeeper\PaykeeperProtocol;
 use App\ModulePayment\Processing\Methods\YandexMethod;
 use App\ModulePayment\Processing\Methods\TinkoffMethod;
+use App\ModulePayment\Processing\Methods\PaykeeperMethod;
 use App\ModulePayment\Facades\PaymentFacade;
 use App\ModulePayment\Services\PaymentService;
 use Illuminate\Support\ServiceProvider;
@@ -16,6 +19,7 @@ class PaymentProvider extends ServiceProvider
 {
     const PAYMENT_YANDEX = 'yandex';
     const PAYMENT_TINKOFF = 'tinkoff';
+    const PAYMENT_PAYKEEPER = 'paykeeper';
 
     /**
      * Indicates if loading of the provider is deferred.
@@ -61,21 +65,31 @@ class PaymentProvider extends ServiceProvider
             );
         });
 
+        $this->app->bind(PaykeeperDriver::class, function ($app) {
+            return (new PaykeeperDriver(config('payment.paykeeper')))->setTransport(
+                new PaykeeperProtocol(
+                    config('payment.paykeeper.server'),
+                    config('payment.paykeeper.user'),
+                    config('payment.paykeeper.pass')
+                )
+            );
+        });
+
         // регистрация сервиса
         $facade = (new PaymentService())
             ->setDrivers([
                 self::PAYMENT_YANDEX  => YandexDriver::class,
                 self::PAYMENT_TINKOFF  => TinkoffDriver::class,
+                self::PAYMENT_PAYKEEPER  => PaykeeperDriver::class,
             ])
             ->setProcessings([
                 self::PAYMENT_YANDEX  => YandexMethod::class,
                 self::PAYMENT_TINKOFF  => TinkoffMethod::class,
+                self::PAYMENT_PAYKEEPER  => PaykeeperMethod::class,
             ])
             ->setCurrentDriver(config('payment.default_driver'));
 
         $this->app->instance('PayService', $facade);
         $this->app->instance(PaymentFacade::class, $facade);
-
-
     }
 }

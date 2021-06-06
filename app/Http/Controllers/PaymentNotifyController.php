@@ -25,4 +25,13 @@ class PaymentNotifyController extends Controller
 
         return PayService::getNotificationResponse(500);
     }
+
+    public function paykeeper(Request $request){
+        $notification = $request->all();
+        if (PayService::processNotificationRequest($notification)) {
+            return PayService::getNotificationResponse(200);
+        }
+
+        return PayService::getNotificationResponse(500);
+    }
 }

@@ -76,6 +76,14 @@ trait DriversTrait
     }
 
     /**
+     * @return array
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
      * @inheritDoc
      */
     public function setResponse($data)
