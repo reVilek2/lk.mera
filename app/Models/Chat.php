@@ -36,6 +36,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereName($value)
  * @property int $client
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Chat whereClient($value)
+ * @property-read int|null $messages_count
+ * @property-read int|null $un_read_messages_count
+ * @property-read int|null $users_count
  */
 class Chat extends Model
 {

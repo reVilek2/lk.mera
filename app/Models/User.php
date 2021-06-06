@@ -103,6 +103,19 @@ use App\Mail\RecoveryPassword;
  * @property-read mixed $total_payable
  * @property-read mixed $total_payable_humanize
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\File[] $files
+ * @property-read int|null $chats_count
+ * @property-read int|null $clients_count
+ * @property-read int|null $files_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $introducers
+ * @property-read int|null $introducers_count
+ * @property-read int|null $manager_count
+ * @property-read int|null $media_count
+ * @property-read int|null $notifications_count
+ * @property-read int|null $owner_chats_count
+ * @property-read int|null $payment_cards_count
+ * @property-read int|null $permissions_count
+ * @property-read int|null $roles_count
+ * @property-read int|null $unread_messages_count
  */
 class User extends Authenticatable implements HasMedia
 {

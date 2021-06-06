@@ -32,6 +32,8 @@ use Illuminate\Notifications\Notifiable;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Recommendation whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Recommendation whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read int|null $notifications_count
+ * @property-read int|null $receivers_count
  */
 class Recommendation extends Model
 {

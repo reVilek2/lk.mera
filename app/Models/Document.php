@@ -42,6 +42,8 @@ use FileService;
  * @property int|null $transaction_id
  * @property-read \App\Models\Transaction|null $transaction
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Document whereTransactionId($value)
+ * @property-read int|null $files_count
+ * @property-read int|null $history_count
  */
 class Document extends Model
 {

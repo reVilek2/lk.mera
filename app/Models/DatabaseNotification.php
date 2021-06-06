@@ -31,6 +31,8 @@ use Illuminate\Notifications\DatabaseNotification as BaseDatabaseNotification;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\DatabaseNotification whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @method static \Illuminate\Notifications\DatabaseNotificationCollection|static[] all($columns = ['*'])
+ * @method static \Illuminate\Notifications\DatabaseNotificationCollection|static[] get($columns = ['*'])
  */
 class DatabaseNotification extends BaseDatabaseNotification
 {

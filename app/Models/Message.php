@@ -39,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MessageStatus[] $status
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereChatId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Message whereType($value)
+ * @property-read int|null $status_count
  */
 class Message extends Model
 {
