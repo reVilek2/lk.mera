@@ -16,6 +16,19 @@
             @hasanyrole('manager|admin')
                 <li class="{{ set_active(['users', 'users/*']) }}"><a href="{{route('users')}}"><i class="fa fa-users"></i> <span>Пользователи</span></a></li>
             @endhasallroles
+            <hr>
+            <li class="{{ set_active_route(['static.terms']) }}">
+                <a href="{{route('static.terms')}}">
+                    <span>Пользовательское соглашение</span></a>
+            </li>
+            <li class="{{ set_active_route(['static.services']) }}">
+                <a href="{{route('static.services')}}">
+                    <span>Услуги и правила оплаты</span></a>
+            </li>
+            <li class="{{ set_active_route(['static.organization_details']) }}">
+                <a href="{{route('static.organization_details')}}">
+                    <span>Реквизиты организации</span></a>
+            </li>
             <li class="visible-xs"> <a href="{{route('logout')}}"><i class="fa fa-sign-out"></i> <span>Выход</span></a></li>
         </ul>
         <!-- /.sidebar-menu -->

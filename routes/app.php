@@ -12,6 +12,11 @@ Route::post('/profile/{user}/avatar', 'ProfileController@updateAvatar')->name('p
 Route::post('/profile/password/{user}', 'ProfileController@updatePassword')->name('profile.password.update');
 // reports
 Route::get('/reports', 'DocumentController@index')->name('reports');
+
+Route::get('/terms', 'StaticPagesController@terms')->name('static.terms');
+Route::get('/services', 'StaticPagesController@services')->name('static.services');
+Route::get('/organization-details', 'StaticPagesController@organizationDetails')->name('static.organization_details');
+
 // documents
 
 Route::get('/documents/mark-as-read', function() {
