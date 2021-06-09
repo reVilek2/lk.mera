@@ -29,6 +29,9 @@
                 <a href="{{route('static.organization_details')}}">
                     <span>Реквизиты организации</span></a>
             </li>
+            <li>
+                <img class="payment-logo" src="{{asset('/images/payment-logo.png')}}" alt="payment-logo"/>
+            </li>
             <li class="visible-xs"> <a href="{{route('logout')}}"><i class="fa fa-sign-out"></i> <span>Выход</span></a></li>
         </ul>
         <!-- /.sidebar-menu -->
