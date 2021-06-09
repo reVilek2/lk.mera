@@ -67,6 +67,7 @@ class UserController extends Controller
            'sort' => $request->has('column') ? $request->input('column') : null,
            'dir' => $request->has('dir') && $request->input('dir') === 'asc' ? 'asc' : 'desc',
            'search' => $request->has('column') && !empty($request->input('search')) ? $request->input('search') : null,
+           'search_introducer' => $request->input('search_introducer'),
            'length' => $request->has('length')  ? (int) $request->input('length') : '30', //default 30
         ];
 
@@ -79,9 +80,16 @@ class UserController extends Controller
             ], 200);
         }
 
+        $introducers = User::role(['introducer'])
+            ->get(['first_name','last_name','id'])
+            ->keyBy('id')
+            ->map
+            ->getUserName();
+
         return view('users.index', [
             'users_count' => $users->count(),
-            'users' => $users->toJson()
+            'users' => $users->toJson(),
+            'introducers' => $introducers,
         ]);
     }
 

@@ -158,6 +158,9 @@ class UserManager
                 }
             });
         }
+        if (!empty($params['search_introducer']) && $currUser->hasRole('admin')) {
+            $query->whereIn('id', User::whereId($params['search_introducer'])->firstOrFail()->introducers()->pluck('users.id'));
+        }
 
         if (array_key_exists('length', $params) && $params['length']) {
             return $query->paginate($params['length']);

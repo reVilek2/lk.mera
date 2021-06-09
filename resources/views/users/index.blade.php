@@ -21,7 +21,7 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="box">
-                <users-table :users="{{$users}}" :users_count="{{$users_count}}"></users-table>
+                <users-table :users="{{$users}}" :users_count="{{$users_count}}" :introducers="{{$introducers}}"></users-table>
             </div>
         </div>
     </div>

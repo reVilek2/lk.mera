@@ -123,12 +123,7 @@ class DocumentManager
             if ($user->hasRole('manager')) {
                 $query->where('manager_id', '=', $user->id);
             } else if ($user->hasRole('introducer')) {
-                foreach ($user->introducers as $key=>$client) {
-                    if ($key === 0)
-                        $query->where('client_id', '=', $client->id);
-                    else
-                        $query->orWhere('client_id', '=', $client->id);
-                }
+                $query->whereIn('client_id', $user->introducers->pluck('id'));
             } else {
                 $query->where('client_id', '=', $user->id);
             }

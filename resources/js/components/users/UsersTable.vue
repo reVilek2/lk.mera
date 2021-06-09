@@ -22,6 +22,20 @@
                     </div>
                 </div>
             </div>
+            <div class="row" v-if="currUser.is_admin">
+                <div class="col-sm-6"></div>
+                <div class="col-sm-6">
+                    <div class="dataTables_filter">
+                        <label>
+                            Поиск по интродьюсеру:
+                            <select v-model="tableData.search_introducer" @change="getItems()" class="form-control input-sm">
+                                <option :value="null">-</option>
+                                <option v-for="(id, index) in Object.keys(introducers)" :key="index" :value="id">{{introducers[id]}}</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="table-responsive">
@@ -79,12 +93,17 @@
 import Datatable from '../datatables/Datatable.vue';
 import FilterInfo from '../datatables/FilterInfo.vue';
 import Paginate from 'vuejs-paginate';
+import {mapGetters} from "vuex";
 
 export default {
     props: {
         users: {
             type: Object,
             default: () => {}
+        },
+        introducers: {
+            type: Object,
+            default: () => {},
         },
         users_count: {
             type: Number,
@@ -130,6 +149,7 @@ export default {
                 search: '',
                 column: '',
                 dir: 'desc',
+                search_introducer: null,
             },
             pagination: {
                 lastPage: '',
@@ -143,6 +163,11 @@ export default {
             },
             collection_url: '/users',
         }
+    },
+    computed:{
+        ...mapGetters({
+            currUser: 'getCurrentUser'
+        }),
     },
     methods: {
         paginateCallback(pageNum){

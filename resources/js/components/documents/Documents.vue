@@ -312,6 +312,7 @@
         watch:{
             currUser() {
                 if(this.currUser && this.currUser.is_client){
+                    console.log(123)
                     this.columns = this.columns.filter( column => {
                         if(column.name == 'client_full_name'){
                             return false;
@@ -325,6 +326,18 @@
 
                         return true;
                     });
+                }
+                if (this.currUser && this.currUser.is_introducer) {
+                    let allowed = [
+                        'client_full_name',
+                        'name',
+                        'amount',
+                        'status',
+                    ];
+                    this.columns = this.columns.filter(column => {
+                        console.log(column.name, allowed.includes(column.name))
+                        return allowed.includes(column.name)
+                    })
                 }
             }
         },
