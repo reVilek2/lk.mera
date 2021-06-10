@@ -3,6 +3,19 @@ namespace App\Services;
 
 class PhoneNormalizer
 {
+    public static function simple($number)
+    {
+        $number = preg_replace("/[^0-9]/", "", $number);
+
+        if (substr($number, 0, 1) == '8') {
+            $number = '7'.substr($number, 1);
+        }
+
+        $number = '+' . $number;
+
+        return $number;
+    }
+
     public function normalize($number, $minLength = 10)
     {
         $minLength = intval($minLength);

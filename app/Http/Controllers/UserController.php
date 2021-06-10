@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\File;
+use App\Models\Token;
 use App\Models\TransactionStatus;
 use App\Models\TransactionType;
 use App\Models\User;
@@ -238,7 +239,7 @@ class UserController extends Controller
             }
             $user->assignRole($inputRole);
             $user->save();
-        } 
+        }
         return response()->json([
             'status'=>'success',
             'user' => $user
@@ -385,5 +386,41 @@ class UserController extends Controller
         }else {
             return FileService::display($file, 'files');
         }
+    }
+
+    /**
+     * remove user from db
+     */
+    public function remove(Request $request, User $user)
+    {
+        if ($user->hasRole('admin')) {
+            return response()->json([
+                'status'=>'error',
+                'errors' => ['user' => 'Нельзя удалять администратора'],
+            ], 200);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'status'=>'success',
+        ], 200);
+    }
+
+    /**
+     * add new user
+     */
+    public function add(Request $request)
+    {
+        $user = User::whereNull('email')->whereNull('phone')->first();
+
+        if (!$user) {
+            $user = User::create([
+                'api_token' => Token::generate() // API tokens
+            ]);
+            $user->assignRole('user');
+        }
+
+        return redirect()->route('users.show', ['user' => $user->id]);
     }
 }

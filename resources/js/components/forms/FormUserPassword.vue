@@ -84,6 +84,9 @@
         watch: {
             currUser(user) {
                 this.is_need_old_password = !user.is_admin || (parseInt(user.id) === parseInt(this.user.id));
+                if (user.is_empty_password) {
+                    this.is_need_old_password = false;
+                }
             },
         },
         computed: {

@@ -394,8 +394,7 @@
                 let valid = true;
                 this.setDefaultValidatePhone();
 
-                if (this.phoneValue &&
-                    this.phoneValue.length !== 12) {
+                if (!this.phoneValue) {
                     valid = false;
                     this.phoneValidate.valid = false;
                     this.phoneValidate.message = 'Неправильный формат телефона';

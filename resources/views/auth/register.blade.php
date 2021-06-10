@@ -77,6 +77,8 @@
 
                     <div class="form-btn">
                         <button type="submit" class="btn btn-danger btn-block">Регистрация</button>
+                        <a href="{{ route('login.facebook.login') }}" class="btn btn-primary btn-block">Facebook</a>
+                        <a href="{{ route('login.google.login') }}" class="btn btn-default btn-green btn-block">Google</a>
                     </div>
                 </form>
             @endif

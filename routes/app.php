@@ -43,6 +43,10 @@ Route::middleware(['role:admin'])->group(function () {
 });
 
 // Only manager or admin
+Route::middleware(['role:admin'])->group(function () {
+    Route::get('/users/add', 'UserController@add')->name('users.add');
+    Route::post('/users/{user}/remove', 'UserController@remove')->name('users.remove');
+});
 Route::middleware(['role:admin|manager'])->group(function () {
     Route::get('/users', 'UserController@index')->name('users');
     Route::get('/users/{user}', 'UserController@show')->name('users.show');

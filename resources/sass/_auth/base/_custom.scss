@@ -16,3 +16,16 @@
 #resend-link .preloader{
   margin-top: 15px;
 }
+
+.btn-green {
+  color: white;
+  background-color: rgb(103, 184, 112);
+}
+.btn-green:hover {
+  color: white;
+  background-color: rgb(83, 164, 92);
+}
+.btn-green:active,
+.btn-green:focus {
+  box-shadow: 0 0 0 0.2rem rgba(83, 164, 92, 0.25);
+}

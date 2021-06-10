@@ -53,7 +53,8 @@ class RecommendationReceiver extends Model
         return $this->belongsTo(RecommendationReceiver::class);
     }
 
-    public function getClientNameAttribute() {
-        return $this->client->name;
+    public function getClientNameAttribute()
+    {
+        return $this->client ? $this->client->name : '<пользователь удален>';
     }
 }
