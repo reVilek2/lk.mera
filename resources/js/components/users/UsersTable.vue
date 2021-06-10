@@ -98,7 +98,6 @@ import { mapGetters } from 'vuex';
 import Datatable from '../datatables/Datatable.vue';
 import FilterInfo from '../datatables/FilterInfo.vue';
 import Paginate from 'vuejs-paginate';
-import {mapGetters} from "vuex";
 
 export default {
     props: {
@@ -114,12 +113,6 @@ export default {
             type: Number,
             default: () => 0
         },
-    },
-    computed: {
-        // смешиваем результат mapGetters с внешним объектом computed
-        ...mapGetters({
-            currUser: 'getCurrentUser'
-        })
     },
     components: { datatable: Datatable, filterInfo: FilterInfo, paginate: Paginate},
     created() {
