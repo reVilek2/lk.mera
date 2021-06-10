@@ -103,6 +103,8 @@ use App\Mail\RecoveryPassword;
  * @property-read mixed $total_payable
  * @property-read mixed $total_payable_humanize
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\File[] $files
+ * @property-read mixed $is_empty_password
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $introducers
  */
 class User extends Authenticatable implements HasMedia
 {

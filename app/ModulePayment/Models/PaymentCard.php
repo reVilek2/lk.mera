@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\PaymentCard whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\PaymentCard whereYear($value)
  * @mixin \Eloquent
+ * @property string|null $source
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\PaymentCard whereSource($value)
  */
 class PaymentCard extends Model
 {

@@ -45,6 +45,8 @@ use MoneyAmount;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\YandexPayment whereUserId($value)
  * @mixin \Eloquent
+ * @property string|null $source
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\ModulePayment\Models\Payment whereSource($value)
  */
 class Payment extends Model implements ModelPaymentInterface
 {
